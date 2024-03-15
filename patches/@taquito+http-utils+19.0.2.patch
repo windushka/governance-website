@@ -1,0 +1,13 @@
+diff --git a/node_modules/@taquito/http-utils/dist/taquito-http-utils.es6.js b/node_modules/@taquito/http-utils/dist/taquito-http-utils.es6.js
+index d9c0c9f..2de7511 100644
+--- a/node_modules/@taquito/http-utils/dist/taquito-http-utils.es6.js
++++ b/node_modules/@taquito/http-utils/dist/taquito-http-utils.es6.js
+@@ -411,7 +411,7 @@ let fetch = globalThis === null || globalThis === void 0 ? void 0 : globalThis.f
+ // default to the more stable node-fetch otherwise
+ const isNode = typeof process !== 'undefined' && !!((_a = process === null || process === void 0 ? void 0 : process.versions) === null || _a === void 0 ? void 0 : _a.node);
+ if (isNode) {
+-    fetch = require('node-fetch');
++    fetch = require('node-fetch').default;
+ }
+ class HttpBackend {
+     constructor(timeout = 30000) {
