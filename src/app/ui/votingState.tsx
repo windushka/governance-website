@@ -9,10 +9,10 @@ import PromotionState from '@/app/ui/promotionState';
 
 const apiProvider = new TzktApiProvider('https://api.ghostnet.tzkt.io');
 
-const readContractStateAtBlock = async (contractAddress: string, blockLevel: BigNumber): Promise<GovernanceState> => {
+const readContractStateAtBlock = async <T,>(contractAddress: string, blockLevel: BigNumber): Promise<GovernanceState<T>> => {
   noStore();
   console.warn('Request Contract State')
-  const provider = new RpcGovernanceStateProvider(contractAddress, 'https://rpc.tzkt.io/ghostnet', apiProvider);
+  const provider = new RpcGovernanceStateProvider<T>(contractAddress, 'https://rpc.tzkt.io/ghostnet', apiProvider);
   return await provider.getState(blockLevel);
 };
 
@@ -25,7 +25,7 @@ export default async function VotingState() {
   const blockLevel = await getCurrentBlockLevel();
   const timeBetweenBlocks = await apiProvider.getTimeBetweenBlocks();
 
-  const state = await readContractStateAtBlock('KT1MHAVKVVDSgZsKiwNrRfYpKHiTLLrtGqod', blockLevel);
+  const state = await readContractStateAtBlock<string>('KT1MHAVKVVDSgZsKiwNrRfYpKHiTLLrtGqod', blockLevel);
 
   const votingContext = state.votingContext;
   const { periodEndLevel } = votingContext.promotionPeriod ? votingContext.promotionPeriod : votingContext.proposalPeriod;
@@ -42,12 +42,14 @@ export default async function VotingState() {
         && <PeriodHeader periodType={PeriodType.Promotion} startLevel={votingContext.promotionPeriod.periodStartLevel} endLevel={votingContext.promotionPeriod.periodEndLevel} />}
     </div>
     <div>
+      <h1>Current Voting State</h1>
       <p>Current level: {blockLevel.toString()}</p>
       <p>Blocks remain: {blocksRemain.toString()}</p>
       <p>Period finishes: {timeRemains}</p>
       <br />
+      <br />
       <ProposalState proposalPeriod={votingContext.proposalPeriod} />
-      {votingContext.promotionPeriod && <><br /><PromotionState promotionPeriod={votingContext.promotionPeriod} /></>}
+      {votingContext.promotionPeriod && <><br /><br /><PromotionState promotionPeriod={votingContext.promotionPeriod} /></>}
     </div >
   </>
 }

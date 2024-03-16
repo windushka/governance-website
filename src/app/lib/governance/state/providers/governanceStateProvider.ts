@@ -1,11 +1,12 @@
-import { ActiveProposalPeriod, FinishedProposalPeriod, GovernanceState, PeriodType, Proposal, ProposalPeriodBase, VotingContext } from '../state';
+import { GovernanceState, PeriodType, Proposal, Upvoter, Voter, VotingContext } from '../state';
 import { BigMapAbstraction, ContractAbstraction, ContractProvider, TezosToolkit } from "@taquito/taquito";
-import { Config, GovernanceContractStorage, MichelsonPeriodType, PromotionPeriod, ProposalPeriod, VotingWinner, Proposal as MichelsonProposal } from "../../contract/storage";
+import { Config, GovernanceContractStorage, MichelsonPeriodType, PromotionPeriod, ProposalPeriod, VotingWinner, Proposal as MichelsonProposal, UpvotersProposalsKey } from "../../contract/storage";
 import { VotingState } from "../../contract/views";
 import BigNumber from 'bignumber.js';
 import { MichelsonOptional } from "../../contract/types";
 import { ApiProvider } from "../../../api/provider";
 import { HistoricalRpcClient } from '@/app/lib/rpc/historicalRpcClient';
+import { Baker } from '@/app/lib/api/dto';
 
 export interface GovernanceStateProvider<T = unknown> {
   getState(blockLevel: BigNumber): Promise<GovernanceState<T>>;
@@ -23,7 +24,7 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
   async getState(blockLevel: BigNumber): Promise<GovernanceState<T>> {
     const storage = await this.loadStorage(blockLevel);
     const stateViewResult = await this.callGetVotingStateView(blockLevel);
-    return await this.getStateCore(storage, stateViewResult);
+    return await this.getStateCore(storage, stateViewResult, blockLevel);
   }
 
   private async getContract(blockLevel: BigNumber): Promise<ContractAbstraction<ContractProvider>> {
@@ -110,7 +111,8 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
 
   private async getStateCore(
     storage: GovernanceContractStorage<T>,
-    stateViewResult: VotingState<T>
+    stateViewResult: VotingState<T>,
+    blockLevel: BigNumber
   ): Promise<GovernanceState<T>> {
     const periodIndex = stateViewResult.period_index;
     const periodType = 'proposal' in stateViewResult.period_type ? PeriodType.Proposal : PeriodType.Promotion;
@@ -146,7 +148,7 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
         : this.unpackLastWinnerPayload(storage.last_winner);
     }
 
-    return this.mapStorageToState(periodIndex, storage.config, proposalPeriod, promotionPeriod, lastWinner);
+    return this.mapStorageToState(periodIndex, storage.config, proposalPeriod, promotionPeriod, lastWinner, blockLevel);
   }
 
   private async mapStorageToState(
@@ -154,33 +156,26 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
     config: Config,
     proposal: ProposalPeriod<T>,
     promotion: PromotionPeriod<T> | undefined,
-    lastWinnerPayload: NonNullable<T> | undefined
+    lastWinnerPayload: NonNullable<T> | undefined,
+    blockLevel: BigNumber
   ): Promise<GovernanceState<T>> {
     const periodType = promotion ? PeriodType.Promotion : PeriodType.Proposal;
 
-    let proposals: Map<T, Proposal> = new Map();
-    if (proposal.proposals) {
-      const rawEntries = await this.apiProvider.getBigMapEntries<T, MichelsonProposal>(BigNumber(proposal.proposals.toString()));
-      const entries: Array<[T, Proposal]> = rawEntries.map(({ key, value }) => [
-        key,
-        {
-          proposer: value.proposer,
-          upvotesVotingPower: value.upvotes_voting_power
-        }
-      ]);
-      proposals = new Map(entries)
-    }
-
     const proposalPeriodIndex = periodType === PeriodType.Proposal ? periodIndex : periodIndex.minus(1);
-    let upvoters: Map<string, BigNumber> = new Map();
+    const proposalPeriodStartLevel = this.getFirstBlockOfPeriod(proposalPeriodIndex, config.started_at_level, config.period_length);
+    const proposalPeriodEndLevel = this.getLastBlockOfPeriod(proposalPeriodIndex, config.started_at_level, config.period_length);
+    const proposalPeriodBakers = await this.apiProvider.getBakers(BigNumber.min(proposalPeriodEndLevel, blockLevel));
+    const proposalPeriodBakersMap = new Map(proposalPeriodBakers.map(b => [b.address, b]));
+
+    //TODO: promise all
     const proposalPeriod = {
       totalVotingPower: proposal.total_voting_power,
       winnerCandidate: proposal.winner_candidate?.Some!,
       periodIndex: proposalPeriodIndex,
-      periodStartLevel: this.getFirstBlockOfPeriod(proposalPeriodIndex, config.started_at_level, config.period_length),
-      periodEndLevel: this.getLastBlockOfPeriod(proposalPeriodIndex, config.started_at_level, config.period_length),
-      proposals,
-      upvoters
+      periodStartLevel: proposalPeriodStartLevel,
+      periodEndLevel: proposalPeriodEndLevel,
+      proposals: await this.getProposals(proposal),
+      upvoters: await this.getUpvoters(proposal, proposalPeriodBakersMap)
     };
 
     //TODO: refactor
@@ -197,19 +192,24 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
       }
     } else {
       const promotionPeriodIndex = periodIndex;
+      const promotionPeriodStartLevel = this.getFirstBlockOfPeriod(promotionPeriodIndex, config.started_at_level, config.period_length);
+      const promotionPeriodEndLevel = this.getLastBlockOfPeriod(promotionPeriodIndex, config.started_at_level, config.period_length);
+      const promotionPeriodBakers = await this.apiProvider.getBakers(BigNumber.min(promotionPeriodEndLevel, blockLevel));
+      const promotionPeriodBakersMap = new Map(promotionPeriodBakers.map(b => [b.address, b]));
+
       votingContext = {
         ...votingContextBase,
         periodType,
         promotionPeriod: {
           periodIndex: promotionPeriodIndex,
-          periodStartLevel: this.getFirstBlockOfPeriod(promotionPeriodIndex, config.started_at_level, config.period_length),
-          periodEndLevel: this.getLastBlockOfPeriod(promotionPeriodIndex, config.started_at_level, config.period_length),
+          periodStartLevel: promotionPeriodStartLevel,
+          periodEndLevel: promotionPeriodEndLevel,
           totalVotingPower: promotion!.total_voting_power,
           yeaVotingPower: promotion!.yea_voting_power,
           nayVotingPower: promotion!.nay_voting_power,
           passVotingPower: promotion!.pass_voting_power,
           winnerCandidate: promotion!.winner_candidate,
-          voters: new Map(), //TODO: fill
+          voters: await this.getVoters(promotion!, promotionPeriodBakersMap)
         }
       }
     }
@@ -218,5 +218,47 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
       votingContext,
       lastWinnerPayload
     }
+  }
+
+  private async getProposals(proposalPeriod: ProposalPeriod): Promise<Proposal<T>[]> {
+    let proposals: Proposal<T>[] = [];
+    if (proposalPeriod.proposals) {
+      const rawEntries = await this.apiProvider.getBigMapEntries<T, MichelsonProposal>(BigNumber(proposalPeriod.proposals.toString()));
+      proposals = rawEntries.map(({ key, value }) => ({
+        key: key,
+        proposer: value.proposer,
+        upvotesVotingPower: value.upvotes_voting_power
+      }));
+    }
+
+    return proposals;
+  }
+
+  private async getUpvoters(proposalPeriod: ProposalPeriod, bakers: Map<Baker['address'], Baker>): Promise<Upvoter<T>[]> {
+    let upvoters: Upvoter<T>[] = [];
+    if (proposalPeriod.upvoters_proposals) {
+      const rawEntries = await this.apiProvider.getBigMapEntries<UpvotersProposalsKey<T>, never>(BigNumber(proposalPeriod.upvoters_proposals.toString()));
+      upvoters = rawEntries.map(({ key }) => ({
+        address: key.key_hash,
+        proposalKey: key.bytes, //TODO:
+        votingPower: bakers.get(key.key_hash)!.votingPower
+      } as Upvoter<T>));
+    }
+
+    return upvoters;
+  }
+
+  private async getVoters(promotionPeriod: PromotionPeriod, bakers: Map<Baker['address'], Baker>): Promise<Voter[]> {
+    let voters: Voter[] = [];
+    if (promotionPeriod.voters) {
+      const rawEntries = await this.apiProvider.getBigMapEntries<string, string>(BigNumber(promotionPeriod.voters.toString()));
+      voters = rawEntries.map(({ key, value }) => ({
+        address: key,
+        vote: value,
+        votingPower: bakers.get(key)!.votingPower
+      } as Voter));
+    }
+
+    return voters;
   }
 }

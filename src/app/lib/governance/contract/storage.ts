@@ -19,6 +19,11 @@ export interface Proposal {
   readonly upvotes_voting_power: BigNumber;
 }
 
+export interface UpvotersProposalsKey<T = unknown> {
+  readonly key_hash: string;
+  readonly bytes: T;
+}
+
 export interface ProposalPeriod<T = unknown> {
   readonly upvoters_upvotes_count: BigMapAbstraction | null;
   readonly upvoters_proposals: BigMapAbstraction | null;
@@ -29,7 +34,7 @@ export interface ProposalPeriod<T = unknown> {
 }
 
 export interface PromotionPeriod<T = unknown> {
-  readonly winner_candidate : NonNullable<T>;
+  readonly winner_candidate: NonNullable<T>;
   readonly voters: BigMapAbstraction | null;
   readonly yea_voting_power: BigNumber;
   readonly nay_voting_power: BigNumber;
