@@ -11,6 +11,11 @@ export enum Vote {
   Pass = 'pass'
 }
 
+export enum ContractType {
+  KernelGovernance,
+  SequencerCommitteeGovernance
+}
+
 export interface Proposal<T = unknown> {
   readonly key: T;
   readonly proposer: string;
@@ -76,22 +81,19 @@ export interface PromotionVotingContext<T = unknown> extends VotingContextBase {
 
 export type VotingContext<T> = ProposalVotingContext<T> | PromotionVotingContext<T>
 
-export interface GovernanceState<T = unknown> {
-  readonly votingContext: VotingContext<T>;
-  readonly lastWinnerPayload: NonNullable<T> | undefined;
-}
-
 export interface GovernanceConfig {
-  readonly name: string;
-  readonly description: string;
-  readonly type: string; //TODO: enum
   readonly startedAtLevel: BigNumber;
   readonly periodLength: BigNumber;
-  readonly adoptionPeriodSec?: BigNumber;
+  readonly adoptionPeriodSec: BigNumber;
   readonly upvotingLimit: BigNumber;
-  readonly proposersGovernanceContract: string | undefined;
-  readonly scale: BigNumber; //TODO: remove and use precalculated quorum and supermajority
   readonly proposalQuorum: BigNumber;
   readonly promotionQuorum: BigNumber;
   readonly promotionSupermajority: BigNumber;
 }
+
+export interface GovernanceState<T = unknown> {
+  readonly config: GovernanceConfig;
+  readonly votingContext: VotingContext<T>;
+  readonly lastWinnerPayload: NonNullable<T> | undefined;
+}
+

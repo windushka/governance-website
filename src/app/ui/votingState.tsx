@@ -46,6 +46,8 @@ export default async function VotingState() {
       <p>Current level: {blockLevel.toString()}</p>
       <p>Blocks remain: {blocksRemain.toString()}</p>
       <p>Period finishes: {timeRemains}</p>
+      <p>Last winner payload: {state.lastWinnerPayload}</p>
+      <p>Config: {JSON.stringify(state.config, undefined, 2)}</p>
       <br />
       <br />
       <ProposalState proposalPeriod={votingContext.proposalPeriod} />

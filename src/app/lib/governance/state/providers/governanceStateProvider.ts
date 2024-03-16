@@ -1,6 +1,6 @@
-import { GovernanceState, PeriodType, Proposal, Upvoter, Voter, VotingContext } from '../state';
+import { ContractType, GovernanceConfig, GovernanceState, PeriodType, Proposal, Upvoter, Voter, VotingContext } from '../state';
 import { BigMapAbstraction, ContractAbstraction, ContractProvider, TezosToolkit } from "@taquito/taquito";
-import { Config, GovernanceContractStorage, MichelsonPeriodType, PromotionPeriod, ProposalPeriod, VotingWinner, Proposal as MichelsonProposal, UpvotersProposalsKey } from "../../contract/storage";
+import { Config as MichelsonConfig, GovernanceContractStorage, MichelsonPeriodType, PromotionPeriod, ProposalPeriod, VotingWinner, Proposal as MichelsonProposal, UpvotersProposalsKey } from "../../contract/storage";
 import { VotingState } from "../../contract/views";
 import BigNumber from 'bignumber.js';
 import { MichelsonOptional } from "../../contract/types";
@@ -153,7 +153,7 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
 
   private async mapStorageToState(
     periodIndex: BigNumber,
-    config: Config,
+    config: MichelsonConfig,
     proposal: ProposalPeriod<T>,
     promotion: PromotionPeriod<T> | undefined,
     lastWinnerPayload: NonNullable<T> | undefined,
@@ -215,6 +215,7 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
     }
 
     return {
+      config: this.getConfig(config),
       votingContext,
       lastWinnerPayload
     }
@@ -260,5 +261,22 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
     }
 
     return voters;
+  }
+
+  private getConfig(config: MichelsonConfig): GovernanceConfig {
+    return {
+      startedAtLevel: config.started_at_level,
+      upvotingLimit: config.upvoting_limit,
+      adoptionPeriodSec: config.adoption_period_sec,
+      periodLength: config.period_length,
+      proposalQuorum: this.natToPercent(config.promotion_quorum, config.scale),
+      promotionQuorum: this.natToPercent(config.promotion_quorum, config.scale),
+      promotionSupermajority: this.natToPercent(config.promotion_supermajority, config.scale),
+    }
+  }
+
+  //TODO: move to utils
+  private natToPercent(value: BigNumber, scale: BigNumber) {
+    return value.multipliedBy(100).div(scale)
   }
 }
