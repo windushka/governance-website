@@ -41,23 +41,34 @@ export default async function VotingState() {
   const timeRemains = formatter.format(secondsRemain.toNumber(), 'seconds');
 
   return <>
-    <div className="flex gap-8 mb-4">
-      <span title="Period index">{votingContext.periodIndex.toString()}</span>
-      <PeriodHeader periodType={PeriodType.Proposal} startLevel={votingContext.proposalPeriod.periodStartLevel} endLevel={votingContext.proposalPeriod.periodEndLevel} />
-      {votingContext.periodType === PeriodType.Promotion
-        && <PeriodHeader periodType={PeriodType.Promotion} startLevel={votingContext.promotionPeriod.periodStartLevel} endLevel={votingContext.promotionPeriod.periodEndLevel} />}
+    <div className="flex flex-row justify-between items-center pb-4 mb-8 border-b">
+      <div className="flex flex-row gap-10 ">
+        <span>Period: {votingContext.periodIndex.toString()}</span>
+        <PeriodHeader periodType={PeriodType.Proposal} startLevel={votingContext.proposalPeriod.periodStartLevel} endLevel={votingContext.proposalPeriod.periodEndLevel} />
+        {<PeriodHeader
+          disabled={!votingContext.promotionPeriod}
+          periodType={PeriodType.Promotion}
+          startLevel={votingContext.promotionPeriod?.periodStartLevel}
+          endLevel={votingContext.promotionPeriod?.periodEndLevel} />}
+      </div>
+      <span>Config</span>
     </div>
     <div>
-      <h1>Current Voting State</h1> 
-      <p>Current level: {blockLevel.toString()}</p>
-      <p>Blocks remain: {blocksRemain.toString()}</p>
-      <p>Period finishes: {timeRemains}</p>
-      <p>Last winner payload: {state.lastWinnerPayload}</p>
-      <p>Config: {JSON.stringify(config, undefined, 2)}</p>
+      {votingContext.promotionPeriod
+        ? <PromotionState promotionPeriod={votingContext.promotionPeriod} config={config}/>
+        : <ProposalState proposalPeriod={votingContext.proposalPeriod} config={config}/>}
+
       <br />
       <br />
-      <ProposalState proposalPeriod={votingContext.proposalPeriod} />
-      {votingContext.promotionPeriod && <><br /><br /><PromotionState promotionPeriod={votingContext.promotionPeriod} /></>}
+      <div className='text-slate-400'>
+        <h1>Technical info:</h1>
+        <p>Contract: {contractAddress}</p>
+        <p>Current level: {blockLevel.toString()}</p>
+        <p>Blocks remain: {blocksRemain.toString()}</p>
+        <p>Period finishes: {timeRemains}</p>
+        <p>Last winner payload: {state.lastWinnerPayload}</p>
+        <p>Config: {JSON.stringify(config, undefined, 2)}</p>
+      </div>
     </div >
   </>
 }

@@ -1,23 +1,72 @@
 import { PromotionPeriod } from "@/app/lib/governance/state/state";
+import BigNumber from 'bignumber.js';
+import { getPromotionQuorumPercent, getPromotionSupermajorityPercent } from "../lib/governance/utils/calculators";
+import { GovernanceConfig } from "../lib/governance/config/config";
+import { clsx } from "clsx";
 
 interface PromotionStateProps {
-    promotionPeriod: PromotionPeriod
+  promotionPeriod: PromotionPeriod;
+  config: GovernanceConfig;
 }
 
-export default function PromotionState({ promotionPeriod }: PromotionStateProps) {
-    const votersList = promotionPeriod.voters.length ? <ul>
-        {promotionPeriod.voters.map(v => <li key={v.address}>{v.address} voted &quot;{v.vote}&quot; with voting power {v.votingPower.toString()}</li>)}
-    </ul> : <span className="block">No Voters</span>
-    return <>
-        <h2>Promotion</h2>
-        <p>Period index: {promotionPeriod.periodIndex.toString()}</p>
-        <p>Winner candidate: {JSON.stringify(promotionPeriod.winnerCandidate)}</p>
-        <p>Total voting power: {promotionPeriod.totalVotingPower.toString()}</p>
-        <p>Yea voting power: {promotionPeriod.yeaVotingPower.toString()}</p>
-        <p>Nay voting power: {promotionPeriod.nayVotingPower.toString()}</p>
-        <p>Pass voting power: {promotionPeriod.passVotingPower.toString()}</p>
-        <br />
-        <h2>Voters</h2>
-        {votersList}
-    </>
+//TODO: separate file
+interface TotalVoteCardProps {
+  text: string;
+  value: BigNumber;
+}
+
+const TotalVoteCard = ({ text, value }: TotalVoteCardProps) => {
+  return <div className="flex flex-column gap-8 border border-slate-500 py-4 px-8">
+    <span>{text}</span>
+    <span>{value.toString()}</span>
+  </div>
+}
+
+export default function PromotionState({ promotionPeriod, config }: PromotionStateProps) {
+  const tableCellClass = 'text-center border border-slate-500 p-2';
+
+  const votersTable = promotionPeriod.voters.length ? <table className="table-auto w-full border-collapse border border-slate-500">
+    <thead>
+      <tr>
+        <th className={tableCellClass}>Baker</th>
+        <th className={tableCellClass}>Voting Power</th>
+        <th className={tableCellClass}>Vote</th>
+      </tr>
+    </thead>
+    <tbody>
+      {promotionPeriod.voters.map(v =>
+        <tr key={v.address}>
+          <td className={tableCellClass}>{v.address}</td>
+          <td className={tableCellClass}>{v.votingPower.toString()}</td>
+          <td className={tableCellClass}>{v.vote}</td>
+        </tr>)}
+    </tbody>
+  </table> : <span className="block">No Voters</span>;
+
+  const promotionSupermajority = getPromotionSupermajorityPercent(promotionPeriod.yeaVotingPower, promotionPeriod.nayVotingPower);
+  const promotionQuorum = getPromotionQuorumPercent(promotionPeriod.yeaVotingPower, promotionPeriod.nayVotingPower, promotionPeriod.passVotingPower, promotionPeriod.totalVotingPower);
+
+  return <>
+    <div className="flex flex-row justify-between mb-8">
+      <div className="flex flex-col">
+        <span>Candidate:</span>
+        <span>0x{(promotionPeriod.winnerCandidate as string)}</span>
+      </div>
+      <div className="flex flex-col">
+        <span className={clsx({ 'text-emerald-500': promotionSupermajority.gte(config.promotionSupermajority) })}>
+          Promotion supermajority: {promotionSupermajority.toFixed(2)}% of {config.promotionSupermajority.toFixed(2)}%
+        </span>
+        <span className={clsx({ 'text-emerald-500': promotionQuorum.gte(config.promotionQuorum) })}>
+          Promotion quorum: {promotionQuorum.toFixed(2)}% of {config.promotionQuorum.toFixed(2)}%
+        </span>
+      </div>
+    </div>
+    <div className="flex flex-row justify-between">
+      <TotalVoteCard text="Yea voting power" value={promotionPeriod.yeaVotingPower} />
+      <TotalVoteCard text="Nay voting power" value={promotionPeriod.nayVotingPower} />
+      <TotalVoteCard text="Pass voting power" value={promotionPeriod.passVotingPower} />
+    </div>
+    <br />
+    {votersTable}
+  </>
 }

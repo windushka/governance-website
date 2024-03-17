@@ -17,8 +17,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
-        <header className="container grow-0 mb-4 py-4 border-b">
+        <header className="container grow-0 mb-4 py-4 border-b flex flex-row justify-between items-center">
           <span className="text-2xl">Etherlink governance</span>
+          <div><b>Ghostnet</b> | Mainnet</div>
+          <div><b>Kernel</b> | Security | Committee</div>
         </header>
         <main className="container grow">{children}</main>
         <footer className="container grow-0">Footer</footer>

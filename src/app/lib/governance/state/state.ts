@@ -39,10 +39,12 @@ export interface ProposalPeriodBase<T = unknown> {
 
 export interface ActiveProposalPeriod<T = unknown> extends ProposalPeriodBase<T> {
   readonly winnerCandidate: NonNullable<T> | undefined;
+  readonly candidateUpvotesVotingPower: BigNumber | undefined;
 }
 
 export interface FinishedProposalPeriod<T = unknown> extends ProposalPeriodBase<T> {
   readonly winnerCandidate: NonNullable<T>;
+  readonly candidateUpvotesVotingPower: BigNumber;
 }
 
 export interface Voter {

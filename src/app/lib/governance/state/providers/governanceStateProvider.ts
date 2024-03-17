@@ -171,6 +171,7 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
     const proposalPeriod = {
       totalVotingPower: proposal.total_voting_power,
       winnerCandidate: proposal.winner_candidate?.Some!,
+      candidateUpvotesVotingPower: proposal.max_upvotes_voting_power?.Some!, 
       periodIndex: proposalPeriodIndex,
       periodStartLevel: proposalPeriodStartLevel,
       periodEndLevel: proposalPeriodEndLevel,
