@@ -81,18 +81,7 @@ export interface PromotionVotingContext<T = unknown> extends VotingContextBase {
 
 export type VotingContext<T> = ProposalVotingContext<T> | PromotionVotingContext<T>
 
-export interface GovernanceConfig {
-  readonly startedAtLevel: BigNumber;
-  readonly periodLength: BigNumber;
-  readonly adoptionPeriodSec: BigNumber;
-  readonly upvotingLimit: BigNumber;
-  readonly proposalQuorum: BigNumber;
-  readonly promotionQuorum: BigNumber;
-  readonly promotionSupermajority: BigNumber;
-}
-
 export interface GovernanceState<T = unknown> {
-  readonly config: GovernanceConfig;
   readonly votingContext: VotingContext<T>;
   readonly lastWinnerPayload: NonNullable<T> | undefined;
 }

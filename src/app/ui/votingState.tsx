@@ -6,13 +6,17 @@ import { unstable_noStore as noStore } from 'next/cache';
 import ProposalState from '@/app/ui/proposalState';
 import PeriodHeader from '@/app/ui/periodHeader';
 import PromotionState from '@/app/ui/promotionState';
+import { RpcGovernanceConfigProvider } from '../lib/governance/config/providers/governanceConfigProvider';
+import { TezosToolkit } from '@taquito/taquito';
 
+const rpcUrl = 'https://rpc.tzkt.io/ghostnet';
 const apiProvider = new TzktApiProvider('https://api.ghostnet.tzkt.io');
+const configProvider = new RpcGovernanceConfigProvider(new TezosToolkit(rpcUrl));
 
 const readContractStateAtBlock = async <T,>(contractAddress: string, blockLevel: BigNumber): Promise<GovernanceState<T>> => {
   noStore();
   console.warn('Request Contract State')
-  const provider = new RpcGovernanceStateProvider<T>(contractAddress, 'https://rpc.tzkt.io/ghostnet', apiProvider);
+  const provider = new RpcGovernanceStateProvider<T>(contractAddress, rpcUrl, apiProvider);
   return await provider.getState(blockLevel);
 };
 
@@ -22,10 +26,12 @@ const getCurrentBlockLevel = async () => {
 }
 
 export default async function VotingState() {
+  const contractAddress = 'KT1MHAVKVVDSgZsKiwNrRfYpKHiTLLrtGqod';
   const blockLevel = await getCurrentBlockLevel();
   const timeBetweenBlocks = await apiProvider.getTimeBetweenBlocks();
 
-  const state = await readContractStateAtBlock<string>('KT1MHAVKVVDSgZsKiwNrRfYpKHiTLLrtGqod', blockLevel);
+  const state = await readContractStateAtBlock<string>(contractAddress, blockLevel);
+  const config = await configProvider.getConfig(contractAddress);
 
   const votingContext = state.votingContext;
   const { periodEndLevel } = votingContext.promotionPeriod ? votingContext.promotionPeriod : votingContext.proposalPeriod;
@@ -42,12 +48,12 @@ export default async function VotingState() {
         && <PeriodHeader periodType={PeriodType.Promotion} startLevel={votingContext.promotionPeriod.periodStartLevel} endLevel={votingContext.promotionPeriod.periodEndLevel} />}
     </div>
     <div>
-      <h1>Current Voting State</h1>
+      <h1>Current Voting State</h1> 
       <p>Current level: {blockLevel.toString()}</p>
       <p>Blocks remain: {blocksRemain.toString()}</p>
       <p>Period finishes: {timeRemains}</p>
       <p>Last winner payload: {state.lastWinnerPayload}</p>
-      <p>Config: {JSON.stringify(state.config, undefined, 2)}</p>
+      <p>Config: {JSON.stringify(config, undefined, 2)}</p>
       <br />
       <br />
       <ProposalState proposalPeriod={votingContext.proposalPeriod} />
