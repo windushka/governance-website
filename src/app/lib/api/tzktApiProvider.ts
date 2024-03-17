@@ -23,23 +23,14 @@ export class TzktApiProvider implements ApiProvider {
   }
 
   async getTezosVotingPeriodIndex(level: BigNumber): Promise<BigNumber> {
-    //TODO: ask tzkt for filtering on server
     const levelNumber = level.toNumber();
-    const limit = 100;
-    let offset = 0;
     const url = `${this.baseUrl}/v1/voting/periods`;
     const params = {
-      'sort.desc': 'id',
-      select: 'index,firstLevel,lastLevel',
-      limit: limit.toString()
+      'firstLevel.le': levelNumber.toString(),
+      'lastLevel.ge': levelNumber.toString(),
     };
-    let periodsChunk: TzktTezosPeriodInfo[] = [];
-    let result: number | undefined;
-    do {
-      periodsChunk = await this.fetchJson<TzktTezosPeriodInfo[]>(url, { ...params, offset: offset.toString() });
-      result = periodsChunk.find(p => p.firstLevel <= levelNumber && p.lastLevel >= levelNumber)?.index
-      offset += limit;
-    } while (periodsChunk.length && result === undefined)
+    const periods: TzktTezosPeriodInfo[] = await this.fetchJson<TzktTezosPeriodInfo[]>(url, params)
+    const result = periods[0]?.index
 
     if (result === undefined)
       throw new Error(`Impossible to find tezos voting period index for level ${level.toString()}`)

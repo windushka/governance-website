@@ -51,10 +51,10 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
 
   return <>
     <div className="flex flex-row justify-between">
+      <h2>Proposals</h2>
       <span className={clsx({ 'text-emerald-500': proposalQuorum.gte(config.proposalQuorum) })}>
         Proposal quorum: {proposalQuorum.toFixed(2)}% of {config.proposalQuorum.toFixed(2)}%
       </span>
-      <h2>Proposals</h2>
     </div>
     {proposalList}
 
