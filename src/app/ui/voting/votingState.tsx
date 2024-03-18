@@ -3,11 +3,12 @@ import { RpcGovernanceStateProvider } from '@/app/lib/governance/state/providers
 import BigNumber from 'bignumber.js';
 import { GovernanceState, PeriodType } from '@/app/lib/governance/state/state';
 import { unstable_noStore as noStore } from 'next/cache';
-import ProposalState from '@/app/ui/proposalState';
-import PeriodHeader from '@/app/ui/periodHeader';
-import PromotionState from '@/app/ui/promotionState';
-import { RpcGovernanceConfigProvider } from '../lib/governance/config/providers/governanceConfigProvider';
+import ProposalState from '@/app/ui/voting/proposalState';
+import PeriodHeader from '@/app/ui/voting/periodHeader';
+import PromotionState from '@/app/ui/voting/promotionState';
+import { RpcGovernanceConfigProvider } from '../../lib/governance/config/providers/governanceConfigProvider';
 import { TezosToolkit } from '@taquito/taquito';
+import { redirect } from 'next/navigation';
 
 const rpcUrl = 'https://rpc.tzkt.io/ghostnet';
 const apiProvider = new TzktApiProvider('https://api.ghostnet.tzkt.io');
@@ -25,7 +26,11 @@ const getCurrentBlockLevel = async () => {
   return await apiProvider.getCurrentBlockLevel();
 }
 
-export default async function VotingState() {
+interface VotingStateProps {
+  periodIndex?: string[] | undefined;
+}
+
+export default async function VotingState(props: VotingStateProps) {
   const contractAddress = 'KT1MHAVKVVDSgZsKiwNrRfYpKHiTLLrtGqod';
   const blockLevel = await getCurrentBlockLevel();
   const timeBetweenBlocks = await apiProvider.getTimeBetweenBlocks();
@@ -40,13 +45,27 @@ export default async function VotingState() {
   const formatter = new Intl.RelativeTimeFormat('en', { numeric: 'always', style: 'long' });
   const timeRemains = formatter.format(secondsRemain.toNumber(), 'seconds');
 
+  const redirectUrl = `/period/${votingContext.periodIndex}`;
+
+  if (!props.periodIndex || props.periodIndex.length !== 1)
+    redirect(redirectUrl);
+
+  const periodIndex = BigNumber(props.periodIndex[0])
+  if (periodIndex.isNaN() || periodIndex > votingContext.periodIndex || periodIndex < votingContext.proposalPeriod.periodIndex)
+    redirect(redirectUrl);
+
   return <>
     <div className="flex flex-row justify-between items-center pb-4 mb-8 border-b">
       <div className="flex flex-row gap-10 ">
-        <span>Period: {votingContext.periodIndex.toString()}</span>
-        <PeriodHeader periodType={PeriodType.Proposal} startLevel={votingContext.proposalPeriod.periodStartLevel} endLevel={votingContext.proposalPeriod.periodEndLevel} />
+        <span>Period: {periodIndex.toString()}</span>
+        <PeriodHeader
+          periodType={PeriodType.Proposal}
+          periodIndex={votingContext.proposalPeriod.periodIndex}
+          startLevel={votingContext.proposalPeriod.periodStartLevel}
+          endLevel={votingContext.proposalPeriod.periodEndLevel} />
         {<PeriodHeader
           disabled={!votingContext.promotionPeriod}
+          periodIndex={votingContext.proposalPeriod.periodIndex.plus(1)}
           periodType={PeriodType.Promotion}
           startLevel={votingContext.promotionPeriod?.periodStartLevel}
           endLevel={votingContext.promotionPeriod?.periodEndLevel} />}
@@ -54,9 +73,9 @@ export default async function VotingState() {
       <span>Config</span>
     </div>
     <div>
-      {votingContext.promotionPeriod
-        ? <PromotionState promotionPeriod={votingContext.promotionPeriod} config={config}/>
-        : <ProposalState proposalPeriod={votingContext.proposalPeriod} config={config}/>}
+      {votingContext.promotionPeriod && periodIndex.eq(votingContext.promotionPeriod.periodIndex)
+        ? <PromotionState promotionPeriod={votingContext.promotionPeriod} config={config} />
+        : <ProposalState proposalPeriod={votingContext.proposalPeriod} config={config} />}
 
       <br />
       <br />

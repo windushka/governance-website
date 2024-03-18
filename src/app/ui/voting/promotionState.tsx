@@ -1,7 +1,7 @@
 import { PromotionPeriod } from "@/app/lib/governance/state/state";
 import BigNumber from 'bignumber.js';
-import { getPromotionQuorumPercent, getPromotionSupermajorityPercent } from "../lib/governance/utils/calculators";
-import { GovernanceConfig } from "../lib/governance/config/config";
+import { getPromotionQuorumPercent, getPromotionSupermajorityPercent } from "../../lib/governance/utils/calculators";
+import { GovernanceConfig } from "../../lib/governance/config/config";
 import { clsx } from "clsx";
 
 interface PromotionStateProps {
@@ -47,17 +47,17 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
   const promotionQuorum = getPromotionQuorumPercent(promotionPeriod.yeaVotingPower, promotionPeriod.nayVotingPower, promotionPeriod.passVotingPower, promotionPeriod.totalVotingPower);
 
   return <>
-    <div className="flex flex-row justify-between mb-8">
+    <div className="flex flex-row justify-between items-center mb-8">
       <div className="flex flex-col">
         <span>Candidate:</span>
-        <span>0x{(promotionPeriod.winnerCandidate as string)}</span>
+        <span className="text-xl">0x{(promotionPeriod.winnerCandidate as string)}</span>
       </div>
       <div className="flex flex-col">
         <span className={clsx({ 'text-emerald-500': promotionSupermajority.gte(config.promotionSupermajority) })}>
-          Promotion supermajority: {promotionSupermajority.toFixed(2)}% of {config.promotionSupermajority.toFixed(2)}%
+          Supermajority: {promotionSupermajority.toFixed(2)}% of {config.promotionSupermajority.toFixed(2)}%
         </span>
         <span className={clsx({ 'text-emerald-500': promotionQuorum.gte(config.promotionQuorum) })}>
-          Promotion quorum: {promotionQuorum.toFixed(2)}% of {config.promotionQuorum.toFixed(2)}%
+          Quorum: {promotionQuorum.toFixed(2)}% of {config.promotionQuorum.toFixed(2)}%
         </span>
       </div>
     </div>

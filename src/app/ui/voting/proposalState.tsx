@@ -1,7 +1,7 @@
 import { ActiveProposalPeriod, FinishedProposalPeriod } from "@/app/lib/governance/state/state";
-import { getProposalQuorumPercent } from "../lib/governance/utils/calculators";
+import { getProposalQuorumPercent } from "../../lib/governance/utils/calculators";
 import BigNumber from 'bignumber.js'
-import { GovernanceConfig } from "../lib/governance/config/config";
+import { GovernanceConfig } from "../../lib/governance/config/config";
 import clsx from 'clsx';
 
 interface ProposalStateProps {
@@ -12,18 +12,18 @@ interface ProposalStateProps {
 export default function ProposalState({ proposalPeriod, config }: ProposalStateProps) {
   const proposalList = proposalPeriod.proposals.length ? <ul>
     {proposalPeriod.proposals.map(p =>
-      <li key={p.key} className={clsx("block flex flex-row justify-between py-4 px-8 border border-slate-500 mb-4", { 'text-emerald-500': p.key === proposalPeriod.winnerCandidate })}>
+      <li key={p.key} className={clsx("block flex flex-row justify-between py-8 px-8 border border-slate-500 mb-4", { 'border-emerald-500': p.key === proposalPeriod.winnerCandidate })}>
         <div className="flex flex-col">
-          <span className="mb-2">
-            proposer: {p.proposer}
+          <span className="mb-1">
+            Proposer: {p.proposer}
           </span>
-          <span>
-            payload: 0x{p.key}
+          <span className="text-xl">
+            0x{p.key}
           </span>
         </div>
         <div className="flex flex-col">
-          <span className="mb-2">upvotes:</span>
-          <span>{p.upvotesVotingPower.toString()}</span>
+          <span className="mb-1">upvotes:</span>
+          <span className="text-xl">{p.upvotesVotingPower.toString()}</span>
         </div>
       </li>)}
   </ul> : <span className="block">No Proposals</span>
@@ -50,16 +50,16 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
   const proposalQuorum = getProposalQuorumPercent(proposalPeriod.candidateUpvotesVotingPower || BigNumber(0), proposalPeriod.totalVotingPower)
 
   return <>
-    <div className="flex flex-row justify-between">
-      <h2>Proposals</h2>
+    <div className="flex flex-row justify-between items-center mb-2">
+      <h2 className="text-xl">Proposals</h2>
       <span className={clsx({ 'text-emerald-500': proposalQuorum.gte(config.proposalQuorum) })}>
-        Proposal quorum: {proposalQuorum.toFixed(2)}% of {config.proposalQuorum.toFixed(2)}%
+        Quorum: {proposalQuorum.toFixed(2)}% of {config.proposalQuorum.toFixed(2)}%
       </span>
     </div>
     {proposalList}
 
     <br />
-    <h2>Upvoters</h2>
+    <h2 className="text-xl mb-2">Upvoters</h2>
     {upvotersTable}
   </>
 }
