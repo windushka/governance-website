@@ -223,7 +223,7 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
       }));
     }
 
-    return proposals;
+    return proposals.toSorted((a, b) => b.upvotesVotingPower.comparedTo(a.upvotesVotingPower));
   }
 
   private async getUpvoters(proposalPeriod: ProposalPeriod, bakers: Map<Baker['address'], Baker>): Promise<Upvoter<T>[]> {
