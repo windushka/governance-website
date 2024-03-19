@@ -8,4 +8,5 @@ export interface ApiProvider {
     getBakers(level: BigNumber): Promise<Baker[]>;
     getTotalVotingPower(level: BigNumber): Promise<BigNumber>;
     getBigMapEntries<K, V>(id: BigNumber): Promise<Array<TzktBigMapEntry<K, V>>>;
+    getContractOriginationLevel(address: string): Promise<BigNumber>;
 }

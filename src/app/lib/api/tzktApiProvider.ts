@@ -7,6 +7,11 @@ export class TzktApiProvider implements ApiProvider {
     private readonly baseUrl: string
   ) { }
 
+  async getContractOriginationLevel(address: string): Promise<BigNumber> {
+    const url = `${this.baseUrl}/v1/contracts/${address}`;
+    return BigNumber((await this.fetchJson(url) as any).firstActivity);
+  }
+
   async getCurrentBlockLevel(): Promise<BigNumber> {
     const url = `${this.baseUrl}/v1/head`;
     return BigNumber((await this.fetchJson(url) as any).level);

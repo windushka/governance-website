@@ -25,6 +25,10 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
   async getState(contractAddress: string, config: GovernanceConfig, periodIndex: BigNumber): Promise<GovernanceState<T>> {
     const currentBlockLevel = BigNumber((await this.getToolkit().rpc.getBlockHeader()).level);
     const blockLevel = BigNumber.min(getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength), currentBlockLevel);
+    const originatedAtLevel = await this.apiProvider.getContractOriginationLevel(contractAddress);
+    if (blockLevel.lte(originatedAtLevel))
+      return await this.getEmptyGovernanceState(periodIndex, config);
+
     const toolkit = this.getToolkit(blockLevel);
     const storage = await this.loadStorage(contractAddress, toolkit);
     const stateViewResult = await this.callGetVotingStateView(contractAddress, toolkit);
@@ -72,6 +76,31 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
       pass_voting_power: BigNumber(0),
       voters: null,
       total_voting_power: totalVotingPower
+    }
+  }
+
+  private async getEmptyGovernanceState(periodIndex: BigNumber, config: GovernanceConfig): Promise<GovernanceState<T>> {
+    const periodStartLevel = getFirstBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
+    const periodEndLevel = getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
+    const totalVotingPower = await this.apiProvider.getTotalVotingPower(periodStartLevel)
+
+    return {
+      votingContext: {
+        periodIndex: periodIndex,
+        periodType: PeriodType.Proposal,
+        proposalPeriod: {
+          periodIndex,
+          periodStartLevel,
+          periodEndLevel,
+          totalVotingPower,
+          proposals: [],
+          upvoters: [],
+          winnerCandidate: undefined,
+          candidateUpvotesVotingPower: undefined,
+        },
+        promotionPeriod: undefined,
+      },
+      lastWinnerPayload: undefined
     }
   }
 
@@ -182,7 +211,7 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
       periodType,
       promotionPeriod: undefined
     }
-    
+
     if (promotion) {
       const promotionPeriodIndex = periodType === PeriodType.Proposal ? periodIndex.plus(1) : periodIndex;
       const promotionPeriodStartLevel = getFirstBlockOfPeriod(promotionPeriodIndex, config.started_at_level, config.period_length);
