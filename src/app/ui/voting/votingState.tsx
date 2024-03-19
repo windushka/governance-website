@@ -6,19 +6,21 @@ import { unstable_noStore as noStore } from 'next/cache';
 import ProposalState from '@/app/ui/voting/proposalState';
 import PeriodHeader from '@/app/ui/voting/periodHeader';
 import PromotionState from '@/app/ui/voting/promotionState';
-import { RpcGovernanceConfigProvider } from '../../lib/governance/config/providers/governanceConfigProvider';
+import { RpcGovernanceConfigProvider } from '@/app/lib/governance/config/providers/governanceConfigProvider';
 import { TezosToolkit } from '@taquito/taquito';
 import { redirect } from 'next/navigation';
+import { GovernanceConfig } from '@/app/lib/governance/config/config';
+import { getCurrentPeriodIndex, getFirstBlockOfPeriod, getLastBlockOfPeriod } from '@/app/lib/governance/utils/calculators';
 
 const rpcUrl = 'https://rpc.tzkt.io/ghostnet';
 const apiProvider = new TzktApiProvider('https://api.ghostnet.tzkt.io');
 const configProvider = new RpcGovernanceConfigProvider(new TezosToolkit(rpcUrl));
 
-const getContractState = async <T,>(contractAddress: string, blockLevel: BigNumber): Promise<GovernanceState<T>> => {
+const getContractState = async <T,>(contractAddress: string, config: GovernanceConfig, periodIndex: BigNumber): Promise<GovernanceState<T>> => {
   noStore();
   console.warn('Request Contract State')
   const provider = new RpcGovernanceStateProvider<T>(rpcUrl, apiProvider);
-  return await provider.getState(contractAddress, blockLevel);
+  return await provider.getState(contractAddress, config, periodIndex);
 };
 
 const getCurrentBlockLevel = async () => {
@@ -32,27 +34,26 @@ interface VotingStateProps {
 }
 
 export default async function VotingState(props: VotingStateProps) {
-  const blockLevel = await getCurrentBlockLevel();
+  const currentBlockLevel = await getCurrentBlockLevel();
   const timeBetweenBlocks = await apiProvider.getTimeBetweenBlocks();
-
-  const state = await getContractState<string>(props.contractAddress, blockLevel);
   const config = await configProvider.getConfig(props.contractAddress);
+  const { startedAtLevel, periodLength } = config;
+  const currentPeriodIndex = getCurrentPeriodIndex(currentBlockLevel, startedAtLevel, periodLength);
+  const redirectUrl = `/period/${currentPeriodIndex.toString()}`;
+
+  const periodIndex = props.periodIndex && props.periodIndex.length === 1 ? BigNumber(props.periodIndex[0]) : undefined;
+  if (!periodIndex || periodIndex.isNaN() || periodIndex.gt(currentPeriodIndex) || periodIndex.lt(0))
+    redirect(redirectUrl);
+
+  const state = await getContractState<string>(props.contractAddress, config, periodIndex);
 
   const votingContext = state.votingContext;
   const { periodEndLevel } = votingContext.promotionPeriod ? votingContext.promotionPeriod : votingContext.proposalPeriod;
-  const blocksRemain = periodEndLevel.minus(blockLevel).plus(1);
+  const blocksRemain = periodEndLevel.minus(currentBlockLevel).plus(1);
   const secondsRemain = blocksRemain.multipliedBy(timeBetweenBlocks);
   const formatter = new Intl.RelativeTimeFormat('en', { numeric: 'always', style: 'long' });
   const timeRemains = formatter.format(secondsRemain.toNumber(), 'seconds');
-
-  const redirectUrl = `/period/${votingContext.periodIndex}`;
-
-  if (!props.periodIndex || props.periodIndex.length !== 1)
-    redirect(redirectUrl);
-
-  const periodIndex = BigNumber(props.periodIndex[0])
-  if (periodIndex.isNaN() || periodIndex > votingContext.periodIndex || periodIndex < votingContext.proposalPeriod.periodIndex)
-    redirect(redirectUrl);
+  const promotionPeriodIndex = votingContext.proposalPeriod.periodIndex.plus(1);
 
   return <>
     <div className="flex flex-row justify-between items-center pb-4 mb-8 border-b">
@@ -63,12 +64,12 @@ export default async function VotingState(props: VotingStateProps) {
           periodIndex={votingContext.proposalPeriod.periodIndex}
           startLevel={votingContext.proposalPeriod.periodStartLevel}
           endLevel={votingContext.proposalPeriod.periodEndLevel} />
-        {<PeriodHeader
+        {(votingContext.promotionPeriod || currentPeriodIndex.eq(votingContext.proposalPeriod.periodIndex)) && <PeriodHeader
           disabled={!votingContext.promotionPeriod}
-          periodIndex={votingContext.proposalPeriod.periodIndex.plus(1)}
+          periodIndex={promotionPeriodIndex}
           periodType={PeriodType.Promotion}
-          startLevel={votingContext.promotionPeriod?.periodStartLevel}
-          endLevel={votingContext.promotionPeriod?.periodEndLevel} />}
+          startLevel={votingContext.promotionPeriod?.periodStartLevel || getFirstBlockOfPeriod(promotionPeriodIndex, startedAtLevel, periodLength)}
+          endLevel={votingContext.promotionPeriod?.periodEndLevel || getLastBlockOfPeriod(promotionPeriodIndex, startedAtLevel, periodLength)} />}
       </div>
       <span>Config</span>
     </div>
@@ -81,9 +82,10 @@ export default async function VotingState(props: VotingStateProps) {
     <div className='text-slate-400'>
       <h1>Temp technical info:</h1>
       <p>Contract: {props.contractAddress}</p>
-      <p>Current level: {blockLevel.toString()}</p>
+      <p>Current level: {currentBlockLevel.toString()}</p>
       <p>Blocks remain: {blocksRemain.toString()} ({timeRemains})</p>
       <p>Last winner payload: {state.lastWinnerPayload}</p>
+      <p>{JSON.stringify(votingContext, undefined, 2)}</p>
     </div>
   </>
 }

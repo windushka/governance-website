@@ -1,4 +1,4 @@
-import { ActiveProposalPeriod, FinishedProposalPeriod } from "@/app/lib/governance/state/state";
+import { ProposalPeriod } from "@/app/lib/governance/state/state";
 import { getProposalQuorumPercent } from "../../lib/governance/utils/calculators";
 import BigNumber from 'bignumber.js'
 import { GovernanceConfig } from "../../lib/governance/config/config";
@@ -7,7 +7,7 @@ import VotingPower from "@/app/ui/common/votingPower";
 import NoData from "@/app/ui//common/noData";
 
 interface ProposalStateProps {
-  proposalPeriod: ActiveProposalPeriod<string> | FinishedProposalPeriod<string>;
+  proposalPeriod: ProposalPeriod<string>;
   config: GovernanceConfig;
 }
 

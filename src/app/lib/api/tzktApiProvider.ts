@@ -17,12 +17,12 @@ export class TzktApiProvider implements ApiProvider {
     return BigNumber((await this.fetchJson(url) as any).constants.timeBetweenBlocks);
   }
 
-  async getTotalVotingPower(): Promise<BigNumber> {
-    const url = `${this.baseUrl}/v1/voting/periods/current`;
-    return BigNumber((await this.fetchJson(url) as any).totalVotingPower);
+  async getTotalVotingPower(level: BigNumber): Promise<BigNumber> {
+    const period = await this.getTezosVotingPeriod(level)
+    return BigNumber(period.totalVotingPower);
   }
 
-  async getTezosVotingPeriodIndex(level: BigNumber): Promise<BigNumber> {
+  async getTezosVotingPeriod(level: BigNumber): Promise<TzktTezosPeriodInfo> {
     const levelNumber = level.toNumber();
     const url = `${this.baseUrl}/v1/voting/periods`;
     const params = {
@@ -30,17 +30,18 @@ export class TzktApiProvider implements ApiProvider {
       'lastLevel.ge': levelNumber.toString(),
     };
     const periods: TzktTezosPeriodInfo[] = await this.fetchJson<TzktTezosPeriodInfo[]>(url, params)
-    const result = periods[0]?.index
+    const result = periods[0]
 
     if (result === undefined)
-      throw new Error(`Impossible to find tezos voting period index for level ${level.toString()}`)
+      throw new Error(`Impossible to find tezos voting period for level ${level.toString()}`)
 
-    return BigNumber(result)
+    return result;
   }
 
   async getBakers(level: BigNumber): Promise<Baker[]> {
-    const votingPeriod = await this.getTezosVotingPeriodIndex(level);
-    const url = `${this.baseUrl}/v1/voting/periods/${votingPeriod.toString()}/voters`;
+    const votingPeriod = await this.getTezosVotingPeriod(level);
+    const index = votingPeriod.index;
+    const url = `${this.baseUrl}/v1/voting/periods/${index}/voters`;
     const rawResult = await this.fetchAllChunks<TzktVoter>(url, 100);
     return rawResult.map(r => ({
       address: r.delegate.address,

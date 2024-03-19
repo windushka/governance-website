@@ -28,24 +28,17 @@ export interface Upvoter<T> {
   readonly votingPower: BigNumber;
 }
 
-export interface ProposalPeriodBase<T = unknown> {
+export interface ProposalPeriod<T = unknown> {
   readonly periodIndex: BigNumber;
   readonly periodStartLevel: BigNumber;
   readonly periodEndLevel: BigNumber;
   readonly proposals: Array<Proposal<T>>;
   readonly upvoters: Array<Upvoter<T>>;
   readonly totalVotingPower: BigNumber;
-}
-
-export interface ActiveProposalPeriod<T = unknown> extends ProposalPeriodBase<T> {
   readonly winnerCandidate: NonNullable<T> | undefined;
   readonly candidateUpvotesVotingPower: BigNumber | undefined;
 }
 
-export interface FinishedProposalPeriod<T = unknown> extends ProposalPeriodBase<T> {
-  readonly winnerCandidate: NonNullable<T>;
-  readonly candidateUpvotesVotingPower: BigNumber;
-}
 
 export interface Voter {
   readonly address: string;
@@ -65,26 +58,14 @@ export interface PromotionPeriod<T = unknown> {
   readonly totalVotingPower: BigNumber;
 }
 
-export interface VotingContextBase {
+export interface VotingContext<T = unknown> {
   readonly periodIndex: BigNumber;
+  readonly periodType: PeriodType;
+  readonly proposalPeriod: ProposalPeriod<T>;
+  readonly promotionPeriod: PromotionPeriod | undefined;
 }
-
-export interface ProposalVotingContext<T = unknown> extends VotingContextBase {
-  readonly periodType: PeriodType.Proposal;
-  readonly proposalPeriod: ActiveProposalPeriod<T>;
-  readonly promotionPeriod: undefined;
-}
-
-export interface PromotionVotingContext<T = unknown> extends VotingContextBase {
-  readonly periodType: PeriodType.Promotion;
-  readonly proposalPeriod: FinishedProposalPeriod<T>;
-  readonly promotionPeriod: PromotionPeriod<T>;
-}
-
-export type VotingContext<T> = ProposalVotingContext<T> | PromotionVotingContext<T>
 
 export interface GovernanceState<T = unknown> {
   readonly votingContext: VotingContext<T>;
   readonly lastWinnerPayload: NonNullable<T> | undefined;
 }
-

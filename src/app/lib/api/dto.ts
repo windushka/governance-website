@@ -23,4 +23,5 @@ export interface TzktTezosPeriodInfo {
   index: number;
   firstLevel: number;
   lastLevel: number;
+  totalVotingPower: number;
 }
