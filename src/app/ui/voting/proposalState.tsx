@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import { GovernanceConfig } from "../../lib/governance/config/config";
 import clsx from 'clsx';
 import VotingPower from "@/app/ui/common/votingPower";
+import NoData from "@/app/ui//common/noData";
 
 interface ProposalStateProps {
   proposalPeriod: ActiveProposalPeriod<string> | FinishedProposalPeriod<string>;
@@ -11,7 +12,10 @@ interface ProposalStateProps {
 }
 
 export default function ProposalState({ proposalPeriod, config }: ProposalStateProps) {
-  const proposalList = proposalPeriod.proposals.length ? <ul>
+  if(!proposalPeriod.proposals.length)
+    return <NoData text="No proposals" />
+
+  const proposalList = <ul>
     {proposalPeriod.proposals.map(p =>
       <li key={p.key} className={clsx("block flex flex-row justify-between py-8 px-8 border border-slate-500 mb-4", { 'border-emerald-500': p.key === proposalPeriod.winnerCandidate })}>
         <div className="flex flex-col">
@@ -27,7 +31,7 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
           <VotingPower className="text-xl" value={p.upvotesVotingPower} />
         </div>
       </li>)}
-  </ul> : <span className="block">No Proposals</span>
+  </ul>
 
   const tableCellClass = 'text-center border border-slate-500 p-2';
 
@@ -53,9 +57,10 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
   return <>
     <div className="flex flex-row justify-between items-center mb-2">
       <h2 className="text-xl">Proposals</h2>
-      <span className={clsx({ 'text-emerald-500': proposalQuorum.gte(config.proposalQuorum) })}>
-        Quorum: {proposalQuorum.toFixed(2)}% of {config.proposalQuorum.toFixed(2)}%
-      </span>
+      <div>
+        <span>Quorum: </span>
+        <span className={clsx({ 'text-emerald-500': proposalQuorum.gte(config.proposalQuorum) })}>{proposalQuorum.toFixed(2)}% of {config.proposalQuorum.toFixed(2)}%</span>
+      </div>
     </div>
     {proposalList}
 

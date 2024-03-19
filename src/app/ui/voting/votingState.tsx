@@ -72,22 +72,20 @@ export default async function VotingState(props: VotingStateProps) {
       </div>
       <span>Config</span>
     </div>
-    <div>
-      {votingContext.promotionPeriod && periodIndex.eq(votingContext.promotionPeriod.periodIndex)
-        ? <PromotionState promotionPeriod={votingContext.promotionPeriod} config={config} />
-        : <ProposalState proposalPeriod={votingContext.proposalPeriod} config={config} />}
+    {votingContext.promotionPeriod && periodIndex.eq(votingContext.promotionPeriod.periodIndex)
+      ? <PromotionState promotionPeriod={votingContext.promotionPeriod} config={config} />
+      : <ProposalState proposalPeriod={votingContext.proposalPeriod} config={config} />}
 
-      <br />
-      <br />
-      <div className='text-slate-400'>
-        <h1>Technical info:</h1>
-        <p>Contract: {contractAddress}</p>
-        <p>Current level: {blockLevel.toString()}</p>
-        <p>Blocks remain: {blocksRemain.toString()}</p>
-        <p>Period finishes: {timeRemains}</p>
-        <p>Last winner payload: {state.lastWinnerPayload}</p>
-        <p>Config: {JSON.stringify(config, undefined, 2)}</p>
-      </div>
-    </div >
+    <br />
+    <br />
+    <div className='text-slate-400'>
+      <h1>Technical info:</h1>
+      <p>Contract: {contractAddress}</p>
+      <p>Current level: {blockLevel.toString()}</p>
+      <p>Blocks remain: {blocksRemain.toString()}</p>
+      <p>Period finishes: {timeRemains}</p>
+      <p>Last winner payload: {state.lastWinnerPayload}</p>
+      <p>Config: {JSON.stringify(config, undefined, 2)}</p>
+    </div>
   </>
 }

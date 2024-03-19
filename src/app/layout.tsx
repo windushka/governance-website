@@ -23,8 +23,8 @@ export default function RootLayout({
           <Link href="/" className="text-2xl">Etherlink governance</Link>
           <NavLinks />
         </header>
-        <main className="container grow">{children}</main>
-        <footer className="container grow-0 text-center border-t border-slate-400 p-2 text-slate-400">2024 - {new Date().getFullYear()} | Etherlink | Terms | Privacy</footer>
+        <main className="container grow flex flex-col">{children}</main>
+        <footer className="container grow-0 text-center border-t border-slate-400 p-2 mt-4 text-slate-400">2024 - {new Date().getFullYear()} | Etherlink | Terms | Privacy</footer>
       </body>
     </html>
   );

@@ -4,6 +4,7 @@ import { getPromotionQuorumPercent, getPromotionSupermajorityPercent } from "../
 import { GovernanceConfig } from "../../lib/governance/config/config";
 import { clsx } from "clsx";
 import VotingPower from "../common/votingPower";
+import NoData from "../common/noData";
 
 interface PromotionStateProps {
   promotionPeriod: PromotionPeriod;
@@ -42,7 +43,7 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
           <td className={tableCellClass}>{v.vote}</td>
         </tr>)}
     </tbody>
-  </table> : <span className="block">No Voters</span>;
+  </table> : null;
 
   const promotionSupermajority = getPromotionSupermajorityPercent(promotionPeriod.yeaVotingPower, promotionPeriod.nayVotingPower);
   const promotionQuorum = getPromotionQuorumPercent(promotionPeriod.yeaVotingPower, promotionPeriod.nayVotingPower, promotionPeriod.passVotingPower, promotionPeriod.totalVotingPower);
@@ -53,21 +54,31 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
         <span>Candidate:</span>
         <span className="text-xl">0x{(promotionPeriod.winnerCandidate as string)}</span>
       </div>
+
       <div className="flex flex-col">
-        <span className={clsx({ 'text-emerald-500': promotionSupermajority.gte(config.promotionSupermajority) })}>
-          Supermajority: {promotionSupermajority.toFixed(2)}% of {config.promotionSupermajority.toFixed(2)}%
-        </span>
-        <span className={clsx({ 'text-emerald-500': promotionQuorum.gte(config.promotionQuorum) })}>
-          Quorum: {promotionQuorum.toFixed(2)}% of {config.promotionQuorum.toFixed(2)}%
-        </span>
+        <div>
+          <span>Supermajority: </span>
+          <span className={clsx({ 'text-emerald-500': promotionSupermajority.gte(config.promotionSupermajority) })}>
+            {promotionSupermajority.toFixed(2)}% of {config.promotionSupermajority.toFixed(2)}%
+          </span>
+        </div>
+        <div>
+          <span>Quorum: </span>
+          <span className={clsx({ 'text-emerald-500': promotionQuorum.gte(config.promotionQuorum) })}>
+            {promotionQuorum.toFixed(2)}% of {config.promotionQuorum.toFixed(2)}%
+          </span>
+        </div>
       </div>
     </div>
-    <div className="flex flex-row justify-between">
-      <TotalVoteCard text="Yea voting power" value={promotionPeriod.yeaVotingPower} />
-      <TotalVoteCard text="Nay voting power" value={promotionPeriod.nayVotingPower} />
-      <TotalVoteCard text="Pass voting power" value={promotionPeriod.passVotingPower} />
-    </div>
-    <br />
-    {votersTable}
+    {votersTable ? <>
+      <div className="flex flex-row justify-between">
+        <TotalVoteCard text="Yea voting power" value={promotionPeriod.yeaVotingPower} />
+        <TotalVoteCard text="Nay voting power" value={promotionPeriod.nayVotingPower} />
+        <TotalVoteCard text="Pass voting power" value={promotionPeriod.passVotingPower} />
+      </div>
+      <br />
+      {votersTable}
+    </>
+      : <NoData text="No voters" />}
   </>
 }
