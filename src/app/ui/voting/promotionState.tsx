@@ -55,20 +55,20 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
         <span className="text-xl">0x{(promotionPeriod.winnerCandidate as string)}</span>
       </div>
 
-      <div className="flex flex-col">
+      {votersTable && <div className="flex flex-col">
         <div>
           <span>Supermajority: </span>
-          <span className={clsx({ 'text-emerald-500': promotionSupermajority.gte(config.promotionSupermajority) })}>
+          <span className={clsx(promotionSupermajority.gte(config.promotionSupermajority) ? 'text-emerald-500' : 'text-rose-500')}>
             {promotionSupermajority.toFixed(2)}% of {config.promotionSupermajority.toFixed(2)}%
           </span>
         </div>
         <div>
           <span>Quorum: </span>
-          <span className={clsx({ 'text-emerald-500': promotionQuorum.gte(config.promotionQuorum) })}>
+          <span className={clsx(promotionQuorum.gte(config.promotionQuorum) ? 'text-emerald-500' : 'text-orange-500')}>
             {promotionQuorum.toFixed(2)}% of {config.promotionQuorum.toFixed(2)}%
           </span>
         </div>
-      </div>
+      </div>}
     </div>
     {votersTable ? <>
       <div className="flex flex-row justify-between">

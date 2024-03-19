@@ -9,39 +9,38 @@ import { HistoricalRpcClient } from '@/app/lib/rpc/historicalRpcClient';
 import { Baker } from '@/app/lib/api/dto';
 
 export interface GovernanceStateProvider<T = unknown> {
-  getState(blockLevel: BigNumber): Promise<GovernanceState<T>>;
+  getState(contractAddress: string, blockLevel: BigNumber): Promise<GovernanceState<T>>;
 }
 
 export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateProvider<T> {
   constructor(
-    private readonly contractAddress: string,
     private readonly rpcUrl: string,
     private readonly apiProvider: ApiProvider
   ) {
 
   }
 
-  async getState(blockLevel: BigNumber): Promise<GovernanceState<T>> {
-    const storage = await this.loadStorage(blockLevel);
-    const stateViewResult = await this.callGetVotingStateView(blockLevel);
-    return await this.getStateCore(storage, stateViewResult, blockLevel);
+  async getState(contractAddress: string, blockLevel: BigNumber): Promise<GovernanceState<T>> {
+    const storage = await this.loadStorage(contractAddress, blockLevel);
+    const stateViewResult = await this.callGetVotingStateView(contractAddress, blockLevel);
+    return await this.getStateCore(contractAddress, storage, stateViewResult, blockLevel);
   }
 
-  private async getContract(blockLevel: BigNumber): Promise<ContractAbstraction<ContractProvider>> {
+  private async getContract(contractAddress: string, blockLevel: BigNumber): Promise<ContractAbstraction<ContractProvider>> {
     //TODO: optimize
     const rpcClient = new HistoricalRpcClient(this.rpcUrl, blockLevel)
     const toolkit = new TezosToolkit(rpcClient);
-    return await toolkit.contract.at(this.contractAddress);
+    return await toolkit.contract.at(contractAddress);
   }
 
-  private async callGetVotingStateView(blockLevel: BigNumber): Promise<VotingState<T>> {
-    const contract = await this.getContract(blockLevel);
+  private async callGetVotingStateView(contractAddress: string, blockLevel: BigNumber): Promise<VotingState<T>> {
+    const contract = await this.getContract(contractAddress, blockLevel);
     const view = contract.contractViews.get_voting_state();
-    return await view.executeView({ viewCaller: this.contractAddress });
+    return await view.executeView({ viewCaller: contractAddress });
   }
 
-  private async loadStorage(blockLevel: BigNumber): Promise<GovernanceContractStorage<T>> {
-    const contract = await this.getContract(blockLevel);
+  private async loadStorage(contractAddress: string, blockLevel: BigNumber): Promise<GovernanceContractStorage<T>> {
+    const contract = await this.getContract(contractAddress, blockLevel);
     return contract.storage<GovernanceContractStorage<T>>();
   }
 
@@ -110,6 +109,7 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
   }
 
   private async getStateCore(
+    contractAddress: string,
     storage: GovernanceContractStorage<T>,
     stateViewResult: VotingState<T>,
     blockLevel: BigNumber
@@ -131,7 +131,7 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
       } else {
         const { started_at_level: startedAtLevel, period_length: periodLength } = storage.config;
         const lastBlockOfProposalPeriod = this.getLastBlockOfPeriod(periodIndex.minus(1), startedAtLevel, periodLength);
-        const storageOfPreviousProposalPeriod = await this.loadStorage(lastBlockOfProposalPeriod);
+        const storageOfPreviousProposalPeriod = await this.loadStorage(contractAddress, lastBlockOfProposalPeriod);
         proposalPeriod = this.unpackProposalPeriod(storageOfPreviousProposalPeriod.voting_context?.Some.period!)
         promotionPeriod = this.unpackPromotionPeriod(period)
       }
@@ -171,7 +171,7 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
     const proposalPeriod = {
       totalVotingPower: proposal.total_voting_power,
       winnerCandidate: proposal.winner_candidate?.Some!,
-      candidateUpvotesVotingPower: proposal.max_upvotes_voting_power?.Some!, 
+      candidateUpvotesVotingPower: proposal.max_upvotes_voting_power?.Some!,
       periodIndex: proposalPeriodIndex,
       periodStartLevel: proposalPeriodStartLevel,
       periodEndLevel: proposalPeriodEndLevel,

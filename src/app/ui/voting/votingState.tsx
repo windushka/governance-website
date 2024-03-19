@@ -14,11 +14,11 @@ const rpcUrl = 'https://rpc.tzkt.io/ghostnet';
 const apiProvider = new TzktApiProvider('https://api.ghostnet.tzkt.io');
 const configProvider = new RpcGovernanceConfigProvider(new TezosToolkit(rpcUrl));
 
-const readContractStateAtBlock = async <T,>(contractAddress: string, blockLevel: BigNumber): Promise<GovernanceState<T>> => {
+const getContractState = async <T,>(contractAddress: string, blockLevel: BigNumber): Promise<GovernanceState<T>> => {
   noStore();
   console.warn('Request Contract State')
-  const provider = new RpcGovernanceStateProvider<T>(contractAddress, rpcUrl, apiProvider);
-  return await provider.getState(blockLevel);
+  const provider = new RpcGovernanceStateProvider<T>(rpcUrl, apiProvider);
+  return await provider.getState(contractAddress, blockLevel);
 };
 
 const getCurrentBlockLevel = async () => {
@@ -27,16 +27,16 @@ const getCurrentBlockLevel = async () => {
 }
 
 interface VotingStateProps {
+  contractAddress: string;
   periodIndex?: string[] | undefined;
 }
 
 export default async function VotingState(props: VotingStateProps) {
-  const contractAddress = 'KT1MHAVKVVDSgZsKiwNrRfYpKHiTLLrtGqod';
   const blockLevel = await getCurrentBlockLevel();
   const timeBetweenBlocks = await apiProvider.getTimeBetweenBlocks();
 
-  const state = await readContractStateAtBlock<string>(contractAddress, blockLevel);
-  const config = await configProvider.getConfig(contractAddress);
+  const state = await getContractState<string>(props.contractAddress, blockLevel);
+  const config = await configProvider.getConfig(props.contractAddress);
 
   const votingContext = state.votingContext;
   const { periodEndLevel } = votingContext.promotionPeriod ? votingContext.promotionPeriod : votingContext.proposalPeriod;
@@ -79,13 +79,11 @@ export default async function VotingState(props: VotingStateProps) {
     <br />
     <br />
     <div className='text-slate-400'>
-      <h1>Technical info:</h1>
-      <p>Contract: {contractAddress}</p>
+      <h1>Temp technical info:</h1>
+      <p>Contract: {props.contractAddress}</p>
       <p>Current level: {blockLevel.toString()}</p>
-      <p>Blocks remain: {blocksRemain.toString()}</p>
-      <p>Period finishes: {timeRemains}</p>
+      <p>Blocks remain: {blocksRemain.toString()} ({timeRemains})</p>
       <p>Last winner payload: {state.lastWinnerPayload}</p>
-      <p>Config: {JSON.stringify(config, undefined, 2)}</p>
     </div>
   </>
 }

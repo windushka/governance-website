@@ -12,12 +12,12 @@ interface ProposalStateProps {
 }
 
 export default function ProposalState({ proposalPeriod, config }: ProposalStateProps) {
-  if(!proposalPeriod.proposals.length)
+  if (!proposalPeriod.proposals.length)
     return <NoData text="No proposals" />
 
   const proposalList = <ul>
     {proposalPeriod.proposals.map(p =>
-      <li key={p.key} className={clsx("block flex flex-row justify-between py-8 px-8 border border-slate-500 mb-4", { 'border-emerald-500': p.key === proposalPeriod.winnerCandidate })}>
+      <li key={p.key} className={clsx("block flex flex-row justify-between py-8 px-8 border mb-4", p.key === proposalPeriod.winnerCandidate ? 'border-emerald-500' : 'border-slate-500')}>
         <div className="flex flex-col">
           <span className="mb-1">
             Proposer: {p.proposer}
