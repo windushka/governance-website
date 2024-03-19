@@ -228,7 +228,7 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
       proposals = rawEntries.map(({ key, value }) => ({
         key: key,
         proposer: value.proposer,
-        upvotesVotingPower: value.upvotes_voting_power
+        upvotesVotingPower: BigNumber(value.upvotes_voting_power)
       }));
     }
 

@@ -56,7 +56,7 @@ export default async function VotingState(props: VotingStateProps) {
 
   return <>
     <div className="flex flex-row justify-between items-center pb-4 mb-8 border-b">
-      <div className="flex flex-row gap-10 ">
+      <div className="flex flex-row gap-10 items-center">
         <span>Period: {periodIndex.toString()}</span>
         <PeriodHeader
           periodType={PeriodType.Proposal}

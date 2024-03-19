@@ -3,6 +3,7 @@ import { getProposalQuorumPercent } from "../../lib/governance/utils/calculators
 import BigNumber from 'bignumber.js'
 import { GovernanceConfig } from "../../lib/governance/config/config";
 import clsx from 'clsx';
+import VotingPower from "@/app/ui/common/votingPower";
 
 interface ProposalStateProps {
   proposalPeriod: ActiveProposalPeriod<string> | FinishedProposalPeriod<string>;
@@ -23,7 +24,7 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
         </div>
         <div className="flex flex-col">
           <span className="mb-1">upvotes:</span>
-          <span className="text-xl">{p.upvotesVotingPower.toString()}</span>
+          <VotingPower className="text-xl" value={p.upvotesVotingPower} />
         </div>
       </li>)}
   </ul> : <span className="block">No Proposals</span>
@@ -41,7 +42,7 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
     <tbody>
       {proposalPeriod.upvoters.map(p => <tr key={p.proposalKey}>
         <td className={tableCellClass}>{p.address}</td>
-        <td className={tableCellClass}>{p.votingPower.toString()}</td>
+        <td className={tableCellClass}><VotingPower value={p.votingPower} /></td>
         <td className={tableCellClass}>{p.proposalKey}</td>
       </tr>)}
     </tbody>

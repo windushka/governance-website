@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js';
 import { getPromotionQuorumPercent, getPromotionSupermajorityPercent } from "../../lib/governance/utils/calculators";
 import { GovernanceConfig } from "../../lib/governance/config/config";
 import { clsx } from "clsx";
+import VotingPower from "../common/votingPower";
 
 interface PromotionStateProps {
   promotionPeriod: PromotionPeriod;
@@ -18,7 +19,7 @@ interface TotalVoteCardProps {
 const TotalVoteCard = ({ text, value }: TotalVoteCardProps) => {
   return <div className="flex flex-column gap-8 border border-slate-500 py-4 px-8">
     <span>{text}</span>
-    <span>{value.toString()}</span>
+    <VotingPower value={value} />
   </div>
 }
 
@@ -37,7 +38,7 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
       {promotionPeriod.voters.map(v =>
         <tr key={v.address}>
           <td className={tableCellClass}>{v.address}</td>
-          <td className={tableCellClass}>{v.votingPower.toString()}</td>
+          <td className={tableCellClass}><VotingPower value={v.votingPower} /></td>
           <td className={tableCellClass}>{v.vote}</td>
         </tr>)}
     </tbody>

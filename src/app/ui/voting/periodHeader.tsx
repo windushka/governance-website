@@ -12,7 +12,10 @@ interface PeriodHeaderProps {
 
 export default function PeriodHeader({ periodType, startLevel, endLevel, disabled, periodIndex }: PeriodHeaderProps) {
   const periodName = periodType === PeriodType.Proposal ? 'Proposal' : 'Promotion';
-  const postfix = startLevel && endLevel ? `(${startLevel} - ${endLevel})` : '';
+  const postfix = startLevel && endLevel ? `${startLevel} - ${endLevel}` : '';
 
-  return <Link href={`/period/${periodIndex}`} disabled={disabled}>{`${periodName} ${postfix}`}</Link>;
+  return <div className="flex flex-col items-center">
+    <Link href={`/period/${periodIndex}`} disabled={disabled}>{`${periodName}`}</Link>
+    <span className="text-[10px]">{postfix}</span>
+  </div>
 }
