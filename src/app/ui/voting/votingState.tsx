@@ -4,13 +4,13 @@ import BigNumber from 'bignumber.js';
 import { GovernanceState, PeriodType } from '@/app/lib/governance/state/state';
 import { unstable_noStore as noStore } from 'next/cache';
 import ProposalState from '@/app/ui/voting/proposalState';
-import PeriodHeader from '@/app/ui/voting/periodHeader';
 import PromotionState from '@/app/ui/voting/promotionState';
 import { RpcGovernanceConfigProvider } from '@/app/lib/governance/config/providers/governanceConfigProvider';
 import { TezosToolkit } from '@taquito/taquito';
 import { redirect } from 'next/navigation';
 import { GovernanceConfig } from '@/app/lib/governance/config/config';
 import { getCurrentPeriodIndex, getFirstBlockOfPeriod, getLastBlockOfPeriod } from '@/app/lib/governance/utils/calculators';
+import VotingStateHeader from './votingStateHeader';
 
 const rpcUrl = 'https://rpc.tzkt.io/ghostnet';
 const apiProvider = new TzktApiProvider('https://api.ghostnet.tzkt.io');
@@ -53,26 +53,9 @@ export default async function VotingState(props: VotingStateProps) {
   const secondsRemain = blocksRemain.multipliedBy(timeBetweenBlocks);
   const formatter = new Intl.RelativeTimeFormat('en', { numeric: 'always', style: 'long' });
   const timeRemains = formatter.format(secondsRemain.toNumber(), 'seconds');
-  const promotionPeriodIndex = votingContext.proposalPeriod.periodIndex.plus(1);
 
   return <>
-    <div className="flex flex-row justify-between items-center pb-4 mb-8 border-b">
-      <div className="flex flex-row gap-10 items-center">
-        <span>Period: {periodIndex.toString()}</span>
-        <PeriodHeader
-          periodType={PeriodType.Proposal}
-          periodIndex={votingContext.proposalPeriod.periodIndex}
-          startLevel={votingContext.proposalPeriod.periodStartLevel}
-          endLevel={votingContext.proposalPeriod.periodEndLevel} />
-        {(votingContext.promotionPeriod || currentPeriodIndex.eq(votingContext.proposalPeriod.periodIndex)) && <PeriodHeader
-          disabled={!votingContext.promotionPeriod}
-          periodIndex={promotionPeriodIndex}
-          periodType={PeriodType.Promotion}
-          startLevel={votingContext.promotionPeriod?.periodStartLevel || getFirstBlockOfPeriod(promotionPeriodIndex, startedAtLevel, periodLength)}
-          endLevel={votingContext.promotionPeriod?.periodEndLevel || getLastBlockOfPeriod(promotionPeriodIndex, startedAtLevel, periodLength)} />}
-      </div>
-      <span>Config</span>
-    </div>
+    <VotingStateHeader currentPeriodIndex={currentPeriodIndex} periodIndex={periodIndex} votingContext={votingContext} config={config}/>
     {votingContext.promotionPeriod && periodIndex.eq(votingContext.promotionPeriod.periodIndex)
       ? <PromotionState promotionPeriod={votingContext.promotionPeriod} config={config} />
       : <ProposalState proposalPeriod={votingContext.proposalPeriod} config={config} />}
