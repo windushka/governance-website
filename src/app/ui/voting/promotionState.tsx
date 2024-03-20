@@ -77,6 +77,7 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
         <TotalVoteCard text="Pass voting power" value={promotionPeriod.passVotingPower} />
       </div>
       <br />
+      <h2 className="text-xl mb-2">Voters</h2>
       {votersTable}
     </>
       : <NoData text="No voters" />}

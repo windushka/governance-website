@@ -8,11 +8,13 @@ import NavButton from './navButton';
 interface VotingStateHeaderProps {
   periodIndex: BigNumber;
   currentPeriodIndex: BigNumber;
+  currentLevel: BigNumber;
+  blockTime: BigNumber;
   votingContext: VotingContext;
   config: GovernanceConfig
 }
 
-export default function VotingStateHeader({ periodIndex, votingContext, currentPeriodIndex, config }: VotingStateHeaderProps) {
+export default function VotingStateHeader({ periodIndex, votingContext, currentPeriodIndex, config, currentLevel, blockTime }: VotingStateHeaderProps) {
   const promotionPeriodIndex = votingContext.proposalPeriod.periodIndex.plus(1);
   const { startedAtLevel, periodLength } = config;
   const prevPeriodIndex = periodIndex.minus(1);
@@ -23,11 +25,15 @@ export default function VotingStateHeader({ periodIndex, votingContext, currentP
       <NavButton disabled={prevPeriodIndex.lte(0)} periodIndex={prevPeriodIndex} />
       <span>Period: {periodIndex.toString()}</span>
       <PeriodHeader
+        currentLevel={currentLevel}
+        blockTime={blockTime}
         periodType={PeriodType.Proposal}
         periodIndex={votingContext.proposalPeriod.periodIndex}
         startLevel={votingContext.proposalPeriod.periodStartLevel}
         endLevel={votingContext.proposalPeriod.periodEndLevel} />
       {(votingContext.promotionPeriod || currentPeriodIndex.eq(votingContext.proposalPeriod.periodIndex)) && <PeriodHeader
+        currentLevel={currentLevel}
+        blockTime={blockTime}
         disabled={!votingContext.promotionPeriod}
         periodIndex={promotionPeriodIndex}
         periodType={PeriodType.Promotion}
