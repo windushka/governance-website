@@ -17,7 +17,7 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
 
   const proposalList = <ul>
     {proposalPeriod.proposals.map(p =>
-      <li key={p.key} className={clsx("block flex flex-row justify-between py-8 px-8 border mb-4", p.key === proposalPeriod.winnerCandidate ? 'border-emerald-500' : 'border-slate-500')}>
+      <li key={p.key} className={clsx("block flex flex-row justify-between py-8 px-8 border mb-4", p.key === proposalPeriod.winnerCandidate ? 'border-emerald-400' : 'border-slate-500')}>
         <div className="flex flex-col">
           <span className="mb-1">
             Proposer: {p.proposer}
@@ -39,7 +39,7 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
     <thead>
       <tr>
         <th className={tableCellClass}>Baker</th>
-        <th className={tableCellClass}>Voting Power</th>
+        <th className={tableCellClass}>Voting power</th>
         <th className={tableCellClass}>Proposal</th>
       </tr>
     </thead>
@@ -59,7 +59,7 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
       <h2 className="text-xl">Proposals</h2>
       <div>
         <span>Quorum: </span>
-        <span className={clsx({ 'text-emerald-500': proposalQuorum.gte(config.proposalQuorum) })}>{proposalQuorum.toFixed(2)}% of {config.proposalQuorum.toFixed(2)}%</span>
+        <span className={clsx(proposalQuorum.gte(config.proposalQuorum) ? 'text-emerald-400' : 'text-red-400')}>{proposalQuorum.toFixed(2)}% of {config.proposalQuorum.toFixed(2)}%</span>
       </div>
     </div>
     {proposalList}
