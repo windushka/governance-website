@@ -1,11 +1,8 @@
-import { TezosToolkit } from "@taquito/taquito";
-import { GovernanceConfig } from "../config";
-import { GovernanceContractStorage, Config as MichelsonConfig } from "../../contract/storage";
-import BigNumber from "bignumber.js"
-
-export interface GovernanceConfigProvider {
-  getConfig(contractAddress: string): Promise<GovernanceConfig>;
-}
+import { TezosToolkit } from '@taquito/taquito';
+import { GovernanceConfig } from '../config';
+import { GovernanceContractStorage, Config as MichelsonConfig } from '../../contract';
+import BigNumber from 'bignumber.js'
+import { GovernanceConfigProvider } from './provider';
 
 export class RpcGovernanceConfigProvider implements GovernanceConfigProvider {
   constructor(

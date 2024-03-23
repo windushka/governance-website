@@ -60,7 +60,7 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
     <div className="flex flex-row justify-between">
       <TotalVoteCard className="border-emerald-400" text="Yea voting power" value={promotionPeriod.yeaVotingPower} />
       <TotalVoteCard className="border-red-400" text="Nay voting power" value={promotionPeriod.nayVotingPower} />
-      <TotalVoteCard text="Pass voting power" value={promotionPeriod.passVotingPower} />
+      <TotalVoteCard className="border-slate-500" text="Pass voting power" value={promotionPeriod.passVotingPower} />
     </div>
     <br />
     <h2 className="text-xl mb-2">Voters</h2>

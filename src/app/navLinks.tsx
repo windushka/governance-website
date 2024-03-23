@@ -1,27 +1,19 @@
-import Link from '@/app//ui/common/link';
-
-// Map of links to display in the side navigation.
-// Depending on the size of the application, this would be stored in a database.
-const links = [
-  { name: 'Kernel', href: '/period' },
-  { name: 'Security', href: '', disabled: true },
-  { name: 'Committee', href: '', disabled: true },
-];
+import Link from '@/app/ui/common/link';
+import { createAppContext } from '@/app/lib/appContext/createAppContext';
 
 export default function NavLinks() {
-  return (
-    <div className="flex flex-row gap-4">
-      {links.map((link) => {
-        return (
-          <Link
-            key={link.name}
-            disabled={link.disabled}
-            href={link.href}
-          >
-            {link.name}
-          </Link>
-        );
-      })}
-    </div>
-  );
+  const context = createAppContext();
+
+  return <div className="flex flex-row gap-4">
+    {context.config.contracts.map((contract) => {
+      return (
+        <Link
+          key={contract.name}
+          href={`/${contract.name}/period`}
+        >
+          <span className="capitalize">{contract.name}</span>
+        </Link>
+      );
+    })}
+  </div>
 }

@@ -1,18 +1,15 @@
 import { GovernanceState, PeriodType, Proposal, Upvoter, Voter, VotingContext } from '../state';
-import { BigMapAbstraction, TezosToolkit } from "@taquito/taquito";
-import { Config as MichelsonConfig, GovernanceContractStorage, MichelsonPeriodType, PromotionPeriod, ProposalPeriod, VotingWinner, Proposal as MichelsonProposal, UpvotersProposalsKey } from "../../contract/storage";
-import { VotingState } from "../../contract/views";
+import { TezosToolkit } from '@taquito/taquito';
+import * as Storage from '../../contract/storage';
+import { VotingState } from '../../contract/views';
 import BigNumber from 'bignumber.js';
-import { MichelsonOptional } from "../../contract/types";
-import { ApiProvider } from "../../../api/provider";
-import { HistoricalRpcClient } from '@/app/lib/rpc/historicalRpcClient';
+import { MichelsonOptional } from '../../contract/types';
+import { ApiProvider } from '../../../api/providers/provider';
 import { Baker } from '@/app/lib/api/dto';
 import { GovernanceConfig } from '../../config/config';
 import { getFirstBlockOfPeriod, getLastBlockOfPeriod } from '../../utils/calculators';
-
-export interface GovernanceStateProvider<T = unknown> {
-  getState(contractAddress: string, config: GovernanceConfig, periodIndex?: BigNumber): Promise<GovernanceState<T>>;
-}
+import { GovernanceStateProvider } from './provider';
+import { HistoricalRpcClient } from '@/app/lib/rpc/historicalRpcClient';
 
 export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateProvider<T> {
   constructor(
@@ -45,12 +42,12 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
     return await view.executeView({ viewCaller: contractAddress });
   }
 
-  private async loadStorage(contractAddress: string, toolkit: TezosToolkit): Promise<GovernanceContractStorage<T>> {
+  private async loadStorage(contractAddress: string, toolkit: TezosToolkit): Promise<Storage.GovernanceContractStorage<T>> {
     const contract = await toolkit.contract.at(contractAddress);
-    return contract.storage<GovernanceContractStorage<T>>();
+    return contract.storage<Storage.GovernanceContractStorage<T>>();
   }
 
-  private initializeProposalPeriod(totalVotingPower: BigNumber): ProposalPeriod<T> {
+  private initializeProposalPeriod(totalVotingPower: BigNumber): Storage.ProposalPeriod<T> {
     return {
       upvoters_upvotes_count: null,
       upvoters_proposals: null,
@@ -61,7 +58,7 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
     }
   }
 
-  private initializePromotionPeriod(period: MichelsonPeriodType<T>, totalVotingPower: BigNumber): PromotionPeriod<T> {
+  private initializePromotionPeriod(period: Storage.MichelsonPeriodType<T>, totalVotingPower: BigNumber): Storage.PromotionPeriod<T> {
     if (!('proposal' in period))
       throw new Error('Not proposal period')
 
@@ -104,18 +101,18 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
     }
   }
 
-  private unpackLastWinnerPayload(lastWinner: MichelsonOptional<VotingWinner<T>>): NonNullable<T> | undefined {
+  private unpackLastWinnerPayload(lastWinner: MichelsonOptional<Storage.VotingWinner<T>>): NonNullable<T> | undefined {
     const lastWinnerData = lastWinner?.Some
     return lastWinnerData && lastWinnerData.payload;
   }
 
-  private unpackProposalPeriod(period: MichelsonPeriodType<T>): ProposalPeriod<T> {
+  private unpackProposalPeriod(period: Storage.MichelsonPeriodType<T>): Storage.ProposalPeriod<T> {
     if ('proposal' in period)
       return period.proposal;
 
     throw new Error('Unable to find proposal period')
   }
-  private unpackPromotionPeriod(period: MichelsonPeriodType<T>): PromotionPeriod<T> {
+  private unpackPromotionPeriod(period: Storage.MichelsonPeriodType<T>): Storage.PromotionPeriod<T> {
     if ('promotion' in period)
       return period.promotion;
 
@@ -125,7 +122,7 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
   private async getStateCore(
     contractAddress: string,
     periodIndex: BigNumber,
-    storage: GovernanceContractStorage<T>,
+    storage: Storage.GovernanceContractStorage<T>,
     stateViewResult: VotingState<T>,
     currentBlockLevel: BigNumber,
   ): Promise<GovernanceState<T>> {
@@ -134,8 +131,8 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
     const period = votingContext?.period;
     const { started_at_level: startedAtLevel, period_length: periodLength } = storage.config;
 
-    let proposalPeriod: ProposalPeriod<T>;
-    let promotionPeriod: PromotionPeriod<T> | undefined;
+    let proposalPeriod: Storage.ProposalPeriod<T>;
+    let promotionPeriod: Storage.PromotionPeriod<T> | undefined;
     let lastWinner: NonNullable<T> | undefined;
 
     if (votingContext && periodIndex.eq(votingContext.period_index) && period) {
@@ -180,9 +177,9 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
   private async mapStorageToState(
     periodIndex: BigNumber,
     periodType: PeriodType,
-    config: MichelsonConfig,
-    proposal: ProposalPeriod<T>,
-    promotion: PromotionPeriod<T> | undefined,
+    config: Storage.Config,
+    proposal: Storage.ProposalPeriod<T>,
+    promotion: Storage.PromotionPeriod<T> | undefined,
     lastWinnerPayload: NonNullable<T> | undefined,
     currentBlockLevel: BigNumber
   ): Promise<GovernanceState<T>> {
@@ -241,10 +238,10 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
     }
   }
 
-  private async getProposals(proposalPeriod: ProposalPeriod): Promise<Proposal<T>[]> {
+  private async getProposals(proposalPeriod: Storage.ProposalPeriod): Promise<Proposal<T>[]> {
     let proposals: Proposal<T>[] = [];
     if (proposalPeriod.proposals) {
-      const rawEntries = await this.apiProvider.getBigMapEntries<T, MichelsonProposal>(BigNumber(proposalPeriod.proposals.toString()));
+      const rawEntries = await this.apiProvider.getBigMapEntries<T, Storage.Proposal>(BigNumber(proposalPeriod.proposals.toString()));
       proposals = rawEntries.map(({ key, value }) => ({
         key: key,
         proposer: value.proposer,
@@ -255,10 +252,10 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
     return proposals.toSorted((a, b) => b.upvotesVotingPower.comparedTo(a.upvotesVotingPower));
   }
 
-  private async getUpvoters(proposalPeriod: ProposalPeriod, bakers: Map<Baker['address'], Baker>): Promise<Upvoter<T>[]> {
+  private async getUpvoters(proposalPeriod: Storage.ProposalPeriod, bakers: Map<Baker['address'], Baker>): Promise<Upvoter<T>[]> {
     let upvoters: Upvoter<T>[] = [];
     if (proposalPeriod.upvoters_proposals) {
-      const rawEntries = await this.apiProvider.getBigMapEntries<UpvotersProposalsKey<T>, never>(BigNumber(proposalPeriod.upvoters_proposals.toString()));
+      const rawEntries = await this.apiProvider.getBigMapEntries<Storage.UpvotersProposalsKey<T>, never>(BigNumber(proposalPeriod.upvoters_proposals.toString()));
       upvoters = rawEntries.map(({ key }) => ({
         address: key.key_hash,
         proposalKey: key.bytes, //TODO:
@@ -269,7 +266,7 @@ export class RpcGovernanceStateProvider<T = unknown> implements GovernanceStateP
     return upvoters;
   }
 
-  private async getVoters(promotionPeriod: PromotionPeriod, bakers: Map<Baker['address'], Baker>): Promise<Voter[]> {
+  private async getVoters(promotionPeriod: Storage.PromotionPeriod, bakers: Map<Baker['address'], Baker>): Promise<Voter[]> {
     let voters: Voter[] = [];
     if (promotionPeriod.voters) {
       const rawEntries = await this.apiProvider.getBigMapEntries<string, string>(BigNumber(promotionPeriod.voters.toString()));

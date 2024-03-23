@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import { ApiProvider } from "./provider";
-import { Baker, TzktBigMapEntry, TzktTezosPeriodInfo, TzktVoter } from "./dto";
+import { Baker, TzktBigMapEntry, TzktTezosPeriodInfo, TzktVoter } from "../dto";
 
 export class TzktApiProvider implements ApiProvider {
   constructor(
@@ -78,7 +78,7 @@ export class TzktApiProvider implements ApiProvider {
     if (params)
       url = `${url}?${new URLSearchParams(params).toString()}`;
 
-    const res = await fetch(url);
+    const res = await fetch(url, { cache: 'no-store' });
     return await res.json() as T;
   }
 }

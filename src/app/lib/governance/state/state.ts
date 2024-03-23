@@ -39,7 +39,6 @@ export interface ProposalPeriod<T = unknown> {
   readonly candidateUpvotesVotingPower: BigNumber | undefined;
 }
 
-
 export interface Voter {
   readonly address: string;
   readonly vote: Vote;

@@ -9,7 +9,7 @@ interface TotalVoteCardProps {
 }
 
 export default function TotalVoteCard({ text, value, className }: TotalVoteCardProps) {
-  return <div className={clsx(className, "flex flex-column gap-8 border border-slate-500 py-4 px-8")}>
+  return <div className={clsx("flex flex-column gap-8 border py-4 px-8", className)}>
     <span>{text}</span>
     <VotingPower value={value} />
   </div>

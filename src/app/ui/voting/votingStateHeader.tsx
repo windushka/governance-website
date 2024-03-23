@@ -6,6 +6,7 @@ import { GovernanceConfig } from '@/app/lib/governance/config/config';
 import NavButton from './navButton';
 
 interface VotingStateHeaderProps {
+  contractName: string;
   periodIndex: BigNumber;
   currentPeriodIndex: BigNumber;
   currentLevel: BigNumber;
@@ -14,7 +15,7 @@ interface VotingStateHeaderProps {
   config: GovernanceConfig
 }
 
-export default function VotingStateHeader({ periodIndex, votingContext, currentPeriodIndex, config, currentLevel, blockTime }: VotingStateHeaderProps) {
+export default function VotingStateHeader({ contractName, periodIndex, votingContext, currentPeriodIndex, config, currentLevel, blockTime }: VotingStateHeaderProps) {
   const promotionPeriodIndex = votingContext.proposalPeriod.periodIndex.plus(1);
   const { startedAtLevel, periodLength } = config;
   const prevPeriodIndex = periodIndex.minus(1);
@@ -22,9 +23,10 @@ export default function VotingStateHeader({ periodIndex, votingContext, currentP
 
   return <div className="flex flex-row justify-between items-center pb-4 mb-8 border-b">
     <div className="flex flex-row gap-10 items-center">
-      <NavButton disabled={prevPeriodIndex.lte(0)} periodIndex={prevPeriodIndex} />
+      <NavButton contractName={contractName} disabled={prevPeriodIndex.lte(0)} periodIndex={prevPeriodIndex} />
       <span>Period: {periodIndex.toString()}</span>
       <PeriodHeader
+        contractName={contractName}
         currentLevel={currentLevel}
         blockTime={blockTime}
         periodType={PeriodType.Proposal}
@@ -32,6 +34,7 @@ export default function VotingStateHeader({ periodIndex, votingContext, currentP
         startLevel={votingContext.proposalPeriod.periodStartLevel}
         endLevel={votingContext.proposalPeriod.periodEndLevel} />
       {(votingContext.promotionPeriod || currentPeriodIndex.eq(votingContext.proposalPeriod.periodIndex)) && <PeriodHeader
+        contractName={contractName}
         currentLevel={currentLevel}
         blockTime={blockTime}
         disabled={!votingContext.promotionPeriod}
@@ -42,7 +45,7 @@ export default function VotingStateHeader({ periodIndex, votingContext, currentP
     </div>
     <div className='flex flex-row gap-10 items-center'>
       <span>Config</span>
-      <NavButton isNext disabled={nextPeriodIndex.gt(currentPeriodIndex)} periodIndex={nextPeriodIndex} />
+      <NavButton contractName={contractName} isNext disabled={nextPeriodIndex.gt(currentPeriodIndex)} periodIndex={nextPeriodIndex} />
     </div>
   </div>
 }

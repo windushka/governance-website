@@ -2,6 +2,7 @@
     "cSpell.words": [
         "clsx",
         "Etherlink",
+        "ghostnet",
         "supermajority",
         "Tzkt",
         "upvoted",
@@ -9,5 +10,9 @@
         "upvoters",
         "upvotes",
         "upvoting"
-    ]
+    ],
+    "javascript.preferences.quoteStyle": "single",
+    "typescript.preferences.quoteStyle": "single",
+    "editor.tabSize": 2,
+    "editor.indentSize": "tabSize"
 }

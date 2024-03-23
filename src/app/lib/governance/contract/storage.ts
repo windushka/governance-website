@@ -1,6 +1,6 @@
-import { BigMapAbstraction, MichelsonMap } from "@taquito/taquito";
+import { BigMapAbstraction } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
-import { MichelsonOptional } from "./types";
+import { MichelsonOptional } from './types';
 
 export interface Config {
   readonly started_at_level: BigNumber;

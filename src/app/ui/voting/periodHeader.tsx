@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js'
 import Link from "@/app/ui/common/link";
 
 interface PeriodHeaderProps {
+  contractName: string;
   periodType: PeriodType;
   disabled?: boolean;
   periodIndex: BigNumber;
@@ -30,7 +31,7 @@ const getLevelDateTime = (level: BigNumber, currentLevel: BigNumber, blockTime: 
   //} 
 }
 
-export default function PeriodHeader({ periodType, startLevel, endLevel, disabled, periodIndex, currentLevel, blockTime }: PeriodHeaderProps) {
+export default function PeriodHeader({ contractName, periodType, startLevel, endLevel, disabled, periodIndex, currentLevel, blockTime }: PeriodHeaderProps) {
   const periodName = periodType === PeriodType.Proposal ? 'Proposal' : 'Promotion';
 
   const startDate = getLevelDateTime(startLevel, currentLevel, blockTime);
@@ -38,7 +39,7 @@ export default function PeriodHeader({ periodType, startLevel, endLevel, disable
   const postfix = `${startDate} - ${endDate}`;
 
   return <div className="flex flex-col items-start">
-    <Link href={`/period/${periodIndex}`} disabled={disabled}>{`${periodName}`}</Link>
+    <Link href={`/${contractName}/period/${periodIndex}`} disabled={disabled}>{`${periodName}`}</Link>
     <span className="text-[10px]">{postfix}</span>
   </div>
 }

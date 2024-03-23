@@ -1,51 +1,27 @@
-import { TzktApiProvider } from '@/app/lib/api/tzktApiProvider';
-import { RpcGovernanceStateProvider } from '@/app/lib/governance/state/providers/governanceStateProvider';
 import BigNumber from 'bignumber.js';
-import { GovernanceState, PeriodType } from '@/app/lib/governance/state/state';
-import { unstable_noStore as noStore } from 'next/cache';
 import ProposalState from '@/app/ui/voting/proposalState';
 import PromotionState from '@/app/ui/voting/promotionState';
-import { RpcGovernanceConfigProvider } from '@/app/lib/governance/config/providers/governanceConfigProvider';
-import { TezosToolkit } from '@taquito/taquito';
-import { redirect } from 'next/navigation';
 import { GovernanceConfig } from '@/app/lib/governance/config/config';
-import { getCurrentPeriodIndex, getFirstBlockOfPeriod, getLastBlockOfPeriod } from '@/app/lib/governance/utils/calculators';
+import { getCurrentPeriodIndex } from '@/app/lib/governance/utils';
 import VotingStateHeader from './votingStateHeader';
-
-const rpcUrl = 'https://rpc.tzkt.io/ghostnet';
-const apiProvider = new TzktApiProvider('https://api.ghostnet.tzkt.io');
-const configProvider = new RpcGovernanceConfigProvider(new TezosToolkit(rpcUrl));
-
-const getContractState = async <T,>(contractAddress: string, config: GovernanceConfig, periodIndex: BigNumber): Promise<GovernanceState<T>> => {
-  noStore();
-  console.warn('Request Contract State')
-  const provider = new RpcGovernanceStateProvider<T>(rpcUrl, apiProvider);
-  return await provider.getState(contractAddress, config, periodIndex);
-};
-
-const getCurrentBlockLevel = async () => {
-  noStore();
-  return await apiProvider.getCurrentBlockLevel();
-}
+import { Contract } from '@/app/lib/config';
+import { createAppContext } from '@/app/lib/appContext/createAppContext';
 
 interface VotingStateProps {
-  contractAddress: string;
-  periodIndex?: string[] | undefined;
+  contract: Contract;
+  config: GovernanceConfig;
+  periodIndex: BigNumber;
 }
 
-export default async function VotingState(props: VotingStateProps) {
-  const currentBlockLevel = await getCurrentBlockLevel();
-  const timeBetweenBlocks = await apiProvider.getTimeBetweenBlocks();
-  const config = await configProvider.getConfig(props.contractAddress);
+export default async function VotingState({ config, contract, periodIndex }: VotingStateProps) {
+  const context = createAppContext();
+  const currentBlockLevel = await context.apiProvider.getCurrentBlockLevel();
+  const timeBetweenBlocks = await context.apiProvider.getTimeBetweenBlocks();
+
   const { startedAtLevel, periodLength } = config;
   const currentPeriodIndex = getCurrentPeriodIndex(currentBlockLevel, startedAtLevel, periodLength);
-  const redirectUrl = `/period/${currentPeriodIndex.toString()}`;
 
-  const periodIndex = props.periodIndex && props.periodIndex.length === 1 ? BigNumber(props.periodIndex[0]) : undefined;
-  if (!periodIndex || periodIndex.isNaN() || periodIndex.gt(currentPeriodIndex) || periodIndex.lt(0))
-    redirect(redirectUrl);
-
-  const state = await getContractState<string>(props.contractAddress, config, periodIndex);
+  const state = await context.governanceStateProvider.getState(contract.address, config, periodIndex);
 
   const votingContext = state.votingContext;
   const { periodEndLevel } = votingContext.promotionPeriod ? votingContext.promotionPeriod : votingContext.proposalPeriod;
@@ -56,6 +32,7 @@ export default async function VotingState(props: VotingStateProps) {
 
   return <>
     <VotingStateHeader
+      contractName={contract.name}
       blockTime={timeBetweenBlocks}
       currentLevel={currentBlockLevel}
       currentPeriodIndex={currentPeriodIndex}
