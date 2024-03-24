@@ -36,7 +36,7 @@ body {
   background-color: rgb(var(--background-rgb)) !important;
 }
 .ant-select-selector:hover {
-  background-color: rgb(64 64 64) !important; 
+  background-color: rgb(64, 64, 64) !important; 
 }
 .ant-select-arrow {
   color: rgba(229, 231, 235, 0.7) !important;
@@ -74,6 +74,9 @@ body {
 .ant-modal-title {
   color: rgb(var(--foreground-rgb)) !important;
 }
-.ant-modal-close-x {
+.ant-modal-close {
   color: rgb(var(--foreground-rgb)) !important;
+}
+.ant-modal-close:hover {
+  color: rgb(203, 213, 225) !important;
 }

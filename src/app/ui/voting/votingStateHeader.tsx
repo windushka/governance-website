@@ -52,6 +52,7 @@ export default function VotingStateHeader({ contract, periodIndex, votingContext
     </div>
     <div className='flex flex-row gap-10 items-center'>
       <ContractConfigModalButton
+        buttonText="Contract"
         contractName={contract.name}
         contractAddress={contract.address}
         startedAtLevel={config.startedAtLevel.toString()}

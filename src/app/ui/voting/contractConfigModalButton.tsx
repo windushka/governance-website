@@ -1,12 +1,12 @@
 'use client';
 
-import { GovernanceConfig } from '@/app/lib/governance';
 import { Modal } from 'antd';
 import clsx from 'clsx';
 import { useState } from 'react';
 import BigNumber from 'bignumber.js';
 
 interface ContractConfigProps {
+  buttonText: string;
   startedAtLevel: string;
   periodLength: string;
   adoptionPeriodSec: string;
@@ -18,7 +18,7 @@ interface ContractConfigProps {
   contractName: string;
 }
 
-export default function ContractConfigModalButton({ contractName, contractAddress, ...config }: ContractConfigProps) {
+export default function ContractConfigModalButton({ buttonText, contractName, contractAddress, ...config }: ContractConfigProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const showModal = () => {
@@ -36,7 +36,7 @@ export default function ContractConfigModalButton({ contractName, contractAddres
   const cellClassName = 'border border-slate-500 p-2';
 
   return <>
-    <button className="hover:text-gray-300" onClick={showModal}>Config</button>
+    <button className="hover:text-gray-300" onClick={showModal}>{buttonText}</button>
     <Modal
       title="Contract config"
       open={isModalOpen}
