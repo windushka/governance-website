@@ -51,7 +51,17 @@ export default function VotingStateHeader({ contract, periodIndex, votingContext
         endLevel={votingContext.promotionPeriod?.periodEndLevel || getLastBlockOfPeriod(promotionPeriodIndex, startedAtLevel, periodLength)} />}
     </div>
     <div className='flex flex-row gap-10 items-center'>
-      <ContractConfigModalButton contractName={contract.name} contractAddress={contract.address} config={config} />
+      <ContractConfigModalButton
+        contractName={contract.name}
+        contractAddress={contract.address}
+        startedAtLevel={config.startedAtLevel.toString()}
+        periodLength={config.periodLength.toString()}
+        adoptionPeriodSec={config.adoptionPeriodSec.toString()}
+        upvotingLimit={config.upvotingLimit.toString()}
+        proposalQuorum={config.proposalQuorum.toString()}
+        promotionQuorum={config.promotionQuorum.toString()}
+        promotionSupermajority={config.promotionSupermajority.toString()}
+      />
       <NavButton contractName={contract.name} isNext disabled={nextPeriodIndex.gt(currentPeriodIndex)} periodIndex={nextPeriodIndex} />
     </div>
   </div>

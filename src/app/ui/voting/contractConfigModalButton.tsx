@@ -7,12 +7,18 @@ import { useState } from 'react';
 import BigNumber from 'bignumber.js';
 
 interface ContractConfigProps {
-  config: GovernanceConfig;
+  startedAtLevel: string;
+  periodLength: string;
+  adoptionPeriodSec: string;
+  upvotingLimit: string;
+  proposalQuorum: string;
+  promotionQuorum: string;
+  promotionSupermajority: string;
   contractAddress: string;
   contractName: string;
 }
 
-export default function ContractConfigModalButton({ config, contractName, contractAddress }: ContractConfigProps) {
+export default function ContractConfigModalButton({ contractName, contractAddress, ...config }: ContractConfigProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const showModal = () => {
