@@ -5,10 +5,11 @@ import { getFirstBlockOfPeriod, getLastBlockOfPeriod } from '@/app/lib/governanc
 import { GovernanceConfig } from '@/app/lib/governance/config/config';
 import NavButton from './navButton';
 import PeriodSelector from './periodSelector';
-import { redirect } from 'next/navigation';
+import ContractConfigModalButton from './contractConfigModalButton';
+import { Contract } from '@/app/lib/config';
 
 interface VotingStateHeaderProps {
-  contractName: string;
+  contract: Contract;
   periodIndex: BigNumber;
   currentPeriodIndex: BigNumber;
   currentLevel: BigNumber;
@@ -17,7 +18,7 @@ interface VotingStateHeaderProps {
   config: GovernanceConfig
 }
 
-export default function VotingStateHeader({ contractName, periodIndex, votingContext, currentPeriodIndex, config, currentLevel, blockTime }: VotingStateHeaderProps) {
+export default function VotingStateHeader({ contract, periodIndex, votingContext, currentPeriodIndex, config, currentLevel, blockTime }: VotingStateHeaderProps) {
   const promotionPeriodIndex = votingContext.proposalPeriod.periodIndex.plus(1);
   const { startedAtLevel, periodLength } = config;
   const prevPeriodIndex = periodIndex.minus(1);
@@ -25,14 +26,14 @@ export default function VotingStateHeader({ contractName, periodIndex, votingCon
 
   return <div className="flex flex-row justify-between items-center pb-4 mb-8 border-b">
     <div className="flex flex-row gap-10 items-center">
-      <NavButton contractName={contractName} disabled={prevPeriodIndex.lte(0)} periodIndex={prevPeriodIndex} />
+      <NavButton contractName={contract.name} disabled={prevPeriodIndex.lte(0)} periodIndex={prevPeriodIndex} />
       <PeriodSelector
-        contractName={contractName}
+        contractName={contract.name}
         minValue={0}
         maxValue={currentPeriodIndex.toNumber()}
         value={periodIndex.toNumber()} />
       <PeriodHeader
-        contractName={contractName}
+        contractName={contract.name}
         currentLevel={currentLevel}
         blockTime={blockTime}
         periodType={PeriodType.Proposal}
@@ -40,7 +41,7 @@ export default function VotingStateHeader({ contractName, periodIndex, votingCon
         startLevel={votingContext.proposalPeriod.periodStartLevel}
         endLevel={votingContext.proposalPeriod.periodEndLevel} />
       {(votingContext.promotionPeriod || currentPeriodIndex.eq(votingContext.proposalPeriod.periodIndex)) && <PeriodHeader
-        contractName={contractName}
+        contractName={contract.name}
         currentLevel={currentLevel}
         blockTime={blockTime}
         disabled={!votingContext.promotionPeriod}
@@ -50,8 +51,8 @@ export default function VotingStateHeader({ contractName, periodIndex, votingCon
         endLevel={votingContext.promotionPeriod?.periodEndLevel || getLastBlockOfPeriod(promotionPeriodIndex, startedAtLevel, periodLength)} />}
     </div>
     <div className='flex flex-row gap-10 items-center'>
-      <span>Config</span>
-      <NavButton contractName={contractName} isNext disabled={nextPeriodIndex.gt(currentPeriodIndex)} periodIndex={nextPeriodIndex} />
+      <ContractConfigModalButton contractName={contract.name} contractAddress={contract.address} config={config} />
+      <NavButton contractName={contract.name} isNext disabled={nextPeriodIndex.gt(currentPeriodIndex)} periodIndex={nextPeriodIndex} />
     </div>
   </div>
 }

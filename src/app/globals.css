@@ -62,3 +62,18 @@ body {
 .rc-virtual-list-scrollbar-thumb {
   background-color: rgb(229, 231, 235, 0.5) !important;
 }
+
+.ant-modal-content {
+  color: rgb(var(--foreground-rgb));
+  background-color: rgb(var(--background-rgb)) !important;
+}
+.ant-modal-header {
+  color: rgb(var(--foreground-rgb));
+  background-color: rgb(var(--background-rgb)) !important;
+}
+.ant-modal-title {
+  color: rgb(var(--foreground-rgb)) !important;
+}
+.ant-modal-close-x {
+  color: rgb(var(--foreground-rgb)) !important;
+}
