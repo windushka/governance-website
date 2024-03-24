@@ -1,3 +1,4 @@
+import { getPeriodPageUrl } from '@/app/actions';
 import BigNumber from 'bignumber.js'
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -16,7 +17,7 @@ export default function NavButton({ contractName, periodIndex, isNext, disabled 
   return !disabled
     ? <Link
       className={className}
-      href={`/${contractName}/period/${periodIndex.toString()}`}
+      href={getPeriodPageUrl(contractName, periodIndex.toNumber())}
       dangerouslySetInnerHTML={content} />
     : <span className={clsx(className, 'cursor-default')} dangerouslySetInnerHTML={content}></span>
 }

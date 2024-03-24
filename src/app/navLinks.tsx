@@ -1,5 +1,6 @@
 import Link from '@/app/ui/common/link';
 import { createAppContext } from '@/app/lib/appContext/createAppContext';
+import { getPeriodPageUrl } from './actions';
 
 export default function NavLinks() {
   const context = createAppContext();
@@ -9,7 +10,7 @@ export default function NavLinks() {
       return (
         <Link
           key={contract.name}
-          href={`/${contract.name}/period`}
+          href={getPeriodPageUrl(contract.name)}
         >
           <span className="capitalize">{contract.name}</span>
         </Link>

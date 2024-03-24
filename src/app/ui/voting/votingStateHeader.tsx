@@ -4,6 +4,8 @@ import PeriodHeader from './periodHeader';
 import { getFirstBlockOfPeriod, getLastBlockOfPeriod } from '@/app/lib/governance/utils/calculators';
 import { GovernanceConfig } from '@/app/lib/governance/config/config';
 import NavButton from './navButton';
+import PeriodSelector from './periodSelector';
+import { redirect } from 'next/navigation';
 
 interface VotingStateHeaderProps {
   contractName: string;
@@ -24,7 +26,11 @@ export default function VotingStateHeader({ contractName, periodIndex, votingCon
   return <div className="flex flex-row justify-between items-center pb-4 mb-8 border-b">
     <div className="flex flex-row gap-10 items-center">
       <NavButton contractName={contractName} disabled={prevPeriodIndex.lte(0)} periodIndex={prevPeriodIndex} />
-      <span>Period: {periodIndex.toString()}</span>
+      <PeriodSelector
+        contractName={contractName}
+        minValue={0}
+        maxValue={currentPeriodIndex.toNumber()}
+        value={periodIndex.toNumber()} />
       <PeriodHeader
         contractName={contractName}
         currentLevel={currentLevel}

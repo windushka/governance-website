@@ -1,6 +1,7 @@
 import { PeriodType } from "@/app/lib/governance/state/state"
 import BigNumber from 'bignumber.js'
 import Link from "@/app/ui/common/link";
+import { getPeriodPageUrl } from '@/app/actions';
 
 interface PeriodHeaderProps {
   contractName: string;
@@ -39,7 +40,7 @@ export default function PeriodHeader({ contractName, periodType, startLevel, end
   const postfix = `${startDate} - ${endDate}`;
 
   return <div className="flex flex-col items-start">
-    <Link href={`/${contractName}/period/${periodIndex}`} disabled={disabled}>{`${periodName}`}</Link>
+    <Link href={getPeriodPageUrl(contractName, periodIndex.toNumber())} disabled={disabled}>{`${periodName}`}</Link>
     <span className="text-[10px]">{postfix}</span>
   </div>
 }

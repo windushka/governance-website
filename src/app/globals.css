@@ -29,3 +29,36 @@ body {
     text-wrap: balance;
   }
 }
+
+/* Ant design */
+.ant-select-selector {
+  border-color: rgb(229, 231, 235) !important;
+  background-color: rgb(var(--background-rgb)) !important;
+}
+.ant-select-selector:hover {
+  background-color: rgb(64 64 64) !important; 
+}
+.ant-select-arrow {
+  color: rgba(229, 231, 235, 0.7) !important;
+}
+
+.ant-select-dropdown {
+  background-color: rgb(var(--background-rgb)) !important;
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgb(229, 231, 235) !important;
+}
+
+.ant-select-item-option {
+  background-color: rgb(var(--background-rgb)) !important;
+}
+.ant-select-item-option-active {
+  background-color: rgb(64, 64, 64) !important; 
+}
+.ant-select-item-option-selected {
+  background-color: rgb(64, 64, 64) !important; 
+}
+
+.rc-virtual-list-scrollbar-thumb {
+  background-color: rgb(229, 231, 235, 0.5) !important;
+}
