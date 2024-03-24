@@ -1,9 +1,9 @@
 import Link from '@/app/ui/common/link';
-import { createAppContext } from '@/app/lib/appContext/createAppContext';
+import { getAppContext } from '@/app/lib/appContext/getAppContext';
 import { getPeriodPageUrl } from './actions';
 
 export default function NavLinks() {
-  const context = createAppContext();
+  const context = getAppContext();
 
   return <div className="flex flex-row gap-4">
     {context.config.contracts.map((contract) => {

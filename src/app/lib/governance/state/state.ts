@@ -11,31 +11,34 @@ export enum Vote {
   Pass = 'pass'
 }
 
-export enum ContractType {
-  KernelGovernance,
-  SequencerCommitteeGovernance
+export type KernelKey = string;
+export interface SequencerKey {
+  readonly poolAddress: string;
+  readonly sequencerPublicKey: string;
 }
+export type PayloadKey = KernelKey | SequencerKey;
 
-export interface Proposal<T = unknown> {
-  readonly key: T;
+
+export interface Proposal {
+  readonly key: PayloadKey;
   readonly proposer: string;
   readonly upvotesVotingPower: BigNumber;
 }
 
-export interface Upvoter<T> {
+export interface Upvoter {
   readonly address: string;
-  readonly proposalKey: T;
+  readonly proposalKey: PayloadKey;
   readonly votingPower: BigNumber;
 }
 
-export interface ProposalPeriod<T = unknown> {
+export interface ProposalPeriod {
   readonly periodIndex: BigNumber;
   readonly periodStartLevel: BigNumber;
   readonly periodEndLevel: BigNumber;
-  readonly proposals: Array<Proposal<T>>;
-  readonly upvoters: Array<Upvoter<T>>;
+  readonly proposals: Array<Proposal>;
+  readonly upvoters: Array<Upvoter>;
   readonly totalVotingPower: BigNumber;
-  readonly winnerCandidate: NonNullable<T> | undefined;
+  readonly winnerCandidate: NonNullable<PayloadKey> | undefined;
   readonly candidateUpvotesVotingPower: BigNumber | undefined;
 }
 
@@ -45,11 +48,11 @@ export interface Voter {
   readonly votingPower: BigNumber;
 }
 
-export interface PromotionPeriod<T = unknown> {
+export interface PromotionPeriod {
   readonly periodIndex: BigNumber;
   readonly periodStartLevel: BigNumber;
   readonly periodEndLevel: BigNumber;
-  readonly winnerCandidate: T;
+  readonly winnerCandidate: PayloadKey;
   readonly voters: Voter[];
   readonly yeaVotingPower: BigNumber;
   readonly nayVotingPower: BigNumber;
@@ -57,14 +60,14 @@ export interface PromotionPeriod<T = unknown> {
   readonly totalVotingPower: BigNumber;
 }
 
-export interface VotingContext<T = unknown> {
+export interface VotingContext {
   readonly periodIndex: BigNumber;
   readonly periodType: PeriodType;
-  readonly proposalPeriod: ProposalPeriod<T>;
+  readonly proposalPeriod: ProposalPeriod;
   readonly promotionPeriod: PromotionPeriod | undefined;
 }
 
-export interface GovernanceState<T = unknown> {
-  readonly votingContext: VotingContext<T>;
-  readonly lastWinnerPayload: NonNullable<T> | undefined;
+export interface GovernanceState {
+  readonly votingContext: VotingContext;
+  readonly lastWinnerPayload: NonNullable<PayloadKey> | undefined;
 }

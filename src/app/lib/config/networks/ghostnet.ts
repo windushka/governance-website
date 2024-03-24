@@ -10,7 +10,7 @@ export const ghostnetConfig: Config = {
     address: 'KT1MHAVKVVDSgZsKiwNrRfYpKHiTLLrtGqod',//KT1QDgF5pBkXEizj5RnmagEyxLxMTwVRpmYk
     name: 'security'
   }, {
-    address: 'KT1LBBNtit9k2YU1eky2YqTFeqrpLqAhc1T8',
+    address: 'KT1V7eizWmUKSu8oFPaLTpCKsMh6QgD33m9i', //KT1LBBNtit9k2YU1eky2YqTFeqrpLqAhc1T8
     name: 'sequencer'
   }]
 }

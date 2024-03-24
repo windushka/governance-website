@@ -5,7 +5,7 @@ import { GovernanceConfig } from '@/app/lib/governance/config/config';
 import { getCurrentPeriodIndex } from '@/app/lib/governance/utils';
 import VotingStateHeader from './votingStateHeader';
 import { Contract } from '@/app/lib/config';
-import { createAppContext } from '@/app/lib/appContext/createAppContext';
+import { getAppContext } from '@/app/lib/appContext/getAppContext';
 
 interface VotingStateProps {
   contract: Contract;
@@ -14,7 +14,7 @@ interface VotingStateProps {
 }
 
 export default async function VotingState({ config, contract, periodIndex }: VotingStateProps) {
-  const context = createAppContext();
+  const context = getAppContext();
   const currentBlockLevel = await context.apiProvider.getCurrentBlockLevel();
   const timeBetweenBlocks = await context.apiProvider.getTimeBetweenBlocks();
 

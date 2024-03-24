@@ -14,27 +14,30 @@ export interface Config {
   readonly promotion_supermajority: BigNumber;
 }
 
+export type KernelKey = string;
+export interface SequencerKey {
+  readonly pool_address: string;
+  readonly sequencer_pk: string;
+};
+export type PayloadKey = KernelKey | SequencerKey;
+
+
 export interface Proposal {
   readonly proposer: string;
   readonly upvotes_voting_power: BigNumber;
 }
 
-export interface UpvotersProposalsKey<T = unknown> {
-  readonly key_hash: string;
-  readonly bytes: T;
-}
-
-export interface ProposalPeriod<T = unknown> {
+export interface ProposalPeriod {
   readonly upvoters_upvotes_count: BigMapAbstraction | null;
   readonly upvoters_proposals: BigMapAbstraction | null;
   readonly proposals: BigMapAbstraction | null;
   readonly max_upvotes_voting_power: MichelsonOptional<BigNumber>;
-  readonly winner_candidate: MichelsonOptional<NonNullable<T>>;
+  readonly winner_candidate: MichelsonOptional<NonNullable<PayloadKey>>;
   readonly total_voting_power: BigNumber;
 }
 
-export interface PromotionPeriod<T = unknown> {
-  readonly winner_candidate: NonNullable<T>;
+export interface PromotionPeriod {
+  readonly winner_candidate: NonNullable<PayloadKey>;
   readonly voters: BigMapAbstraction | null;
   readonly yea_voting_power: BigNumber;
   readonly nay_voting_power: BigNumber;
@@ -42,25 +45,34 @@ export interface PromotionPeriod<T = unknown> {
   readonly total_voting_power: BigNumber;
 }
 
-export type MichelsonPeriodType<T = unknown> = {
-  readonly proposal: ProposalPeriod<T>;
+export type MichelsonPeriodType = {
+  readonly proposal: ProposalPeriod;
 } | {
-  readonly promotion: PromotionPeriod<T>;
+  readonly promotion: PromotionPeriod;
 }
 
-export interface VotingContext<T = unknown> {
+export interface VotingContext {
   readonly period_index: BigNumber;
-  readonly period: MichelsonPeriodType<T>;
+  readonly period: MichelsonPeriodType;
 }
 
-export interface VotingWinner<T = unknown> {
-  readonly payload: NonNullable<T>;
+export interface VotingWinner {
+  readonly payload: NonNullable<PayloadKey>;
   readonly trigger_history: BigMapAbstraction;
 }
 
-export interface GovernanceContractStorage<T = unknown> {
+export interface GovernanceContractStorage {
   readonly config: Config;
-  readonly voting_context: MichelsonOptional<VotingContext<T>>;
-  readonly last_winner: MichelsonOptional<VotingWinner<T>>;
+  readonly voting_context: MichelsonOptional<VotingContext>;
+  readonly last_winner: MichelsonOptional<VotingWinner>;
   readonly metadata: BigMapAbstraction;
 }
+
+export interface KernelUpvotersProposalsKey {
+  readonly key_hash: string;
+  readonly bytes: KernelKey;
+}
+export interface SequencerUpvotersProposalsKey extends SequencerKey {
+  readonly key_hash: string;
+}
+export type UpvotersProposalsKey = KernelUpvotersProposalsKey | SequencerUpvotersProposalsKey;

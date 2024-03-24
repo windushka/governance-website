@@ -1,4 +1,4 @@
-import { createAppContext } from '@/app/lib/appContext/createAppContext';
+import { getAppContext } from '@/app/lib/appContext/getAppContext';
 import { getCurrentPeriodIndex } from '@/app/lib/governance/utils/calculators';
 import VotingState from '@/app/ui/voting/votingState';
 import BigNumber from 'bignumber.js';
@@ -12,7 +12,7 @@ interface HomeProps {
 }
 
 export default async function Home({ params }: HomeProps) {
-  const context = createAppContext();
+  const context = getAppContext();
   const contract = context.config.contracts.find(c => c.name === params.contract);
   if (!contract) {
     redirectToPeriodPage(context.config.contracts[0].name);

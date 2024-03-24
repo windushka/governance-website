@@ -5,6 +5,7 @@ import { clsx } from "clsx";
 import VotingPower from "@/app/ui/common/votingPower";
 import NoData from "@/app/ui/common/noData";
 import TotalVoteCard from "@/app/ui/voting/totalVoteCard";
+import PayloadKey from './payloadKey';
 
 interface PromotionStateProps {
   promotionPeriod: PromotionPeriod;
@@ -39,7 +40,7 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
     <div className="flex flex-row justify-between items-center mb-8">
       <div className="flex flex-col">
         <span>Candidate:</span>
-        <span className="text-xl">0x{(promotionPeriod.winnerCandidate as string)}</span>
+        <PayloadKey value={promotionPeriod.winnerCandidate} />
       </div>
 
       <div className="flex flex-col">

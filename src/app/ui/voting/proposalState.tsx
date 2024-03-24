@@ -1,13 +1,13 @@
-import { ProposalPeriod } from "@/app/lib/governance/state/state";
-import { getProposalQuorumPercent } from "../../lib/governance/utils/calculators";
+import { ProposalPeriod, GovernanceConfig } from '@/app/lib/governance';
+import { getProposalQuorumPercent } from '@/app/lib/governance/utils';
 import BigNumber from 'bignumber.js'
-import { GovernanceConfig } from "../../lib/governance/config/config";
 import clsx from 'clsx';
-import VotingPower from "@/app/ui/common/votingPower";
-import NoData from "@/app/ui//common/noData";
+import VotingPower from '@/app/ui/common/votingPower';
+import NoData from '@/app/ui/common/noData';
+import PayloadKey from './payloadKey';
 
 interface ProposalStateProps {
-  proposalPeriod: ProposalPeriod<string>;
+  proposalPeriod: ProposalPeriod;
   config: GovernanceConfig;
 }
 
@@ -17,14 +17,14 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
 
   const proposalList = <ul>
     {proposalPeriod.proposals.map(p =>
-      <li key={p.key} className={clsx("block flex flex-row justify-between py-8 px-8 border mb-4", p.key === proposalPeriod.winnerCandidate ? 'border-emerald-400' : 'border-slate-500')}>
+      <li key={JSON.stringify(p.key)} className={clsx("block flex flex-row justify-between items-center py-8 px-8 border mb-4", JSON.stringify(p.key) === JSON.stringify(proposalPeriod.winnerCandidate) ? 'border-emerald-400' : 'border-slate-500')}>
         <div className="flex flex-col">
           <span className="mb-1">
             Proposer: {p.proposer}
           </span>
-          <span className="text-xl">
-            0x{p.key}
-          </span>
+          <div className="text-xl">
+            <PayloadKey value={p.key} />
+          </div>
         </div>
         <div className="flex flex-col">
           <span className="mb-1">upvotes:</span>
@@ -44,10 +44,10 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
       </tr>
     </thead>
     <tbody>
-      {proposalPeriod.upvoters.map(p => <tr key={p.proposalKey}>
+      {proposalPeriod.upvoters.map(p => <tr key={JSON.stringify(p.proposalKey)}>
         <td className={tableCellClass}>{p.address}</td>
         <td className={tableCellClass}><VotingPower value={p.votingPower} /></td>
-        <td className={tableCellClass}>{p.proposalKey}</td>
+        <td className={tableCellClass}><PayloadKey value={p.proposalKey} /></td>
       </tr>)}
     </tbody>
   </table> : <span className="block">No Upvoters</span>
