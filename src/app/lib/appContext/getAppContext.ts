@@ -1,7 +1,7 @@
 import { TezosToolkit } from '@taquito/taquito';
 import { TzktApiProvider } from '../api';
 import { ghostnetConfig } from '../config';
-import { RpcGovernanceConfigProvider, RpcGovernanceStateProvider } from '../governance';
+import { RpcGovernancePeriodsProvider, RpcGovernanceConfigProvider, RpcGovernanceStateProvider } from '../governance';
 import { AppContext } from './appContext';
 
 let appContext: AppContext | undefined;
@@ -14,8 +14,11 @@ export const getAppContext = (): AppContext => {
     appContext = {
       config,
       apiProvider,
-      governanceConfigProvider: new RpcGovernanceConfigProvider(toolkit),
-      governanceStateProvider: new RpcGovernanceStateProvider(config.rpcUrl, apiProvider)
+      governance: {
+        configProvider: new RpcGovernanceConfigProvider(toolkit),
+        stateProvider: new RpcGovernanceStateProvider(config.rpcUrl, apiProvider),
+        periodsProvider: new RpcGovernancePeriodsProvider(toolkit, apiProvider)
+      }
     };
   }
 

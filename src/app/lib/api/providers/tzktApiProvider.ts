@@ -1,11 +1,22 @@
 import BigNumber from "bignumber.js";
 import { ApiProvider } from "./provider";
-import { Baker, TzktBigMapEntry, TzktTezosPeriodInfo, TzktVoter } from "../dto";
+import { Baker, TzktBigMapEntry, TzktTezosPeriodInfo, TzktVoter, VotingFinishedEventPayloadDto } from "../dto";
 
 export class TzktApiProvider implements ApiProvider {
   constructor(
     private readonly baseUrl: string
   ) { }
+
+  getVotingFinishedEvents(address: string): Promise<VotingFinishedEventPayloadDto[]> {
+    const url = `${this.baseUrl}/v1/contracts/events`;
+    const params = {
+      contract: address,
+      tag: 'voting_finished',
+      'select.fields': 'payload',
+      'sort.desc': 'id'
+    }
+    return this.fetchAllChunks(url, 300, params);
+  }
 
   async getContractOriginationLevel(address: string): Promise<BigNumber> {
     const url = `${this.baseUrl}/v1/contracts/${address}`;

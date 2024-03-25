@@ -1,4 +1,4 @@
-import { GovernanceState, PayloadKey, PeriodType, Proposal, ProposalPeriod, Upvoter, Voter, VotingContext } from '../state';
+import { GovernanceState, PeriodType, Proposal, ProposalPeriod, Upvoter, Voter, VotingContext } from '../state';
 import { TezosToolkit } from '@taquito/taquito';
 import * as Storage from '../../contract/storage';
 import { VotingState } from '../../contract/views';
@@ -10,14 +10,13 @@ import { GovernanceConfig } from '../../config/config';
 import { getFirstBlockOfPeriod, getLastBlockOfPeriod } from '../../utils/calculators';
 import { GovernanceStateProvider } from './provider';
 import { HistoricalRpcClient } from '@/app/lib/rpc/historicalRpcClient';
+import { callGetVotingStateView, mapPayloadKey } from '../../utils';
 
 export class RpcGovernanceStateProvider implements GovernanceStateProvider {
   constructor(
     private readonly rpcUrl: string,
     private readonly apiProvider: ApiProvider
-  ) {
-
-  }
+  ) { }
 
   async getState(contractAddress: string, config: GovernanceConfig, periodIndex: BigNumber): Promise<GovernanceState> {
     const currentBlockLevel = BigNumber((await this.getToolkit().rpc.getBlockHeader()).level);
@@ -28,18 +27,12 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
 
     const toolkit = this.getToolkit(blockLevel);
     const storage = await this.loadStorage(contractAddress, toolkit);
-    const stateViewResult = await this.callGetVotingStateView(contractAddress, toolkit);
+    const stateViewResult = await callGetVotingStateView(contractAddress, toolkit);
     return await this.getStateCore(contractAddress, periodIndex, storage, stateViewResult, currentBlockLevel);
   }
 
   private getToolkit(blockLevel?: BigNumber): TezosToolkit {
     return new TezosToolkit(blockLevel ? new HistoricalRpcClient(this.rpcUrl, blockLevel) : this.rpcUrl);
-  }
-
-  private async callGetVotingStateView(contractAddress: string, toolkit: TezosToolkit): Promise<VotingState> {
-    const contract = await toolkit.contract.at(contractAddress);
-    const view = contract.contractViews.get_voting_state();
-    return await view.executeView({ viewCaller: contractAddress });
   }
 
   private async loadStorage(contractAddress: string, toolkit: TezosToolkit): Promise<Storage.GovernanceContractStorage> {
@@ -140,7 +133,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
         proposalPeriod = this.unpackProposalPeriod(period)
         const lastBlockOfPromotionPeriod = getLastBlockOfPeriod(periodIndex.plus(1), startedAtLevel, periodLength);
         const historicalToolkit = this.getToolkit(BigNumber.min(lastBlockOfPromotionPeriod, currentBlockLevel));
-        const promotionPeriodViewResult = await this.callGetVotingStateView(contractAddress, historicalToolkit);
+        const promotionPeriodViewResult = await callGetVotingStateView(contractAddress, historicalToolkit);
         if ('promotion' in promotionPeriodViewResult.period_type) {
           const storageOfNextPromotionPeriod = await this.loadStorage(contractAddress, historicalToolkit);
           const promotionMichelsonPeriod = storageOfNextPromotionPeriod.voting_context?.Some.period;
@@ -194,7 +187,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
     //TODO: promise all
     const proposalPeriod = {
       totalVotingPower: proposal.total_voting_power,
-      winnerCandidate: winnerCandidate && this.mapPayloadKey(winnerCandidate),
+      winnerCandidate: winnerCandidate && mapPayloadKey(winnerCandidate),
       candidateUpvotesVotingPower: proposal.max_upvotes_voting_power?.Some!,
       periodIndex: proposalPeriodIndex,
       periodStartLevel: proposalPeriodStartLevel,
@@ -228,7 +221,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
           yeaVotingPower: promotion!.yea_voting_power,
           nayVotingPower: promotion!.nay_voting_power,
           passVotingPower: promotion!.pass_voting_power,
-          winnerCandidate: promotion!.winner_candidate && this.mapPayloadKey(promotion.winner_candidate),
+          winnerCandidate: promotion!.winner_candidate && mapPayloadKey(promotion.winner_candidate),
           voters: await this.getVoters(promotion!, promotionPeriodBakersMap)
         }
       }
@@ -236,7 +229,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
 
     return {
       votingContext,
-      lastWinnerPayload: lastWinnerPayload && this.mapPayloadKey(lastWinnerPayload)
+      lastWinnerPayload: lastWinnerPayload && mapPayloadKey(lastWinnerPayload)
     }
   }
 
@@ -245,7 +238,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
     if (proposalPeriod.proposals) {
       const rawEntries = await this.apiProvider.getBigMapEntries<Storage.PayloadKey, Storage.Proposal>(BigNumber(proposalPeriod.proposals.toString()));
       proposals = rawEntries.map(({ key, value }) => ({
-        key: this.mapPayloadKey(key),
+        key: mapPayloadKey(key),
         proposer: value.proposer,
         upvotesVotingPower: BigNumber(value.upvotes_voting_power)
       } as Proposal));
@@ -260,7 +253,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
       const rawEntries = await this.apiProvider.getBigMapEntries<Storage.UpvotersProposalsKey, never>(BigNumber(proposalPeriod.upvoters_proposals.toString()));
       upvoters = rawEntries.map(({ key }) => ({
         address: key.key_hash,
-        proposalKey: 'bytes' in key ? key.bytes : this.mapPayloadKey(key),
+        proposalKey: 'bytes' in key ? key.bytes : mapPayloadKey(key),
         votingPower: bakers.get(key.key_hash)!.votingPower
       } as Upvoter));
     }
@@ -280,15 +273,5 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
     }
 
     return voters;
-  }
-
-  private mapPayloadKey(michelsonKey: Storage.PayloadKey): PayloadKey {
-    if (typeof michelsonKey === 'string')
-      return michelsonKey;
-
-    return {
-      poolAddress: michelsonKey.pool_address,
-      sequencerPublicKey: michelsonKey.sequencer_pk
-    }
   }
 }

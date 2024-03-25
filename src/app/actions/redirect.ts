@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 
 export const getPeriodPageUrl = (contractName: string, periodIndex?: number) => {
-  return `/${contractName}/period${periodIndex ? `/${periodIndex}` : ''}`;
+  return `/${contractName}/period${periodIndex !== undefined ? `/${periodIndex}` : ''}`;
 }
 
 export const redirectToPeriodPage = (contractName: string, periodIndex?: number): never => {

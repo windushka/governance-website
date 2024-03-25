@@ -21,7 +21,7 @@ export default async function Home({ params }: HomeProps) {
 
   const currentBlockLevel = await context.apiProvider.getCurrentBlockLevel();
 
-  const config = await context.governanceConfigProvider.getConfig(contract.address);
+  const config = await context.governance.configProvider.getConfig(contract.address);
   const { startedAtLevel, periodLength } = config;
   const currentPeriodIndex = getCurrentPeriodIndex(currentBlockLevel, startedAtLevel, periodLength);
 

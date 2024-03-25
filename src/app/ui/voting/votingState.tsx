@@ -20,7 +20,7 @@ export default async function VotingState({ config, contract, periodIndex }: Vot
 
   const { startedAtLevel, periodLength } = config;
   const currentPeriodIndex = getCurrentPeriodIndex(currentBlockLevel, startedAtLevel, periodLength);
-  const state = await context.governanceStateProvider.getState(contract.address, config, periodIndex);
+  const state = await context.governance.stateProvider.getState(contract.address, config, periodIndex);
   const votingContext = state.votingContext;
 
   return <>

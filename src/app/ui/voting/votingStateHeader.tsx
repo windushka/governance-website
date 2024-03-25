@@ -7,6 +7,7 @@ import NavButton from './navButton';
 import PeriodSelector from './periodSelector';
 import ContractConfigModalButton from './contractConfigModalButton';
 import { Contract } from '@/app/lib/config';
+import { getAppContext } from '@/app/lib/appContext';
 
 interface VotingStateHeaderProps {
   contract: Contract;
@@ -18,20 +19,22 @@ interface VotingStateHeaderProps {
   config: GovernanceConfig
 }
 
-export default function VotingStateHeader({ contract, periodIndex, votingContext, currentPeriodIndex, config, currentLevel, blockTime }: VotingStateHeaderProps) {
+export default async function VotingStateHeader({ contract, periodIndex, votingContext, currentPeriodIndex, config, currentLevel, blockTime }: VotingStateHeaderProps) {
   const promotionPeriodIndex = votingContext.proposalPeriod.periodIndex.plus(1);
   const { startedAtLevel, periodLength } = config;
   const prevPeriodIndex = periodIndex.minus(1);
   const nextPeriodIndex = periodIndex.plus(1);
+  
+  const context = getAppContext();
+  const periods = await context.governance.periodsProvider.getPeriods(contract.address, config);
 
   return <div className="flex flex-row justify-between items-center pb-4 mb-8 border-b">
     <div className="flex flex-row gap-10 items-center">
-      <NavButton contractName={contract.name} disabled={prevPeriodIndex.lte(0)} periodIndex={prevPeriodIndex} />
+      <NavButton contractName={contract.name} disabled={prevPeriodIndex.lt(0)} periodIndex={prevPeriodIndex} />
       <PeriodSelector
         contractName={contract.name}
-        minValue={0}
-        maxValue={currentPeriodIndex.toNumber()}
-        value={periodIndex.toNumber()} />
+        periods={periods}
+        currentPeriodIndex={periodIndex.toNumber()} />
       <PeriodHeader
         contractName={contract.name}
         currentLevel={currentLevel}

@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { Baker, TzktBigMapEntry, TzktTezosPeriodInfo } from '../dto';
+import { Baker, TzktBigMapEntry, TzktTezosPeriodInfo, VotingFinishedEventPayloadDto } from '../dto';
 
 export interface ApiProvider {
   getCurrentBlockLevel(): Promise<BigNumber>;
@@ -9,4 +9,5 @@ export interface ApiProvider {
   getTotalVotingPower(level: BigNumber): Promise<BigNumber>;
   getBigMapEntries<K, V>(id: BigNumber): Promise<Array<TzktBigMapEntry<K, V>>>;
   getContractOriginationLevel(address: string): Promise<BigNumber>;
+  getVotingFinishedEvents(address: string): Promise<VotingFinishedEventPayloadDto[]>
 }

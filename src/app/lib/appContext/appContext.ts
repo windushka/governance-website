@@ -1,10 +1,13 @@
 import { ApiProvider } from '../api';
 import { Config } from '../config';
-import { GovernanceConfigProvider, GovernanceStateProvider } from '../governance';
+import { GovernanceConfigProvider, GovernanceStateProvider, GovernancePeriodsProvider } from '../governance';
 
 export interface AppContext {
   config: Config;
   apiProvider: ApiProvider;
-  governanceConfigProvider: GovernanceConfigProvider;
-  governanceStateProvider: GovernanceStateProvider<string>;
+  governance: {
+    configProvider: GovernanceConfigProvider;
+    stateProvider: GovernanceStateProvider;
+    periodsProvider: GovernancePeriodsProvider;
+  }
 }
