@@ -1,7 +1,6 @@
 import { TezosToolkit } from '@taquito/taquito';
 import { GovernanceConfig } from '../config';
 import { GovernanceContractStorage, Config as MichelsonConfig } from '../../contract';
-import BigNumber from 'bignumber.js'
 import { GovernanceConfigProvider } from './provider';
 
 export class RpcGovernanceConfigProvider implements GovernanceConfigProvider {
@@ -17,18 +16,14 @@ export class RpcGovernanceConfigProvider implements GovernanceConfigProvider {
 
   private mapConfig(config: MichelsonConfig): GovernanceConfig {
     return {
-      startedAtLevel: config.started_at_level,
-      upvotingLimit: config.upvoting_limit,
-      adoptionPeriodSec: config.adoption_period_sec,
-      periodLength: config.period_length,
-      proposalQuorum: this.natToPercent(config.promotion_quorum, config.scale),
-      promotionQuorum: this.natToPercent(config.promotion_quorum, config.scale),
-      promotionSupermajority: this.natToPercent(config.promotion_supermajority, config.scale),
+      startedAtLevel: BigInt(config.started_at_level.toString()),
+      upvotingLimit: BigInt(config.upvoting_limit.toString()),
+      adoptionPeriodSec: BigInt(config.adoption_period_sec.toString()),
+      periodLength: BigInt(config.period_length.toString()),
+      scale: BigInt(config.scale.toString()),
+      proposalQuorum: BigInt(config.promotion_quorum.toString()),
+      promotionQuorum: BigInt(config.promotion_quorum.toString()),
+      promotionSupermajority: BigInt(config.promotion_supermajority.toString()),
     }
-  }
-
-  //TODO: move to utils
-  private natToPercent(value: BigNumber, scale: BigNumber) {
-    return value.multipliedBy(100).div(scale)
   }
 }

@@ -1,7 +1,6 @@
 import { GovernanceConfig } from '../../config';
 import { GovernanceState } from '../state';
-import BigNumber from 'bignumber.js';
 
 export interface GovernanceStateProvider {
-  getState(contractAddress: string, config: GovernanceConfig, periodIndex?: BigNumber): Promise<GovernanceState>;
+  getState(contractAddress: string, config: GovernanceConfig, periodIndex: bigint): Promise<GovernanceState>;
 }

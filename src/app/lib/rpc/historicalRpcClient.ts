@@ -1,15 +1,14 @@
 import { ContractResponse, RpcClient, RPCRunScriptViewParam, RunScriptViewResult } from '@taquito/rpc';
-import BigNumber from 'bignumber.js';
 
 export class HistoricalRpcClient extends RpcClient {
-  private blockLevel: BigNumber;
+  private blockLevel: bigint;
 
-  constructor(url: string, blockLevel: BigNumber) {
+  constructor(url: string, blockLevel: bigint) {
     super(url);
     this.blockLevel = blockLevel;
   }
 
-  setBlockLevel(blockLevel: BigNumber) {
+  setBlockLevel(blockLevel: bigint) {
     this.blockLevel = blockLevel;
   }
 
@@ -20,5 +19,4 @@ export class HistoricalRpcClient extends RpcClient {
   runScriptView(params: RPCRunScriptViewParam, _?: { block: string; }): Promise<RunScriptViewResult> {
     return super.runScriptView(params, { block: this.blockLevel.toString(10) })
   }
-
 }

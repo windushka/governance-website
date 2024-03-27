@@ -1,50 +1,73 @@
 import BigNumber from 'bignumber.js';
 
+const toBigNumber = (value: BigNumber | bigint): BigNumber => {
+  return typeof value === 'bigint' ? BigNumber(value.toString(10)) : value
+}
+
 export const getProposalQuorumPercent = (
-    upvotes: BigNumber,
-    totalVotingPower: BigNumber,
+  upvotes: BigNumber | bigint,
+  totalVotingPower: BigNumber | bigint,
 ): BigNumber => {
-    return upvotes.div(totalVotingPower).multipliedBy(100)
+  return toBigNumber(upvotes).div(toBigNumber(totalVotingPower)).multipliedBy(100)
 };
 
 export const getPromotionQuorumPercent = (
-    totalYay: BigNumber,
-    totalNay: BigNumber,
-    totalPass: BigNumber,
-    totalVotingPower: BigNumber,
+  totalYay: BigNumber | bigint,
+  totalNay: BigNumber | bigint,
+  totalPass: BigNumber | bigint,
+  totalVotingPower: BigNumber | bigint,
 ): BigNumber => {
-    return totalYay.plus(totalNay).plus(totalPass).div(totalVotingPower).multipliedBy(100)
+  return toBigNumber(totalYay)
+    .plus(toBigNumber(totalNay))
+    .plus(toBigNumber(totalPass))
+    .div(toBigNumber(totalVotingPower))
+    .multipliedBy(100)
 };
 
 export const getPromotionSupermajorityPercent = (
-    totalYay: BigNumber,
-    totalNay: BigNumber,
+  totalYea: BigNumber | bigint,
+  totalNay: BigNumber | bigint,
 ): BigNumber => {
-    if (totalYay.isZero() && totalNay.isZero())
-        return BigNumber(0);
-    return totalYay.div(totalYay.plus(totalNay)).multipliedBy(100)
+  const totalYeaBN = toBigNumber(totalYea);
+  const totalNayBN = toBigNumber(totalNay);
+
+  if (totalYeaBN.isZero() && totalNayBN.isZero())
+    return BigNumber(0);
+
+  return totalYeaBN.div(totalYeaBN.plus(totalNayBN)).multipliedBy(100)
 };
 
 export const getFirstBlockOfPeriod = (
-    periodIndex: BigNumber,
-    startedAtLevel: BigNumber,
-    periodLength: BigNumber
-): BigNumber => {
-    return startedAtLevel.plus(periodIndex.multipliedBy(periodLength));
+  periodIndex: bigint,
+  startedAtLevel: bigint,
+  periodLength: bigint
+): bigint => {
+  return startedAtLevel + (periodIndex * periodLength);
 }
 
 export const getLastBlockOfPeriod = (
-    periodIndex: BigNumber,
-    startedAtLevel: BigNumber,
-    periodLength: BigNumber
-): BigNumber => {
-    return getFirstBlockOfPeriod(periodIndex.plus(1), startedAtLevel, periodLength).minus(1);
+  periodIndex: bigint,
+  startedAtLevel: bigint,
+  periodLength: bigint
+): bigint => {
+  return getFirstBlockOfPeriod(periodIndex + BigInt(1), startedAtLevel, periodLength) - BigInt(1);
 }
 
 export const getCurrentPeriodIndex = (
-    currentBlockLevel: BigNumber,
-    startedAtLevel: BigNumber,
-    periodLength: BigNumber
+  currentBlockLevel: bigint,
+  startedAtLevel: bigint,
+  periodLength: bigint
+): bigint => {
+  return (currentBlockLevel - startedAtLevel) / periodLength;
+}
+
+export const natToPercent = (
+  value: BigNumber | bigint,
+  scale: BigNumber | bigint
 ): BigNumber => {
-    return currentBlockLevel.minus(startedAtLevel).dividedToIntegerBy(periodLength);
+  return toBigNumber(value).multipliedBy(100).div(toBigNumber(scale));
+}
+
+export const min = (v1: bigint, v2: bigint) => {
+  return v1 < v2 ? v1 : v2;
 }

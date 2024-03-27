@@ -7,10 +7,9 @@ import { MichelsonOptional } from '../../contract/types';
 import { ApiProvider } from '../../../api/providers/provider';
 import { Baker } from '@/app/lib/api/dto';
 import { GovernanceConfig } from '../../config/config';
-import { getFirstBlockOfPeriod, getLastBlockOfPeriod } from '../../utils/calculators';
+import { getFirstBlockOfPeriod, getLastBlockOfPeriod, min, callGetVotingStateView, mapPayloadKey } from '../../utils';
 import { GovernanceStateProvider } from './provider';
 import { HistoricalRpcClient } from '@/app/lib/rpc/historicalRpcClient';
-import { callGetVotingStateView, mapPayloadKey } from '../../utils';
 
 export class RpcGovernanceStateProvider implements GovernanceStateProvider {
   constructor(
@@ -18,11 +17,11 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
     private readonly apiProvider: ApiProvider
   ) { }
 
-  async getState(contractAddress: string, config: GovernanceConfig, periodIndex: BigNumber): Promise<GovernanceState> {
-    const currentBlockLevel = BigNumber((await this.getToolkit().rpc.getBlockHeader()).level);
-    const blockLevel = BigNumber.min(getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength), currentBlockLevel);
+  async getState(contractAddress: string, config: GovernanceConfig, periodIndex: bigint): Promise<GovernanceState> {
+    const currentBlockLevel = await this.apiProvider.getCurrentBlockLevel();
+    const blockLevel = min(getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength), currentBlockLevel);
     const originatedAtLevel = await this.apiProvider.getContractOriginationLevel(contractAddress);
-    if (blockLevel.lte(originatedAtLevel))
+    if (blockLevel <= originatedAtLevel)
       return await this.getEmptyGovernanceState(periodIndex, config);
 
     const toolkit = this.getToolkit(blockLevel);
@@ -31,7 +30,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
     return await this.getStateCore(contractAddress, periodIndex, storage, stateViewResult, currentBlockLevel);
   }
 
-  private getToolkit(blockLevel?: BigNumber): TezosToolkit {
+  private getToolkit(blockLevel?: bigint): TezosToolkit {
     return new TezosToolkit(blockLevel ? new HistoricalRpcClient(this.rpcUrl, blockLevel) : this.rpcUrl);
   }
 
@@ -40,18 +39,18 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
     return contract.storage<Storage.GovernanceContractStorage>();
   }
 
-  private initializeProposalPeriod(totalVotingPower: BigNumber): Storage.ProposalPeriod {
+  private initializeProposalPeriod(totalVotingPower: bigint): Storage.ProposalPeriod {
     return {
       upvoters_upvotes_count: null,
       upvoters_proposals: null,
       proposals: null,
       max_upvotes_voting_power: null,
       winner_candidate: null,
-      total_voting_power: totalVotingPower
+      total_voting_power: BigNumber(totalVotingPower.toString())
     }
   }
 
-  private initializePromotionPeriod(period: Storage.MichelsonPeriodType, totalVotingPower: BigNumber): Storage.PromotionPeriod {
+  private initializePromotionPeriod(period: Storage.MichelsonPeriodType, totalVotingPower: bigint): Storage.PromotionPeriod {
     if (!('proposal' in period))
       throw new Error('Not proposal period')
 
@@ -65,11 +64,11 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
       nay_voting_power: BigNumber(0),
       pass_voting_power: BigNumber(0),
       voters: null,
-      total_voting_power: totalVotingPower
+      total_voting_power: BigNumber(totalVotingPower.toString())
     }
   }
 
-  private async getEmptyGovernanceState(periodIndex: BigNumber, config: GovernanceConfig): Promise<GovernanceState> {
+  private async getEmptyGovernanceState(periodIndex: bigint, config: GovernanceConfig): Promise<GovernanceState> {
     const periodStartLevel = getFirstBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
     const periodEndLevel = getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
     const totalVotingPower = await this.apiProvider.getTotalVotingPower(periodStartLevel)
@@ -114,25 +113,26 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
 
   private async getStateCore(
     contractAddress: string,
-    periodIndex: BigNumber,
+    periodIndex: bigint,
     storage: Storage.GovernanceContractStorage,
     stateViewResult: VotingState,
-    currentBlockLevel: BigNumber,
+    currentBlockLevel: bigint,
   ): Promise<GovernanceState> {
     const periodType = 'proposal' in stateViewResult.period_type ? PeriodType.Proposal : PeriodType.Promotion;
     const votingContext = storage.voting_context?.Some;
     const period = votingContext?.period;
-    const { started_at_level: startedAtLevel, period_length: periodLength } = storage.config;
+    const startedAtLevel = BigInt(storage.config.started_at_level.toString());
+    const periodLength = BigInt(storage.config.period_length.toString());
 
     let proposalPeriod: Storage.ProposalPeriod;
     let promotionPeriod: Storage.PromotionPeriod | undefined;
     let lastWinner: NonNullable<Storage.PayloadKey> | undefined;
 
-    if (votingContext && periodIndex.eq(votingContext.period_index) && period) {
+    if (votingContext && periodIndex.toString(10) === votingContext.period_index.toString(10) && period) {
       if (periodType === PeriodType.Proposal) {
         proposalPeriod = this.unpackProposalPeriod(period)
-        const lastBlockOfPromotionPeriod = getLastBlockOfPeriod(periodIndex.plus(1), startedAtLevel, periodLength);
-        const historicalToolkit = this.getToolkit(BigNumber.min(lastBlockOfPromotionPeriod, currentBlockLevel));
+        const lastBlockOfPromotionPeriod = getLastBlockOfPeriod(periodIndex + BigInt(1), startedAtLevel, periodLength);
+        const historicalToolkit = this.getToolkit(min(lastBlockOfPromotionPeriod, currentBlockLevel));
         const promotionPeriodViewResult = await callGetVotingStateView(contractAddress, historicalToolkit);
         if ('promotion' in promotionPeriodViewResult.period_type) {
           const storageOfNextPromotionPeriod = await this.loadStorage(contractAddress, historicalToolkit);
@@ -144,7 +144,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
             : this.initializePromotionPeriod(period, await this.apiProvider.getTotalVotingPower(lastBlockOfPromotionPeriod));
         }
       } else {
-        const lastBlockOfProposalPeriod = getLastBlockOfPeriod(periodIndex.minus(1), startedAtLevel, periodLength);
+        const lastBlockOfProposalPeriod = getLastBlockOfPeriod(periodIndex - BigInt(1), startedAtLevel, periodLength);
         const historicalToolkit = this.getToolkit(lastBlockOfProposalPeriod);
         const storageOfPreviousProposalPeriod = await this.loadStorage(contractAddress, historicalToolkit);
         proposalPeriod = this.unpackProposalPeriod(storageOfPreviousProposalPeriod.voting_context?.Some.period!)
@@ -153,7 +153,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
       lastWinner = this.unpackLastWinnerPayload(storage.last_winner);
     } else {
       const firstBlockOfPeriod = getFirstBlockOfPeriod(periodIndex, startedAtLevel, periodLength);
-      const totalVotingPower = await this.apiProvider.getTotalVotingPower(BigNumber.min(firstBlockOfPeriod, currentBlockLevel));
+      const totalVotingPower = await this.apiProvider.getTotalVotingPower(min(firstBlockOfPeriod, currentBlockLevel));
       [proposalPeriod, promotionPeriod] = (periodType === PeriodType.Proposal || !period)
         ? [this.initializeProposalPeriod(totalVotingPower), undefined]
         : [this.unpackProposalPeriod(period), this.initializePromotionPeriod(period, totalVotingPower)];
@@ -164,31 +164,32 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
         : this.unpackLastWinnerPayload(storage.last_winner);
     }
 
-    return this.mapStorageToState(periodIndex, periodType, storage.config, proposalPeriod, promotionPeriod, lastWinner, currentBlockLevel);
+    return this.createState(periodIndex, periodType, startedAtLevel, periodLength, proposalPeriod, promotionPeriod, lastWinner, currentBlockLevel);
   }
 
-  private async mapStorageToState(
-    periodIndex: BigNumber,
+  private async createState(
+    periodIndex: bigint,
     periodType: PeriodType,
-    config: Storage.Config,
+    startedAtLevel: bigint,
+    periodLength: bigint,
     proposal: Storage.ProposalPeriod,
     promotion: Storage.PromotionPeriod | undefined,
     lastWinnerPayload: NonNullable<Storage.PayloadKey> | undefined,
-    currentBlockLevel: BigNumber
+    currentBlockLevel: bigint
   ): Promise<GovernanceState> {
-    const proposalPeriodIndex = periodType === PeriodType.Proposal ? periodIndex : periodIndex.minus(1);
-    const proposalPeriodStartLevel = getFirstBlockOfPeriod(proposalPeriodIndex, config.started_at_level, config.period_length);
-    const proposalPeriodEndLevel = getLastBlockOfPeriod(proposalPeriodIndex, config.started_at_level, config.period_length);
-    const proposalPeriodBakers = await this.apiProvider.getBakers(BigNumber.min(proposalPeriodEndLevel, currentBlockLevel));
+    const proposalPeriodIndex = periodType === PeriodType.Proposal ? periodIndex : periodIndex - BigInt(1);
+    const proposalPeriodStartLevel = getFirstBlockOfPeriod(proposalPeriodIndex, startedAtLevel, periodLength);
+    const proposalPeriodEndLevel = getLastBlockOfPeriod(proposalPeriodIndex, startedAtLevel, periodLength);
+    const proposalPeriodBakers = await this.apiProvider.getBakers(min(proposalPeriodEndLevel, currentBlockLevel));
     const proposalPeriodBakersMap = new Map(proposalPeriodBakers.map(b => [b.address, b]));
 
     const winnerCandidate = proposal.winner_candidate?.Some;
 
     //TODO: promise all
     const proposalPeriod = {
-      totalVotingPower: proposal.total_voting_power,
+      totalVotingPower: BigInt(proposal.total_voting_power.toString()),
       winnerCandidate: winnerCandidate && mapPayloadKey(winnerCandidate),
-      candidateUpvotesVotingPower: proposal.max_upvotes_voting_power?.Some!,
+      candidateUpvotesVotingPower: proposal.max_upvotes_voting_power?.Some && BigInt(proposal.max_upvotes_voting_power.Some.toString()),
       periodIndex: proposalPeriodIndex,
       periodStartLevel: proposalPeriodStartLevel,
       periodEndLevel: proposalPeriodEndLevel,
@@ -205,10 +206,10 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
     }
 
     if (promotion) {
-      const promotionPeriodIndex = periodType === PeriodType.Proposal ? periodIndex.plus(1) : periodIndex;
-      const promotionPeriodStartLevel = getFirstBlockOfPeriod(promotionPeriodIndex, config.started_at_level, config.period_length);
-      const promotionPeriodEndLevel = getLastBlockOfPeriod(promotionPeriodIndex, config.started_at_level, config.period_length);
-      const promotionPeriodBakers = await this.apiProvider.getBakers(BigNumber.min(promotionPeriodEndLevel, currentBlockLevel));
+      const promotionPeriodIndex = periodType === PeriodType.Proposal ? periodIndex + BigInt(1) : periodIndex;
+      const promotionPeriodStartLevel = getFirstBlockOfPeriod(promotionPeriodIndex, startedAtLevel, periodLength);
+      const promotionPeriodEndLevel = getLastBlockOfPeriod(promotionPeriodIndex, startedAtLevel, periodLength);
+      const promotionPeriodBakers = await this.apiProvider.getBakers(min(promotionPeriodEndLevel, currentBlockLevel));
       const promotionPeriodBakersMap = new Map(promotionPeriodBakers.map(b => [b.address, b]));
 
       votingContext = {
@@ -217,12 +218,12 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
           periodIndex: promotionPeriodIndex,
           periodStartLevel: promotionPeriodStartLevel,
           periodEndLevel: promotionPeriodEndLevel,
-          totalVotingPower: promotion!.total_voting_power,
-          yeaVotingPower: promotion!.yea_voting_power,
-          nayVotingPower: promotion!.nay_voting_power,
-          passVotingPower: promotion!.pass_voting_power,
-          winnerCandidate: promotion!.winner_candidate && mapPayloadKey(promotion.winner_candidate),
-          voters: await this.getVoters(promotion!, promotionPeriodBakersMap)
+          totalVotingPower: BigInt(promotion.total_voting_power.toString()),
+          yeaVotingPower: BigInt(promotion.yea_voting_power.toString()),
+          nayVotingPower: BigInt(promotion.nay_voting_power.toString()),
+          passVotingPower: BigInt(promotion.pass_voting_power.toString()),
+          winnerCandidate: promotion.winner_candidate && mapPayloadKey(promotion.winner_candidate),
+          voters: await this.getVoters(promotion, promotionPeriodBakersMap)
         }
       }
     }
@@ -236,21 +237,21 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
   private async getProposals(proposalPeriod: Storage.ProposalPeriod): Promise<Proposal[]> {
     let proposals: Proposal[] = [];
     if (proposalPeriod.proposals) {
-      const rawEntries = await this.apiProvider.getBigMapEntries<Storage.PayloadKey, Storage.Proposal>(BigNumber(proposalPeriod.proposals.toString()));
+      const rawEntries = await this.apiProvider.getBigMapEntries<Storage.PayloadKey, Storage.Proposal>(BigInt(proposalPeriod.proposals.toString()));
       proposals = rawEntries.map(({ key, value }) => ({
         key: mapPayloadKey(key),
         proposer: value.proposer,
-        upvotesVotingPower: BigNumber(value.upvotes_voting_power)
+        upvotesVotingPower: BigInt(value.upvotes_voting_power.toString())
       } as Proposal));
     }
 
-    return proposals.toSorted((a, b) => b.upvotesVotingPower.comparedTo(a.upvotesVotingPower));
+    return proposals.toSorted((a, b) => b.upvotesVotingPower > a.upvotesVotingPower ? 1 : b.upvotesVotingPower < a.upvotesVotingPower ? -1 : 0);
   }
 
   private async getUpvoters(proposalPeriod: Storage.ProposalPeriod, bakers: Map<Baker['address'], Baker>): Promise<Upvoter[]> {
     let upvoters: Upvoter[] = [];
     if (proposalPeriod.upvoters_proposals) {
-      const rawEntries = await this.apiProvider.getBigMapEntries<Storage.UpvotersProposalsKey, never>(BigNumber(proposalPeriod.upvoters_proposals.toString()));
+      const rawEntries = await this.apiProvider.getBigMapEntries<Storage.UpvotersProposalsKey, never>(BigInt(proposalPeriod.upvoters_proposals.toString()));
       upvoters = rawEntries.map(({ key }) => ({
         address: key.key_hash,
         proposalKey: 'bytes' in key ? key.bytes : mapPayloadKey(key),
@@ -264,7 +265,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
   private async getVoters(promotionPeriod: Storage.PromotionPeriod, bakers: Map<Baker['address'], Baker>): Promise<Voter[]> {
     let voters: Voter[] = [];
     if (promotionPeriod.voters) {
-      const rawEntries = await this.apiProvider.getBigMapEntries<string, string>(BigNumber(promotionPeriod.voters.toString()));
+      const rawEntries = await this.apiProvider.getBigMapEntries<string, string>(BigInt(promotionPeriod.voters.toString()));
       voters = rawEntries.map(({ key, value }) => ({
         address: key,
         vote: value,

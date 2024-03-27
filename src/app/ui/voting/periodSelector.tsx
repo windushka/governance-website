@@ -7,7 +7,7 @@ import { ConfigProvider, Select, SelectProps, theme } from 'antd';
 interface PeriodSelectorProps {
   contractName: string;
   periods: GovernancePeriod[];
-  currentPeriodIndex: number;
+  currentPeriodIndex: bigint;
 }
 
 const labelRender: SelectProps['labelRender'] = (props) => {
@@ -22,7 +22,7 @@ const filterOption = (input: string, option?: { label: string; value: string }) 
 export default function PeriodSelector({ contractName, periods, currentPeriodIndex }: PeriodSelectorProps) {
   let options = periods.map(p => ({
     value: p.index.toString(),
-    label: `${p.index}. ${p.type}`
+    label: `${p.index}. ${p.type}${p.winnerPayload ? ' (new winner)' : ''}`
   }));
 
   return <ConfigProvider
@@ -36,8 +36,8 @@ export default function PeriodSelector({ contractName, periods, currentPeriodInd
       showSearch
       optionFilterProp="children"
       filterOption={filterOption}
-      dropdownStyle={{ width: 220 }}
-      onChange={(v) => redirectToPeriodPage(contractName, +v)}
+      dropdownStyle={{ width: 230 }}
+      onChange={(v) => redirectToPeriodPage(contractName, v)}
       options={options}
     />
   </ConfigProvider>

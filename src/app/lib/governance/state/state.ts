@@ -1,5 +1,3 @@
-import BigNumber from 'bignumber.js';
-
 export enum PeriodType {
   Proposal = 'Proposal',
   Promotion = 'Promotion'
@@ -22,46 +20,46 @@ export type PayloadKey = KernelKey | SequencerKey;
 export interface Proposal {
   readonly key: PayloadKey;
   readonly proposer: string;
-  readonly upvotesVotingPower: BigNumber;
+  readonly upvotesVotingPower: bigint;
 }
 
 export interface Upvoter {
   readonly address: string;
   readonly proposalKey: PayloadKey;
-  readonly votingPower: BigNumber;
+  readonly votingPower: bigint;
 }
 
 export interface ProposalPeriod {
-  readonly periodIndex: BigNumber;
-  readonly periodStartLevel: BigNumber;
-  readonly periodEndLevel: BigNumber;
+  readonly periodIndex: bigint;
+  readonly periodStartLevel: bigint;
+  readonly periodEndLevel: bigint;
   readonly proposals: Array<Proposal>;
   readonly upvoters: Array<Upvoter>;
-  readonly totalVotingPower: BigNumber;
+  readonly totalVotingPower: bigint;
   readonly winnerCandidate: NonNullable<PayloadKey> | undefined;
-  readonly candidateUpvotesVotingPower: BigNumber | undefined;
+  readonly candidateUpvotesVotingPower: bigint | undefined;
 }
 
 export interface Voter {
   readonly address: string;
   readonly vote: Vote;
-  readonly votingPower: BigNumber;
+  readonly votingPower: bigint;
 }
 
 export interface PromotionPeriod {
-  readonly periodIndex: BigNumber;
-  readonly periodStartLevel: BigNumber;
-  readonly periodEndLevel: BigNumber;
+  readonly periodIndex: bigint;
+  readonly periodStartLevel: bigint;
+  readonly periodEndLevel: bigint;
   readonly winnerCandidate: PayloadKey;
   readonly voters: Voter[];
-  readonly yeaVotingPower: BigNumber;
-  readonly nayVotingPower: BigNumber;
-  readonly passVotingPower: BigNumber;
-  readonly totalVotingPower: BigNumber;
+  readonly yeaVotingPower: bigint;
+  readonly nayVotingPower: bigint;
+  readonly passVotingPower: bigint;
+  readonly totalVotingPower: bigint;
 }
 
 export interface VotingContext {
-  readonly periodIndex: BigNumber;
+  readonly periodIndex: bigint;
   readonly periodType: PeriodType;
   readonly proposalPeriod: ProposalPeriod;
   readonly promotionPeriod: PromotionPeriod | undefined;

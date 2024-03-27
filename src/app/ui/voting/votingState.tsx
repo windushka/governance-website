@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js';
 import ProposalState from '@/app/ui/voting/proposalState';
 import PromotionState from '@/app/ui/voting/promotionState';
 import { GovernanceConfig } from '@/app/lib/governance/config/config';
@@ -10,7 +9,7 @@ import { getAppContext } from '@/app/lib/appContext/getAppContext';
 interface VotingStateProps {
   contract: Contract;
   config: GovernanceConfig;
-  periodIndex: BigNumber;
+  periodIndex: bigint;
 }
 
 export default async function VotingState({ config, contract, periodIndex }: VotingStateProps) {
@@ -32,7 +31,7 @@ export default async function VotingState({ config, contract, periodIndex }: Vot
       periodIndex={periodIndex}
       votingContext={votingContext}
       config={config} />
-    {votingContext.promotionPeriod && periodIndex.eq(votingContext.promotionPeriod.periodIndex)
+    {votingContext.promotionPeriod && periodIndex == votingContext.promotionPeriod.periodIndex
       ? <PromotionState promotionPeriod={votingContext.promotionPeriod} config={config} />
       : <ProposalState proposalPeriod={votingContext.proposalPeriod} config={config} />}
   </>

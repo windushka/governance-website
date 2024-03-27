@@ -1,5 +1,5 @@
 import { ProposalPeriod, GovernanceConfig } from '@/app/lib/governance';
-import { getProposalQuorumPercent } from '@/app/lib/governance/utils';
+import { getProposalQuorumPercent, natToPercent } from '@/app/lib/governance/utils';
 import BigNumber from 'bignumber.js'
 import clsx from 'clsx';
 import VotingPower from '@/app/ui/common/votingPower';
@@ -14,6 +14,8 @@ interface ProposalStateProps {
 export default function ProposalState({ proposalPeriod, config }: ProposalStateProps) {
   if (!proposalPeriod.proposals.length)
     return <NoData text="No proposals" />
+
+  const minimumProposalQuorum = natToPercent(config.proposalQuorum, config.scale);
 
   const proposalList = <ul>
     {proposalPeriod.proposals.map(p =>
@@ -59,7 +61,7 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
       <h2 className="text-xl">Proposals</h2>
       <div>
         <span>Quorum: </span>
-        <span className={clsx(proposalQuorum.gte(config.proposalQuorum) ? 'text-emerald-400' : 'text-red-400')}>{proposalQuorum.toFixed(2)}% of {config.proposalQuorum.toFixed(2)}%</span>
+        <span className={clsx(proposalQuorum.gte(minimumProposalQuorum) ? 'text-emerald-400' : 'text-red-400')}>{proposalQuorum.toFixed(2)}% of {minimumProposalQuorum.toFixed(2)}%</span>
       </div>
     </div>
     {proposalList}

@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js'
 import { MichelsonPeriodEnumType, PayloadKey } from '../governance/contract';
 
 export interface TzktBigMapEntry<K, V> {
@@ -17,7 +16,7 @@ export interface TzktVoter {
 export interface Baker {
   address: string;
   alias?: string;
-  votingPower: BigNumber;
+  votingPower: bigint;
 }
 
 export interface TzktTezosPeriodInfo {
@@ -28,7 +27,7 @@ export interface TzktTezosPeriodInfo {
 }
 
 export interface VotingFinishedEventPayloadDto {
-  finished_at_period_index: BigNumber;
+  finished_at_period_index: bigint;
   finished_at_period_type: MichelsonPeriodEnumType;
   winner_proposal_payload: PayloadKey | null;
 }

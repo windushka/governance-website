@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 interface TotalVoteCardProps {
   text: string;
-  value: BigNumber;
+  value: bigint;
   className?: string;
 }
 

@@ -1,5 +1,5 @@
 import { PromotionPeriod } from "@/app/lib/governance/state/state";
-import { getPromotionQuorumPercent, getPromotionSupermajorityPercent } from "@/app/lib/governance/utils/calculators";
+import { getPromotionQuorumPercent, getPromotionSupermajorityPercent, natToPercent } from "@/app/lib/governance/utils/calculators";
 import { GovernanceConfig } from "@/app/lib/governance/config/config";
 import { clsx } from "clsx";
 import VotingPower from "@/app/ui/common/votingPower";
@@ -35,6 +35,9 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
 
   const promotionSupermajority = getPromotionSupermajorityPercent(promotionPeriod.yeaVotingPower, promotionPeriod.nayVotingPower);
   const promotionQuorum = getPromotionQuorumPercent(promotionPeriod.yeaVotingPower, promotionPeriod.nayVotingPower, promotionPeriod.passVotingPower, promotionPeriod.totalVotingPower);
+  const minimumPromotionSupermajority = natToPercent(config.promotionSupermajority, config.scale);
+  const minimumPromotionQuorum = natToPercent(config.promotionQuorum, config.scale);
+
 
   return votersTable ? <>
     <div className="flex flex-row justify-between items-center mb-8">
@@ -46,14 +49,14 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
       <div className="flex flex-col">
         <div>
           <span>Supermajority: </span>
-          <span className={clsx(promotionSupermajority.gte(config.promotionSupermajority) ? 'text-emerald-400' : 'text-red-400')}>
-            {promotionSupermajority.toFixed(2)}% of {config.promotionSupermajority.toFixed(2)}%
+          <span className={clsx(promotionSupermajority.gte(minimumPromotionSupermajority) ? 'text-emerald-400' : 'text-red-400')}>
+            {promotionSupermajority.toFixed(2)}% of {minimumPromotionSupermajority.toFixed(2)}%
           </span>
         </div>
         <div>
           <span>Quorum: </span>
-          <span className={clsx(promotionQuorum.gte(config.promotionQuorum) ? 'text-emerald-400' : 'text-red-400')}>
-            {promotionQuorum.toFixed(2)}% of {config.promotionQuorum.toFixed(2)}%
+          <span className={clsx(promotionQuorum.gte(minimumPromotionQuorum) ? 'text-emerald-400' : 'text-red-400')}>
+            {promotionQuorum.toFixed(2)}% of {minimumPromotionQuorum.toFixed(2)}%
           </span>
         </div>
       </div>

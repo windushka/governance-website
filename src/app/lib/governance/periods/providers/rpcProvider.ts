@@ -23,7 +23,8 @@ export class RpcGovernancePeriodsProvider implements GovernancePeriodsProvider {
 
     const periodsFromEvents: GovernancePeriod[] = [];
     if (pendingEvent) {
-      const periodIndex = BigNumber(pendingEvent.finished_at_period_index).minus(1);
+      const finishedAtPeriodIndex = BigInt(pendingEvent.finished_at_period_index.toString())
+      const periodIndex = finishedAtPeriodIndex - BigInt(1);
       periodsFromEvents.push({
         index: periodIndex,
         firstBlockLevel: getFirstBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength),
@@ -33,7 +34,8 @@ export class RpcGovernancePeriodsProvider implements GovernancePeriodsProvider {
       });
     }
     finishedEvents.forEach(e => {
-      const periodIndex = BigNumber(e.finished_at_period_index).minus(1);
+      const finishedAtPeriodIndex = BigInt(e.finished_at_period_index.toString())
+      const periodIndex = finishedAtPeriodIndex - BigInt(1);
       periodsFromEvents.push({
         index: periodIndex,
         firstBlockLevel: getFirstBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength),
@@ -44,11 +46,11 @@ export class RpcGovernancePeriodsProvider implements GovernancePeriodsProvider {
     });
 
     const result: GovernancePeriod[] = [];
-    const currentPeriod = getCurrentPeriodIndex(currentBlockLevel, config.startedAtLevel, config.periodLength);
-    let lastPeriodIndex = BigNumber(currentPeriod);
+    const currentPeriod = BigInt(getCurrentPeriodIndex(currentBlockLevel, config.startedAtLevel, config.periodLength).toString());
+    let lastPeriodIndex = currentPeriod;
 
     for (const period of periodsFromEvents) {
-      for (let i = lastPeriodIndex; i.gt(period.index); i = i.minus(1)) {
+      for (let i = lastPeriodIndex; i > period.index; i--) {
         result.push({
           index: i,
           firstBlockLevel: getFirstBlockOfPeriod(i, config.startedAtLevel, config.periodLength),
@@ -58,10 +60,10 @@ export class RpcGovernancePeriodsProvider implements GovernancePeriodsProvider {
         })
       }
       result.push(period);
-      lastPeriodIndex = period.index.minus(1);
+      lastPeriodIndex = period.index - BigInt(1);
     }
 
-    for (let i = lastPeriodIndex; i.gte(0); i = i.minus(1)) {
+    for (let i = lastPeriodIndex; i >= BigInt(0); i--) {
       result.push({
         index: i,
         firstBlockLevel: getFirstBlockOfPeriod(i, config.startedAtLevel, config.periodLength),

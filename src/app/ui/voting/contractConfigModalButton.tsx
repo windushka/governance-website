@@ -4,21 +4,16 @@ import { Modal } from 'antd';
 import clsx from 'clsx';
 import { useState } from 'react';
 import BigNumber from 'bignumber.js';
+import { GovernanceConfig, natToPercent } from '@/app/lib/governance';
 
 interface ContractConfigProps {
   buttonText: string;
-  startedAtLevel: string;
-  periodLength: string;
-  adoptionPeriodSec: string;
-  upvotingLimit: string;
-  proposalQuorum: string;
-  promotionQuorum: string;
-  promotionSupermajority: string;
+  config: GovernanceConfig;
   contractAddress: string;
   contractName: string;
 }
 
-export default function ContractConfigModalButton({ buttonText, contractName, contractAddress, ...config }: ContractConfigProps) {
+export default function ContractConfigModalButton({ buttonText, contractName, contractAddress, config }: ContractConfigProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const showModal = () => {
@@ -72,15 +67,15 @@ export default function ContractConfigModalButton({ buttonText, contractName, co
           </tr>
           <tr>
             <td className={cellClassName}>Proposal quorum</td>
-            <td className={clsx(cellClassName, 'text-right')}>{BigNumber(config.proposalQuorum).toFixed(2)}%</td>
+            <td className={clsx(cellClassName, 'text-right')}>{natToPercent(config.proposalQuorum, config.scale).toFixed(2)}%</td>
           </tr>
           <tr>
             <td className={cellClassName}>Promotion quorum</td>
-            <td className={clsx(cellClassName, 'text-right')}>{BigNumber(config.promotionQuorum).toFixed(2)}%</td>
+            <td className={clsx(cellClassName, 'text-right')}>{natToPercent(config.promotionQuorum, config.scale).toFixed(2)}%</td>
           </tr>
           <tr>
             <td className={cellClassName}>Promotion supermajority</td>
-            <td className={clsx(cellClassName, 'text-right')}>{BigNumber(config.promotionSupermajority).toFixed(2)}%</td>
+            <td className={clsx(cellClassName, 'text-right')}>{natToPercent(config.promotionSupermajority, config.scale).toFixed(2)}%</td>
           </tr>
         </tbody>
       </table>

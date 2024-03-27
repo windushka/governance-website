@@ -1,10 +1,9 @@
 import { PayloadKey, PeriodType } from '..';
-import BigNumber from 'bignumber.js';
 
 export interface GovernancePeriod {
   type: PeriodType;
-  index: BigNumber;
-  firstBlockLevel: BigNumber;
-  lastBlockLevel: BigNumber;
+  index: bigint;
+  firstBlockLevel: bigint;
+  lastBlockLevel: bigint;
   winnerPayload: PayloadKey | null;
 }

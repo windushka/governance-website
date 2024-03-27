@@ -1,11 +1,10 @@
 import { getPeriodPageUrl } from '@/app/actions';
-import BigNumber from 'bignumber.js'
 import clsx from 'clsx';
 import Link from 'next/link';
 
 interface NavButtonProps {
   contractName: string;
-  periodIndex: BigNumber;
+  periodIndex: bigint;
   disabled?: boolean;
   isNext?: boolean;
 }
@@ -17,7 +16,7 @@ export default function NavButton({ contractName, periodIndex, isNext, disabled 
   return !disabled
     ? <Link
       className={className}
-      href={getPeriodPageUrl(contractName, periodIndex.toNumber())}
+      href={getPeriodPageUrl(contractName, periodIndex.toString())}
       dangerouslySetInnerHTML={content} />
     : <span className={clsx(className, 'cursor-default')} dangerouslySetInnerHTML={content}></span>
 }

@@ -1,7 +1,5 @@
-import BigNumber from 'bignumber.js'
-
 interface VotingPowerProps {
-  value: BigNumber;
+  value: bigint;
   className?: string;
 }
 
@@ -10,7 +8,7 @@ export default function VotingPower({ value, className }: VotingPowerProps) {
     notation: "compact",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value.toNumber());
+  }).format(parseInt(value.toString()));
 
   return <span title={value.toString()} className={className}>{content}</span>
 }

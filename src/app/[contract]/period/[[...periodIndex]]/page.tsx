@@ -25,9 +25,9 @@ export default async function Home({ params }: HomeProps) {
   const { startedAtLevel, periodLength } = config;
   const currentPeriodIndex = getCurrentPeriodIndex(currentBlockLevel, startedAtLevel, periodLength);
 
-  const periodIndex = params.periodIndex && params.periodIndex.length === 1 ? BigNumber(params.periodIndex[0]) : undefined;
-  if (!periodIndex || periodIndex.isNaN() || periodIndex.gt(currentPeriodIndex) || periodIndex.lt(0)) {
-    redirectToPeriodPage(contract.name, currentPeriodIndex.toNumber());
+  const periodIndex = params.periodIndex && params.periodIndex.length === 1 ? BigInt(params.periodIndex[0]) : undefined;
+  if (!periodIndex || periodIndex > currentPeriodIndex || periodIndex < 0) {
+    redirectToPeriodPage(contract.name, currentPeriodIndex.toString());
     return;
   }
 

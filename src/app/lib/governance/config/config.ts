@@ -1,11 +1,10 @@
-import BigNumber from 'bignumber.js'
-
 export interface GovernanceConfig {
-  readonly startedAtLevel: BigNumber;
-  readonly periodLength: BigNumber;
-  readonly adoptionPeriodSec: BigNumber;
-  readonly upvotingLimit: BigNumber;
-  readonly proposalQuorum: BigNumber;
-  readonly promotionQuorum: BigNumber;
-  readonly promotionSupermajority: BigNumber;
+  readonly startedAtLevel: bigint;
+  readonly periodLength: bigint;
+  readonly adoptionPeriodSec: bigint;
+  readonly upvotingLimit: bigint;
+  readonly scale: bigint;
+  readonly proposalQuorum: bigint;
+  readonly promotionQuorum: bigint;
+  readonly promotionSupermajority: bigint;
 }
