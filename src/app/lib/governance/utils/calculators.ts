@@ -71,3 +71,7 @@ export const natToPercent = (
 export const min = (v1: bigint, v2: bigint) => {
   return v1 < v2 ? v1 : v2;
 }
+
+export const toCompactPercentage = (value: BigNumber): string => {
+  return `${value.decimalPlaces() ? value.toFixed(2) : value.toFixed()}%`;
+}

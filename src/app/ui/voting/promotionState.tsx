@@ -1,5 +1,5 @@
 import { PromotionPeriod } from "@/app/lib/governance/state/state";
-import { getPromotionQuorumPercent, getPromotionSupermajorityPercent, natToPercent } from "@/app/lib/governance/utils/calculators";
+import { getPromotionQuorumPercent, getPromotionSupermajorityPercent, natToPercent, toCompactPercentage } from "@/app/lib/governance/utils/calculators";
 import { GovernanceConfig } from "@/app/lib/governance/config/config";
 import { clsx } from "clsx";
 import VotingPower from "@/app/ui/common/votingPower";
@@ -50,13 +50,13 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
         <div>
           <span>Supermajority: </span>
           <span className={clsx(promotionSupermajority.gte(minimumPromotionSupermajority) ? 'text-emerald-400' : 'text-red-400')}>
-            {promotionSupermajority.toFixed(2)}% of {minimumPromotionSupermajority.toFixed(2)}%
+            {`${toCompactPercentage(promotionSupermajority)} of ${toCompactPercentage(minimumPromotionSupermajority)}`}
           </span>
         </div>
         <div>
           <span>Quorum: </span>
           <span className={clsx(promotionQuorum.gte(minimumPromotionQuorum) ? 'text-emerald-400' : 'text-red-400')}>
-            {promotionQuorum.toFixed(2)}% of {minimumPromotionQuorum.toFixed(2)}%
+            {`${toCompactPercentage(promotionQuorum)} of ${toCompactPercentage(minimumPromotionQuorum)}`}
           </span>
         </div>
       </div>
