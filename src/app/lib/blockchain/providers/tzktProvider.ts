@@ -1,10 +1,49 @@
-import { ApiProvider } from "./provider";
-import { Baker, TzktBigMapEntry, TzktTezosPeriodInfo, TzktVoter, VotingFinishedEventPayloadDto } from "../dto";
+import { BlockchainProvider } from './provider';
+import { Baker, TzktBigMapEntry, TzktTezosPeriodInfo, TzktVoter, VotingFinishedEventPayloadDto } from '../dto';
+import { getEstimatedBlockCreationTime } from '../../governance/utils';
 
-export class TzktApiProvider implements ApiProvider {
+export class TzktProvider implements BlockchainProvider {
   constructor(
     private readonly baseUrl: string
   ) { }
+
+  async getBlocksCreationTime(levels: bigint[]): Promise<Map<bigint, Date>> {
+    const result = new Map();
+    const url = `${this.baseUrl}/v1/blocks`;
+    const limit = 500;
+    for (let i = 0; i <= levels.length; i += limit) {
+      const levelsChunk = levels.slice(i, i + limit);
+      const params = {
+        'level.in': levelsChunk.join(','),
+        'select.values': 'level,timestamp',
+        limit: limit.toString()
+      }
+      const blocks = await this.fetchJson<Array<[number, string]>>(url, params);
+      blocks.forEach(([level, timeStamp]) => result.set(BigInt(level), new Date(timeStamp)));
+    }
+
+    return result;
+  }
+
+  async getBlockCreationTime(level: bigint): Promise<Date> {
+    const url = `${this.baseUrl}/v1/blocks/${level.toString()}`;
+    let result;
+
+    try {
+      result = new Date(((await this.fetchJson(url)) as any).timestamp);
+    } catch {
+      const [
+        currentBlockLevel,
+        timeBetweenBlocks
+      ] = await Promise.all([
+        this.getCurrentBlockLevel(),
+        this.getTimeBetweenBlocks()
+      ]);
+      result = getEstimatedBlockCreationTime(level, currentBlockLevel, timeBetweenBlocks);
+    }
+
+    return result;
+  }
 
   getVotingFinishedEvents(address: string): Promise<VotingFinishedEventPayloadDto[]> {
     const url = `${this.baseUrl}/v1/contracts/events`;

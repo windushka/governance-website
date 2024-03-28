@@ -4,8 +4,7 @@ import * as Storage from '../../contract/storage';
 import { VotingState } from '../../contract/views';
 import BigNumber from 'bignumber.js';
 import { MichelsonOptional } from '../../contract/types';
-import { ApiProvider } from '../../../api/providers/provider';
-import { Baker } from '@/app/lib/api/dto';
+import { BlockchainProvider, Baker } from '../../../blockchain';
 import { GovernanceConfig } from '../../config/config';
 import { getFirstBlockOfPeriod, getLastBlockOfPeriod, min, callGetVotingStateView, mapPayloadKey } from '../../utils';
 import { GovernanceStateProvider } from './provider';
@@ -14,13 +13,13 @@ import { HistoricalRpcClient } from '@/app/lib/rpc/historicalRpcClient';
 export class RpcGovernanceStateProvider implements GovernanceStateProvider {
   constructor(
     private readonly rpcUrl: string,
-    private readonly apiProvider: ApiProvider
+    private readonly blockchainProvider: BlockchainProvider
   ) { }
 
   async getState(contractAddress: string, config: GovernanceConfig, periodIndex: bigint): Promise<GovernanceState> {
-    const currentBlockLevel = await this.apiProvider.getCurrentBlockLevel();
+    const currentBlockLevel = await this.blockchainProvider.getCurrentBlockLevel();
     const blockLevel = min(getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength), currentBlockLevel);
-    const originatedAtLevel = await this.apiProvider.getContractOriginationLevel(contractAddress);
+    const originatedAtLevel = await this.blockchainProvider.getContractOriginationLevel(contractAddress);
     if (blockLevel <= originatedAtLevel)
       return await this.getEmptyGovernanceState(periodIndex, config);
 
@@ -71,16 +70,22 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
   private async getEmptyGovernanceState(periodIndex: bigint, config: GovernanceConfig): Promise<GovernanceState> {
     const periodStartLevel = getFirstBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
     const periodEndLevel = getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
-    const totalVotingPower = await this.apiProvider.getTotalVotingPower(periodStartLevel)
+    const [periodStartTime, periodEndTime, totalVotingPower] = await Promise.all([
+      this.blockchainProvider.getBlockCreationTime(periodStartLevel),
+      this.blockchainProvider.getBlockCreationTime(periodEndLevel),
+      this.blockchainProvider.getTotalVotingPower(periodStartLevel)
+    ])
 
     return {
       votingContext: {
         periodIndex: periodIndex,
         periodType: PeriodType.Proposal,
         proposalPeriod: {
-          periodIndex,
-          periodStartLevel,
-          periodEndLevel,
+          index: periodIndex,
+          startLevel: periodStartLevel,
+          startTime: periodStartTime,
+          endLevel: periodEndLevel,
+          endTime: periodEndTime,
           totalVotingPower,
           proposals: [],
           upvoters: [],
@@ -141,7 +146,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
             && 'promotion' in promotionMichelsonPeriod
             && promotionPeriodViewResult.period_index.eq(storageOfNextPromotionPeriod.voting_context.Some.period_index)
             ? this.unpackPromotionPeriod(promotionMichelsonPeriod)
-            : this.initializePromotionPeriod(period, await this.apiProvider.getTotalVotingPower(lastBlockOfPromotionPeriod));
+            : this.initializePromotionPeriod(period, await this.blockchainProvider.getTotalVotingPower(lastBlockOfPromotionPeriod));
         }
       } else {
         const lastBlockOfProposalPeriod = getLastBlockOfPeriod(periodIndex - BigInt(1), startedAtLevel, periodLength);
@@ -153,7 +158,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
       lastWinner = this.unpackLastWinnerPayload(storage.last_winner);
     } else {
       const firstBlockOfPeriod = getFirstBlockOfPeriod(periodIndex, startedAtLevel, periodLength);
-      const totalVotingPower = await this.apiProvider.getTotalVotingPower(min(firstBlockOfPeriod, currentBlockLevel));
+      const totalVotingPower = await this.blockchainProvider.getTotalVotingPower(min(firstBlockOfPeriod, currentBlockLevel));
       [proposalPeriod, promotionPeriod] = (periodType === PeriodType.Proposal || !period)
         ? [this.initializeProposalPeriod(totalVotingPower), undefined]
         : [this.unpackProposalPeriod(period), this.initializePromotionPeriod(period, totalVotingPower)];
@@ -180,22 +185,35 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
     const proposalPeriodIndex = periodType === PeriodType.Proposal ? periodIndex : periodIndex - BigInt(1);
     const proposalPeriodStartLevel = getFirstBlockOfPeriod(proposalPeriodIndex, startedAtLevel, periodLength);
     const proposalPeriodEndLevel = getLastBlockOfPeriod(proposalPeriodIndex, startedAtLevel, periodLength);
-    const proposalPeriodBakers = await this.apiProvider.getBakers(min(proposalPeriodEndLevel, currentBlockLevel));
-    const proposalPeriodBakersMap = new Map(proposalPeriodBakers.map(b => [b.address, b]));
-
     const winnerCandidate = proposal.winner_candidate?.Some;
 
+    const [
+      periodStartTime,
+      periodEndTime,
+      proposalPeriodBakers,
+      proposals,
+    ] = await Promise.all([
+      this.blockchainProvider.getBlockCreationTime(proposalPeriodStartLevel),
+      this.blockchainProvider.getBlockCreationTime(proposalPeriodEndLevel),
+      this.blockchainProvider.getBakers(min(proposalPeriodEndLevel, currentBlockLevel)),
+      this.getProposals(proposal)
+    ])
+
+    const proposalPeriodBakersMap = new Map(proposalPeriodBakers.map(b => [b.address, b]));
+
     //TODO: promise all
-    const proposalPeriod = {
+    const proposalPeriod: ProposalPeriod = {
       totalVotingPower: BigInt(proposal.total_voting_power.toString()),
       winnerCandidate: winnerCandidate && mapPayloadKey(winnerCandidate),
       candidateUpvotesVotingPower: proposal.max_upvotes_voting_power?.Some && BigInt(proposal.max_upvotes_voting_power.Some.toString()),
-      periodIndex: proposalPeriodIndex,
-      periodStartLevel: proposalPeriodStartLevel,
-      periodEndLevel: proposalPeriodEndLevel,
-      proposals: await this.getProposals(proposal),
+      index: proposalPeriodIndex,
+      startLevel: proposalPeriodStartLevel,
+      startTime: periodStartTime,
+      endLevel: proposalPeriodEndLevel,
+      endTime: periodEndTime,
+      proposals,
       upvoters: await this.getUpvoters(proposal, proposalPeriodBakersMap)
-    } as ProposalPeriod;
+    };
 
     //TODO: refactor
     let votingContext: VotingContext = {
@@ -209,15 +227,26 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
       const promotionPeriodIndex = periodType === PeriodType.Proposal ? periodIndex + BigInt(1) : periodIndex;
       const promotionPeriodStartLevel = getFirstBlockOfPeriod(promotionPeriodIndex, startedAtLevel, periodLength);
       const promotionPeriodEndLevel = getLastBlockOfPeriod(promotionPeriodIndex, startedAtLevel, periodLength);
-      const promotionPeriodBakers = await this.apiProvider.getBakers(min(promotionPeriodEndLevel, currentBlockLevel));
+
+      const [
+        periodStartTime,
+        periodEndTime,
+        promotionPeriodBakers
+      ] = await Promise.all([
+        this.blockchainProvider.getBlockCreationTime(promotionPeriodStartLevel),
+        this.blockchainProvider.getBlockCreationTime(promotionPeriodEndLevel),
+        this.blockchainProvider.getBakers(min(promotionPeriodEndLevel, currentBlockLevel))
+      ])
       const promotionPeriodBakersMap = new Map(promotionPeriodBakers.map(b => [b.address, b]));
 
       votingContext = {
         ...votingContext,
         promotionPeriod: {
-          periodIndex: promotionPeriodIndex,
-          periodStartLevel: promotionPeriodStartLevel,
-          periodEndLevel: promotionPeriodEndLevel,
+          index: promotionPeriodIndex,
+          startLevel: promotionPeriodStartLevel,
+          startTime: periodStartTime,
+          endLevel: promotionPeriodEndLevel,
+          endTime: periodEndTime,
           totalVotingPower: BigInt(promotion.total_voting_power.toString()),
           yeaVotingPower: BigInt(promotion.yea_voting_power.toString()),
           nayVotingPower: BigInt(promotion.nay_voting_power.toString()),
@@ -237,7 +266,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
   private async getProposals(proposalPeriod: Storage.ProposalPeriod): Promise<Proposal[]> {
     let proposals: Proposal[] = [];
     if (proposalPeriod.proposals) {
-      const rawEntries = await this.apiProvider.getBigMapEntries<Storage.PayloadKey, Storage.Proposal>(BigInt(proposalPeriod.proposals.toString()));
+      const rawEntries = await this.blockchainProvider.getBigMapEntries<Storage.PayloadKey, Storage.Proposal>(BigInt(proposalPeriod.proposals.toString()));
       proposals = rawEntries.map(({ key, value }) => ({
         key: mapPayloadKey(key),
         proposer: value.proposer,
@@ -251,7 +280,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
   private async getUpvoters(proposalPeriod: Storage.ProposalPeriod, bakers: Map<Baker['address'], Baker>): Promise<Upvoter[]> {
     let upvoters: Upvoter[] = [];
     if (proposalPeriod.upvoters_proposals) {
-      const rawEntries = await this.apiProvider.getBigMapEntries<Storage.UpvotersProposalsKey, never>(BigInt(proposalPeriod.upvoters_proposals.toString()));
+      const rawEntries = await this.blockchainProvider.getBigMapEntries<Storage.UpvotersProposalsKey, never>(BigInt(proposalPeriod.upvoters_proposals.toString()));
       upvoters = rawEntries.map(({ key }) => ({
         address: key.key_hash,
         proposalKey: 'bytes' in key ? key.bytes : mapPayloadKey(key),
@@ -265,7 +294,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
   private async getVoters(promotionPeriod: Storage.PromotionPeriod, bakers: Map<Baker['address'], Baker>): Promise<Voter[]> {
     let voters: Voter[] = [];
     if (promotionPeriod.voters) {
-      const rawEntries = await this.apiProvider.getBigMapEntries<string, string>(BigInt(promotionPeriod.voters.toString()));
+      const rawEntries = await this.blockchainProvider.getBigMapEntries<string, string>(BigInt(promotionPeriod.voters.toString()));
       voters = rawEntries.map(({ key, value }) => ({
         address: key,
         vote: value,

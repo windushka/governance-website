@@ -3,8 +3,8 @@
 import { Modal } from 'antd';
 import clsx from 'clsx';
 import { useState } from 'react';
-import BigNumber from 'bignumber.js';
-import { GovernanceConfig, natToPercent, toCompactPercentage } from '@/app/lib/governance';
+import { GovernanceConfig } from '@/app/lib/governance';
+import { formatPercentageCompact, natToPercent } from '@/app/lib/governance/utils';
 
 interface ContractConfigProps {
   buttonText: string;
@@ -67,15 +67,15 @@ export default function ContractConfigModalButton({ buttonText, contractName, co
           </tr>
           <tr>
             <td className={cellClassName}>Proposal quorum</td>
-            <td className={clsx(cellClassName, 'text-right')}>{toCompactPercentage(natToPercent(config.proposalQuorum, config.scale))}</td>
+            <td className={clsx(cellClassName, 'text-right')}>{formatPercentageCompact(natToPercent(config.proposalQuorum, config.scale))}</td>
           </tr>
           <tr>
             <td className={cellClassName}>Promotion quorum</td>
-            <td className={clsx(cellClassName, 'text-right')}>{toCompactPercentage(natToPercent(config.promotionQuorum, config.scale))}</td>
+            <td className={clsx(cellClassName, 'text-right')}>{formatPercentageCompact(natToPercent(config.promotionQuorum, config.scale))}</td>
           </tr>
           <tr>
             <td className={cellClassName}>Promotion supermajority</td>
-            <td className={clsx(cellClassName, 'text-right')}>{toCompactPercentage(natToPercent(config.promotionSupermajority, config.scale))}</td>
+            <td className={clsx(cellClassName, 'text-right')}>{formatPercentageCompact(natToPercent(config.promotionSupermajority, config.scale))}</td>
           </tr>
         </tbody>
       </table>

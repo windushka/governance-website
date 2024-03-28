@@ -1,13 +1,13 @@
-import { ApiProvider } from '../api';
+import { BlockchainProvider } from '../blockchain';
 import { Config } from '../config';
 import { GovernanceConfigProvider, GovernanceStateProvider, GovernancePeriodsProvider } from '../governance';
 
 export interface AppContext {
   config: Config;
-  apiProvider: ApiProvider;
+  blockchain: BlockchainProvider;
   governance: {
-    configProvider: GovernanceConfigProvider;
-    stateProvider: GovernanceStateProvider;
-    periodsProvider: GovernancePeriodsProvider;
+    config: GovernanceConfigProvider;
+    state: GovernanceStateProvider;
+    periods: GovernancePeriodsProvider;
   }
 }

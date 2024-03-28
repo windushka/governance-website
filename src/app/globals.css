@@ -51,12 +51,13 @@ body {
 
 .ant-select-item-option {
   background-color: rgb(var(--background-rgb)) !important;
+  font-weight: normal !important;
 }
 .ant-select-item-option-active {
   background-color: rgb(64, 64, 64) !important; 
 }
 .ant-select-item-option-selected {
-  background-color: rgb(64, 64, 64) !important; 
+  background-color: rgb(64, 64, 64) !important;
 }
 
 .rc-virtual-list-scrollbar-thumb {

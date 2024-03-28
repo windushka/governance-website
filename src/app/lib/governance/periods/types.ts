@@ -1,9 +1,11 @@
 import { PayloadKey, PeriodType } from '..';
 
 export interface GovernancePeriod {
-  type: PeriodType;
-  index: bigint;
-  firstBlockLevel: bigint;
-  lastBlockLevel: bigint;
-  winnerPayload: PayloadKey | null;
+  readonly type: PeriodType;
+  readonly index: bigint;
+  readonly startLevel: bigint;
+  readonly startTime: Date;
+  readonly endLevel: bigint;
+  readonly endTime: Date;
+  readonly winnerPayload: PayloadKey | null;
 }

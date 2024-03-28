@@ -19,14 +19,14 @@ export default async function Home({ params }: HomeProps) {
     return;
   }
 
-  const currentBlockLevel = await context.apiProvider.getCurrentBlockLevel();
+  const currentBlockLevel = await context.blockchain.getCurrentBlockLevel();
 
-  const config = await context.governance.configProvider.getConfig(contract.address);
+  const config = await context.governance.config.getConfig(contract.address);
   const { startedAtLevel, periodLength } = config;
   const currentPeriodIndex = getCurrentPeriodIndex(currentBlockLevel, startedAtLevel, periodLength);
 
   const periodIndex = params.periodIndex && params.periodIndex.length === 1 ? BigInt(params.periodIndex[0]) : undefined;
-  if (!periodIndex || periodIndex > currentPeriodIndex || periodIndex < 0) {
+  if (periodIndex === undefined || periodIndex > currentPeriodIndex || periodIndex < 0) {
     redirectToPeriodPage(contract.name, currentPeriodIndex.toString());
     return;
   }

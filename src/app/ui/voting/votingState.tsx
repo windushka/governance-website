@@ -14,24 +14,21 @@ interface VotingStateProps {
 
 export default async function VotingState({ config, contract, periodIndex }: VotingStateProps) {
   const context = getAppContext();
-  const currentBlockLevel = await context.apiProvider.getCurrentBlockLevel();
-  const timeBetweenBlocks = await context.apiProvider.getTimeBetweenBlocks();
+  const currentBlockLevel = await context.blockchain.getCurrentBlockLevel();
 
   const { startedAtLevel, periodLength } = config;
   const currentPeriodIndex = getCurrentPeriodIndex(currentBlockLevel, startedAtLevel, periodLength);
-  const state = await context.governance.stateProvider.getState(contract.address, config, periodIndex);
+  const state = await context.governance.state.getState(contract.address, config, periodIndex);
   const votingContext = state.votingContext;
 
   return <>
     <VotingStateHeader
       contract={contract}
-      blockTime={timeBetweenBlocks}
-      currentLevel={currentBlockLevel}
       currentPeriodIndex={currentPeriodIndex}
       periodIndex={periodIndex}
       votingContext={votingContext}
       config={config} />
-    {votingContext.promotionPeriod && periodIndex == votingContext.promotionPeriod.periodIndex
+    {votingContext.promotionPeriod && periodIndex == votingContext.promotionPeriod.index
       ? <PromotionState promotionPeriod={votingContext.promotionPeriod} config={config} />
       : <ProposalState proposalPeriod={votingContext.proposalPeriod} config={config} />}
   </>

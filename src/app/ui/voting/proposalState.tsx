@@ -1,5 +1,5 @@
 import { ProposalPeriod, GovernanceConfig } from '@/app/lib/governance';
-import { getProposalQuorumPercent, natToPercent, toCompactPercentage } from '@/app/lib/governance/utils';
+import { getProposalQuorumPercent, natToPercent, formatPercentageCompact } from '@/app/lib/governance/utils';
 import BigNumber from 'bignumber.js'
 import clsx from 'clsx';
 import VotingPower from '@/app/ui/common/votingPower';
@@ -62,7 +62,7 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
       <div>
         <span>Quorum: </span>
         <span className={clsx(proposalQuorum.gte(minimumProposalQuorum) ? 'text-emerald-400' : 'text-red-400')}>
-          {`${toCompactPercentage(proposalQuorum)} of ${toCompactPercentage(minimumProposalQuorum)}`}
+          {`${formatPercentageCompact(proposalQuorum)} of ${formatPercentageCompact(minimumProposalQuorum)}`}
         </span>
       </div>
     </div>

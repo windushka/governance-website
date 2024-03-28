@@ -2,6 +2,7 @@
 
 import { redirectToPeriodPage } from '@/app/actions';
 import { GovernancePeriod } from '@/app/lib/governance';
+import { formatDateTime } from '@/app/lib/governance/utils';
 import { ConfigProvider, Select, SelectProps, theme } from 'antd';
 
 interface PeriodSelectorProps {
@@ -22,7 +23,7 @@ const filterOption = (input: string, option?: { label: string; value: string }) 
 export default function PeriodSelector({ contractName, periods, currentPeriodIndex }: PeriodSelectorProps) {
   let options = periods.map(p => ({
     value: p.index.toString(),
-    label: `${p.index}. ${p.type}${p.winnerPayload ? ' (new winner)' : ''}`
+    label: `${p.index}. ${p.type} (${formatDateTime(p.startTime)} - ${formatDateTime(p.endTime)})${p.winnerPayload ? ' (new winner)' : ''}`
   }));
 
   return <ConfigProvider
@@ -36,7 +37,7 @@ export default function PeriodSelector({ contractName, periods, currentPeriodInd
       showSearch
       optionFilterProp="children"
       filterOption={filterOption}
-      dropdownStyle={{ width: 230 }}
+      dropdownStyle={{ width: 500 }}
       onChange={(v) => redirectToPeriodPage(contractName, v)}
       options={options}
     />

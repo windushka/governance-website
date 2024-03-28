@@ -1,6 +1,6 @@
 import { PayloadKey, PeriodType } from '../state';
 import * as Storage from '../contract';
-import { VotingFinishedEventPayloadDto } from '../../api';
+import { VotingFinishedEventPayloadDto } from '../../blockchain';
 
 export const mapPayloadKey = (michelsonKey: Storage.PayloadKey): PayloadKey => {
   if (typeof michelsonKey === 'string')

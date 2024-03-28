@@ -1,6 +1,5 @@
-import { ApiProvider } from '@/app/lib/api';
-import { callGetVotingStateView, getCurrentPeriodIndex, getFirstBlockOfPeriod, getLastBlockOfPeriod, mapOptionalPayloadKeyDto, mapPeriodType } from '../../utils';
-import BigNumber from 'bignumber.js';
+import { BlockchainProvider, VotingFinishedEventPayloadDto } from '@/app/lib/blockchain';
+import { callGetVotingStateView, getCurrentPeriodIndex, getEstimatedBlockCreationTime, getFirstBlockOfPeriod, getLastBlockOfPeriod, mapOptionalPayloadKeyDto, mapPeriodType } from '../../utils';
 import { GovernanceConfig } from '../../config';
 import { GovernancePeriod } from '../types';
 import { GovernancePeriodsProvider } from './provider';
@@ -11,66 +10,53 @@ import { VotingFinishedEventPayload } from '../../contract/views';
 export class RpcGovernancePeriodsProvider implements GovernancePeriodsProvider {
   constructor(
     private readonly toolkit: TezosToolkit,
-    private readonly apiProvider: ApiProvider
+    private readonly blockchainProvider: BlockchainProvider
   ) { }
 
   async getPeriods(contractAddress: string, config: GovernanceConfig): Promise<GovernancePeriod[]> {
-    const [finishedEvents, pendingEvent, currentBlockLevel] = await Promise.all([
-      this.apiProvider.getVotingFinishedEvents(contractAddress),
+    const [
+      finishedEvents,
+      pendingEvent,
+      currentBlockLevel,
+      timeBetweenBlocks
+    ] = await Promise.all([
+      this.blockchainProvider.getVotingFinishedEvents(contractAddress),
       this.getPendingVotingFinishedEvent(contractAddress),
-      this.apiProvider.getCurrentBlockLevel()
+      this.blockchainProvider.getCurrentBlockLevel(),
+      this.blockchainProvider.getTimeBetweenBlocks()
     ]);
 
-    const periodsFromEvents: GovernancePeriod[] = [];
-    if (pendingEvent) {
-      const finishedAtPeriodIndex = BigInt(pendingEvent.finished_at_period_index.toString())
-      const periodIndex = finishedAtPeriodIndex - BigInt(1);
-      periodsFromEvents.push({
-        index: periodIndex,
-        firstBlockLevel: getFirstBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength),
-        lastBlockLevel: getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength),
-        type: mapPeriodType(pendingEvent.finished_at_period_type),
-        winnerPayload: mapOptionalPayloadKeyDto(pendingEvent.winner_proposal_payload?.Some || null)
+    const currentPeriodIndex = BigInt(getCurrentPeriodIndex(currentBlockLevel, config.startedAtLevel, config.periodLength).toString());
+    let blockLevels: bigint[] = [];
+    for (let periodIndex = BigInt(0); periodIndex <= currentPeriodIndex; periodIndex++) {
+      const levels = [getFirstBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength), getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength)]
+      levels.forEach(l => {
+        if (l <= currentBlockLevel)
+          blockLevels.push(l);
       });
     }
-    finishedEvents.forEach(e => {
-      const finishedAtPeriodIndex = BigInt(e.finished_at_period_index.toString())
-      const periodIndex = finishedAtPeriodIndex - BigInt(1);
-      periodsFromEvents.push({
-        index: periodIndex,
-        firstBlockLevel: getFirstBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength),
-        lastBlockLevel: getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength),
-        type: mapPeriodType(e.finished_at_period_type),
-        winnerPayload: mapOptionalPayloadKeyDto(e.winner_proposal_payload)
-      });
-    });
+    const blockCreationTimeMap = await this.blockchainProvider.getBlocksCreationTime(blockLevels);
+
+    const periodsFromEvents: GovernancePeriod[] = [];
+    if (pendingEvent)
+      periodsFromEvents.push(this.mapEventToPeriod(pendingEvent, config, currentBlockLevel, timeBetweenBlocks, blockCreationTimeMap));
+    for await (const e of finishedEvents) {
+      periodsFromEvents.push(this.mapEventToPeriod(e, config, currentBlockLevel, timeBetweenBlocks, blockCreationTimeMap));
+    }
 
     const result: GovernancePeriod[] = [];
-    const currentPeriod = BigInt(getCurrentPeriodIndex(currentBlockLevel, config.startedAtLevel, config.periodLength).toString());
-    let lastPeriodIndex = currentPeriod;
+    let lastPeriodIndex = currentPeriodIndex;
 
     for (const period of periodsFromEvents) {
       for (let i = lastPeriodIndex; i > period.index; i--) {
-        result.push({
-          index: i,
-          firstBlockLevel: getFirstBlockOfPeriod(i, config.startedAtLevel, config.periodLength),
-          lastBlockLevel: getLastBlockOfPeriod(i, config.startedAtLevel, config.periodLength),
-          type: PeriodType.Proposal,
-          winnerPayload: null
-        })
+        result.push(this.createEmptyProposalPeriod(i, config, currentBlockLevel, timeBetweenBlocks, blockCreationTimeMap));
       }
       result.push(period);
       lastPeriodIndex = period.index - BigInt(1);
     }
 
     for (let i = lastPeriodIndex; i >= BigInt(0); i--) {
-      result.push({
-        index: i,
-        firstBlockLevel: getFirstBlockOfPeriod(i, config.startedAtLevel, config.periodLength),
-        lastBlockLevel: getLastBlockOfPeriod(i, config.startedAtLevel, config.periodLength),
-        type: PeriodType.Proposal,
-        winnerPayload: null
-      })
+      result.push(this.createEmptyProposalPeriod(i, config, currentBlockLevel, timeBetweenBlocks, blockCreationTimeMap));
     }
 
     return result;
@@ -79,5 +65,60 @@ export class RpcGovernancePeriodsProvider implements GovernancePeriodsProvider {
   private async getPendingVotingFinishedEvent(contractAddress: string): Promise<VotingFinishedEventPayload | undefined> {
     const stateView = await callGetVotingStateView(contractAddress, this.toolkit);
     return stateView.finished_voting?.Some;
+  }
+
+  private mapEventToPeriod(
+    event: VotingFinishedEventPayloadDto | VotingFinishedEventPayload,
+    config: GovernanceConfig,
+    currentBlockLevel: bigint,
+    timeBetweenBlocks: bigint,
+    blockCreationTimeMap: Map<bigint, Date>
+  ): GovernancePeriod {
+    const finishedAtPeriodIndex = BigInt(event.finished_at_period_index.toString())
+    const periodIndex = finishedAtPeriodIndex - BigInt(1);
+    const startLevel = getFirstBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
+    const endLevel = getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
+    const rawPayload = event.winner_proposal_payload;
+    const payload = rawPayload && typeof rawPayload === 'object' && 'Some' in rawPayload ? rawPayload.Some : rawPayload;
+
+    return {
+      index: periodIndex,
+      startLevel,
+      startTime: this.getBlockCreationTime(startLevel, currentBlockLevel, timeBetweenBlocks, blockCreationTimeMap),
+      endLevel,
+      endTime: this.getBlockCreationTime(endLevel, currentBlockLevel, timeBetweenBlocks, blockCreationTimeMap),
+      type: mapPeriodType(event.finished_at_period_type),
+      winnerPayload: mapOptionalPayloadKeyDto(payload)
+    };
+  }
+
+  private createEmptyProposalPeriod(
+    periodIndex: bigint,
+    config: GovernanceConfig,
+    currentBlockLevel: bigint,
+    timeBetweenBlocks: bigint,
+    blockCreationTimeMap: Map<bigint, Date>
+  ): GovernancePeriod {
+    const startLevel = getFirstBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
+    const endLevel = getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
+
+    return {
+      index: periodIndex,
+      startLevel,
+      startTime: this.getBlockCreationTime(startLevel, currentBlockLevel, timeBetweenBlocks, blockCreationTimeMap),
+      endLevel,
+      endTime: this.getBlockCreationTime(endLevel, currentBlockLevel, timeBetweenBlocks, blockCreationTimeMap),
+      type: PeriodType.Proposal,
+      winnerPayload: null
+    };
+  }
+
+  private getBlockCreationTime(
+    level: bigint,
+    currentBlockLevel: bigint,
+    timeBetweenBlocks: bigint,
+    blockCreationTimeMap: Map<bigint, Date>
+  ): Date {
+    return blockCreationTimeMap.get(level) || getEstimatedBlockCreationTime(level, currentBlockLevel, timeBetweenBlocks);
   }
 }
