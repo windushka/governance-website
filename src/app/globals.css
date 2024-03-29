@@ -49,6 +49,14 @@ body {
   border-color: rgb(229, 231, 235) !important;
 }
 
+.ant-empty-image {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.ant-empty-description {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
 .ant-select-item-option {
   background-color: rgb(var(--background-rgb)) !important;
   font-weight: normal !important;

@@ -27,11 +27,6 @@ export default function PeriodHeader({
 }: PeriodHeaderProps) {
   const periodName = periodType === PeriodType.Proposal ? 'Proposal' : 'Promotion';
 
-  const now = new Date();
-  const startTimeStr = formatDateTimeCompact(startTime);
-  const endTimeStr = formatDateTimeCompact(endTime);
-  const postfix = `${startTimeStr}${now < startTime ? '*' : ''} - ${endTimeStr}${now < endTime ? '*' : ''}`;
-
   return <div className="flex flex-col items-start">
     <Link href={getPeriodPageUrl(contractName, periodIndex.toString())} disabled={disabled}>{`${periodName}`}</Link>
     <div className="text-[10px]">
