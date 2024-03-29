@@ -1,5 +1,5 @@
 import { PromotionPeriod } from "@/app/lib/governance/state/state";
-import { getPromotionQuorumPercent, getPromotionSupermajorityPercent, natToPercent, formatPercentageCompact } from "@/app/lib/governance/utils";
+import { getPromotionQuorumPercent, getPromotionSupermajorityPercent, natToPercent, formatPercentageCompact, formatDateTimeCompact } from "@/app/lib/governance/utils";
 import { GovernanceConfig } from "@/app/lib/governance/config/config";
 import { clsx } from "clsx";
 import VotingPower from "@/app/ui/common/votingPower";
@@ -21,14 +21,16 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
         <th className={tableCellClass}>Baker</th>
         <th className={tableCellClass}>Voting power</th>
         <th className={tableCellClass}>Vote</th>
+        <th className={tableCellClass}>Time</th>
       </tr>
     </thead>
     <tbody>
       {promotionPeriod.voters.map(v =>
         <tr key={v.address}>
-          <td className={tableCellClass}>{v.address}</td>
+          <td className={tableCellClass}>{v.address} - {v.operationHash}</td>
           <td className={tableCellClass}><VotingPower value={v.votingPower} /></td>
           <td className={clsx(tableCellClass, v.vote === 'yea' && 'text-emerald-400', v.vote === 'nay' && 'text-red-400')}>{v.vote}</td>
+          <td className={tableCellClass}>{formatDateTimeCompact(v.operationTime)}</td>
         </tr>)}
     </tbody>
   </table> : null;

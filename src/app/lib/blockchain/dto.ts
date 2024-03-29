@@ -8,7 +8,7 @@ export interface TzktBigMapEntry<K, V> {
 export interface TzktVoter {
   delegate: {
     alias?: string;
-    address: string
+    address: string;
   },
   votingPower: number,
 }
@@ -30,4 +30,22 @@ export interface VotingFinishedEventPayloadDto {
   finished_at_period_index: bigint;
   finished_at_period_type: MichelsonPeriodEnumType;
   winner_proposal_payload: PayloadKey | null;
+}
+
+export interface TzktContractOperation {
+  hash: string;
+  timestamp: string;
+  sender: {
+    alias?: string;
+    address: string;
+  }
+}
+
+export interface ContractOperation {
+  hash: string;
+  sender: {
+    address: string;
+    alias?: string;
+  };
+  time: Date;
 }

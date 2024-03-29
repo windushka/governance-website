@@ -169,10 +169,11 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
         : this.unpackLastWinnerPayload(storage.last_winner);
     }
 
-    return this.createState(periodIndex, periodType, startedAtLevel, periodLength, proposalPeriod, promotionPeriod, lastWinner, currentBlockLevel);
+    return this.createState(contractAddress, periodIndex, periodType, startedAtLevel, periodLength, proposalPeriod, promotionPeriod, lastWinner, currentBlockLevel);
   }
 
   private async createState(
+    contractAddress: string,
     periodIndex: bigint,
     periodType: PeriodType,
     startedAtLevel: bigint,
@@ -212,7 +213,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
       endLevel: proposalPeriodEndLevel,
       endTime: periodEndTime,
       proposals,
-      upvoters: await this.getUpvoters(proposal, proposalPeriodBakersMap)
+      upvoters: await this.getUpvoters(contractAddress, proposal, proposalPeriodBakersMap, proposalPeriodStartLevel, proposalPeriodEndLevel)
     };
 
     //TODO: refactor
@@ -252,7 +253,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
           nayVotingPower: BigInt(promotion.nay_voting_power.toString()),
           passVotingPower: BigInt(promotion.pass_voting_power.toString()),
           winnerCandidate: promotion.winner_candidate && mapPayloadKey(promotion.winner_candidate),
-          voters: await this.getVoters(promotion, promotionPeriodBakersMap)
+          voters: await this.getVoters(contractAddress, promotion, promotionPeriodBakersMap, promotionPeriodStartLevel, promotionPeriodEndLevel)
         }
       }
     }
@@ -277,29 +278,66 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
     return proposals.toSorted((a, b) => b.upvotesVotingPower > a.upvotesVotingPower ? 1 : b.upvotesVotingPower < a.upvotesVotingPower ? -1 : 0);
   }
 
-  private async getUpvoters(proposalPeriod: Storage.ProposalPeriod, bakers: Map<Baker['address'], Baker>): Promise<Upvoter[]> {
+  private async getUpvoters(
+    contractAddress: string,
+    proposalPeriod: Storage.ProposalPeriod, bakers: Map<Baker['address'], Baker>,
+    periodStartLevel: bigint,
+    periodEndLevel: bigint
+  ): Promise<Upvoter[]> {
     let upvoters: Upvoter[] = [];
     if (proposalPeriod.upvoters_proposals) {
-      const rawEntries = await this.blockchainProvider.getBigMapEntries<Storage.UpvotersProposalsKey, never>(BigInt(proposalPeriod.upvoters_proposals.toString()));
-      upvoters = rawEntries.map(({ key }) => ({
-        address: key.key_hash,
-        proposalKey: 'bytes' in key ? key.bytes : mapPayloadKey(key),
-        votingPower: bakers.get(key.key_hash)!.votingPower
-      } as Upvoter));
+      const [
+        rawEntries,
+        operations
+      ] = await Promise.all([
+        this.blockchainProvider.getBigMapEntries<Storage.UpvotersProposalsKey, never>(BigInt(proposalPeriod.upvoters_proposals.toString())),
+        this.blockchainProvider.getContractOperations(contractAddress, ['new_proposal', 'upvote_proposal'], periodStartLevel, periodEndLevel)
+      ])
+      const operationsMap = new Map(operations.map(o => [o.sender.address, o]));
+
+      //TODO: improve
+      upvoters = rawEntries.map(({ key }) => {
+        const operation = operationsMap.get(key.key_hash);
+        return {
+          address: key.key_hash,
+          proposalKey: 'bytes' in key ? key.bytes : mapPayloadKey(key),
+          votingPower: bakers.get(key.key_hash)!.votingPower,
+          operationHash: operation!.hash,
+          operationTime: operation!.time
+        } as Upvoter
+      });
     }
 
     return upvoters;
   }
 
-  private async getVoters(promotionPeriod: Storage.PromotionPeriod, bakers: Map<Baker['address'], Baker>): Promise<Voter[]> {
+  private async getVoters(
+    contractAddress: string,
+    promotionPeriod: Storage.PromotionPeriod,
+    bakers: Map<Baker['address'], Baker>,
+    periodStartLevel: bigint,
+    periodEndLevel: bigint
+  ): Promise<Voter[]> {
     let voters: Voter[] = [];
     if (promotionPeriod.voters) {
-      const rawEntries = await this.blockchainProvider.getBigMapEntries<string, string>(BigInt(promotionPeriod.voters.toString()));
-      voters = rawEntries.map(({ key, value }) => ({
-        address: key,
-        vote: value,
-        votingPower: bakers.get(key)!.votingPower
-      } as Voter));
+      const [
+        rawEntries,
+        operations
+      ] = await Promise.all([
+        this.blockchainProvider.getBigMapEntries<string, string>(BigInt(promotionPeriod.voters.toString())),
+        this.blockchainProvider.getContractOperations(contractAddress, ['vote'], periodStartLevel, periodEndLevel)
+      ])
+      const operationsMap = new Map(operations.map(o => [o.sender.address, o]));
+      voters = rawEntries.map(({ key, value }) => {
+        const operation = operationsMap.get(key);
+        return {
+          address: key,
+          vote: value,
+          votingPower: bakers.get(key)!.votingPower,
+          operationHash: operation!.hash,
+          operationTime: operation!.time
+        } as Voter
+      });
     }
 
     return voters;

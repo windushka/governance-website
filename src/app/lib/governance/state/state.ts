@@ -27,6 +27,8 @@ export interface Upvoter {
   readonly address: string;
   readonly proposalKey: PayloadKey;
   readonly votingPower: bigint;
+  readonly operationHash: string;
+  readonly operationTime: Date;
 }
 
 export interface ProposalPeriod {
@@ -46,6 +48,8 @@ export interface Voter {
   readonly address: string;
   readonly vote: Vote;
   readonly votingPower: bigint;
+  readonly operationHash: string;
+  readonly operationTime: Date;
 }
 
 export interface PromotionPeriod {

@@ -1,11 +1,28 @@
 import { BlockchainProvider } from './provider';
-import { Baker, TzktBigMapEntry, TzktTezosPeriodInfo, TzktVoter, VotingFinishedEventPayloadDto } from '../dto';
+import { Baker, ContractOperation, TzktBigMapEntry, TzktContractOperation, TzktTezosPeriodInfo, TzktVoter, VotingFinishedEventPayloadDto } from '../dto';
 import { getEstimatedBlockCreationTime } from '../../governance/utils';
 
 export class TzktProvider implements BlockchainProvider {
   constructor(
     private readonly baseUrl: string
   ) { }
+
+  async getContractOperations(address: string, entrypoints: string[], startLevel: bigint, endLevel: bigint): Promise<ContractOperation[]> {
+    const url = 'https://api.ghostnet.tzkt.io/v1/operations/transactions';
+    const params = {
+      target: address,
+      'entrypoint.in': entrypoints.join(','),
+      'level.ge': startLevel.toString(),
+      'level.le': endLevel.toString(),
+      'select': 'hash,timestamp,sender'
+    };
+    const rawResult = await this.fetchAllChunks<TzktContractOperation>(url, 100, params);
+    return rawResult.map(r => ({
+      hash: r.hash,
+      sender: r.sender,
+      time: new Date(r.timestamp)
+    }))
+  }
 
   async getBlocksCreationTime(levels: bigint[]): Promise<Map<bigint, Date>> {
     const result = new Map();
@@ -24,7 +41,7 @@ export class TzktProvider implements BlockchainProvider {
 
     const results = await Promise.all(promises);
     results.forEach(blocks => {
-      blocks.forEach(([level, timeStamp]) => result.set(BigInt(level), new Date(timeStamp)));
+      blocks.forEach(([level, timestamp]) => result.set(BigInt(level), new Date(timestamp)));
     });
 
     return result;

@@ -1,4 +1,4 @@
-import { Baker, TzktBigMapEntry, TzktTezosPeriodInfo, VotingFinishedEventPayloadDto } from '../dto';
+import { Baker, ContractOperation, TzktBigMapEntry, TzktTezosPeriodInfo, VotingFinishedEventPayloadDto } from '../dto';
 
 export interface BlockchainProvider {
   getBlockCreationTime(level: bigint): Promise<Date>;
@@ -11,4 +11,5 @@ export interface BlockchainProvider {
   getBigMapEntries<K, V>(id: bigint): Promise<Array<TzktBigMapEntry<K, V>>>;
   getContractOriginationLevel(address: string): Promise<bigint>;
   getVotingFinishedEvents(address: string): Promise<VotingFinishedEventPayloadDto[]>;
+  getContractOperations(address: string, entrypoints: string[], startLevel: bigint, endLevel: bigint): Promise<ContractOperation[]>;
 }

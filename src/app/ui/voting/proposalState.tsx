@@ -1,5 +1,5 @@
 import { ProposalPeriod, GovernanceConfig } from '@/app/lib/governance';
-import { getProposalQuorumPercent, natToPercent, formatPercentageCompact } from '@/app/lib/governance/utils';
+import { getProposalQuorumPercent, natToPercent, formatPercentageCompact, formatDateTimeCompact } from '@/app/lib/governance/utils';
 import BigNumber from 'bignumber.js'
 import clsx from 'clsx';
 import VotingPower from '@/app/ui/common/votingPower';
@@ -43,13 +43,15 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
         <th className={tableCellClass}>Baker</th>
         <th className={tableCellClass}>Voting power</th>
         <th className={tableCellClass}>Proposal</th>
+        <th className={tableCellClass}>Time</th>
       </tr>
     </thead>
     <tbody>
       {proposalPeriod.upvoters.map(p => <tr key={JSON.stringify(p.proposalKey)}>
-        <td className={tableCellClass}>{p.address}</td>
+        <td className={tableCellClass}>{p.address} - {p.operationHash}</td>
         <td className={tableCellClass}><VotingPower value={p.votingPower} /></td>
         <td className={tableCellClass}><PayloadKey value={p.proposalKey} /></td>
+        <td className={tableCellClass}>{formatDateTimeCompact(p.operationTime)}</td>
       </tr>)}
     </tbody>
   </table> : <span className="block">No Upvoters</span>
