@@ -11,6 +11,7 @@ export class TzktProvider implements BlockchainProvider {
     const result = new Map();
     const url = `${this.baseUrl}/v1/blocks`;
     const limit = 500;
+    let promises = [];
     for (let i = 0; i <= levels.length; i += limit) {
       const levelsChunk = levels.slice(i, i + limit);
       const params = {
@@ -18,9 +19,13 @@ export class TzktProvider implements BlockchainProvider {
         'select.values': 'level,timestamp',
         limit: limit.toString()
       }
-      const blocks = await this.fetchJson<Array<[number, string]>>(url, params);
-      blocks.forEach(([level, timeStamp]) => result.set(BigInt(level), new Date(timeStamp)));
+      promises.push(this.fetchJson<Array<[number, string]>>(url, params));
     }
+
+    const results = await Promise.all(promises);
+    results.forEach(blocks => {
+      blocks.forEach(([level, timeStamp]) => result.set(BigInt(level), new Date(timeStamp)));
+    });
 
     return result;
   }
@@ -53,6 +58,7 @@ export class TzktProvider implements BlockchainProvider {
       'select.fields': 'payload',
       'sort.desc': 'id'
     }
+    //TODO: we can use get count and then use Promise.all
     return this.fetchAllChunks(url, 300, params);
   }
 
