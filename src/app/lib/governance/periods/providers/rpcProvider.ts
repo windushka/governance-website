@@ -36,30 +36,33 @@ export class RpcGovernancePeriodsProvider implements GovernancePeriodsProvider {
       });
     }
     const blockCreationTimeMap = await this.blockchainProvider.getBlocksCreationTime(blockLevels);
+    const periodsFromEventsMap = await this.getPeriodsFromEvents(finishedEvents, pendingEvent, config, currentBlockLevel, timeBetweenBlocks, blockCreationTimeMap);
 
+    const result: GovernancePeriod[] = [];
+    for (let i = currentPeriodIndex; i >= BigInt(0); i--) {
+      const period = periodsFromEventsMap.get(i)
+        || this.createEmptyProposalPeriod(i, config, currentBlockLevel, timeBetweenBlocks, blockCreationTimeMap);
+      result.push(period);
+    }
+
+    return result;
+  }
+
+  private async getPeriodsFromEvents(
+    finishedEvents: VotingFinishedEventPayloadDto[],
+    pendingEvent: VotingFinishedEventPayload | undefined,
+    config: GovernanceConfig,
+    currentBlockLevel: bigint,
+    timeBetweenBlocks: bigint,
+    blockCreationTimeMap: Map<bigint, Date>
+  ): Promise<Map<bigint, GovernancePeriod>> {
     const periodsFromEvents: GovernancePeriod[] = [];
     if (pendingEvent)
       periodsFromEvents.push(this.mapEventToPeriod(pendingEvent, config, currentBlockLevel, timeBetweenBlocks, blockCreationTimeMap));
     for await (const e of finishedEvents) {
       periodsFromEvents.push(this.mapEventToPeriod(e, config, currentBlockLevel, timeBetweenBlocks, blockCreationTimeMap));
     }
-
-    const result: GovernancePeriod[] = [];
-    let lastPeriodIndex = currentPeriodIndex;
-
-    for (const period of periodsFromEvents) {
-      for (let i = lastPeriodIndex; i > period.index; i--) {
-        result.push(this.createEmptyProposalPeriod(i, config, currentBlockLevel, timeBetweenBlocks, blockCreationTimeMap));
-      }
-      result.push(period);
-      lastPeriodIndex = period.index - BigInt(1);
-    }
-
-    for (let i = lastPeriodIndex; i >= BigInt(0); i--) {
-      result.push(this.createEmptyProposalPeriod(i, config, currentBlockLevel, timeBetweenBlocks, blockCreationTimeMap));
-    }
-
-    return result;
+    return new Map(periodsFromEvents.map(p => [p.index, p]));
   }
 
   private async getPendingVotingFinishedEvent(contractAddress: string): Promise<VotingFinishedEventPayload | undefined> {
