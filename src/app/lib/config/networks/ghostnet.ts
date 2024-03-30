@@ -3,6 +3,7 @@ import { Config } from '../types';
 export const ghostnetConfig: Config = {
   rpcUrl: 'https://rpc.tzkt.io/ghostnet',
   tzktApiUrl: 'https://api.ghostnet.tzkt.io',
+  tzktExplorerUrl: 'https://ghostnet.tzkt.io',
   contracts: [{
     address: 'KT1MtNbeDYiBTFHfKrocHdzds1GYKNkNeAfe',
     name: 'kernel'

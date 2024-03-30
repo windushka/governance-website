@@ -3,6 +3,7 @@ import { TzktProvider } from '../blockchain';
 import { ghostnetConfig } from '../config';
 import { RpcGovernancePeriodsProvider, RpcGovernanceConfigProvider, RpcGovernanceStateProvider } from '../governance';
 import { AppContext } from './appContext';
+import { TzktExplorer } from '../explorer';
 
 let appContext: AppContext | undefined;
 export const getAppContext = (): AppContext => {
@@ -14,6 +15,7 @@ export const getAppContext = (): AppContext => {
     appContext = {
       config,
       blockchain: blockchainProvider,
+      explorer: new TzktExplorer(config.tzktExplorerUrl),
       governance: {
         config: new RpcGovernanceConfigProvider(toolkit),
         state: new RpcGovernanceStateProvider(config.rpcUrl, blockchainProvider),

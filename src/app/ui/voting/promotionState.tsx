@@ -6,6 +6,8 @@ import VotingPower from "@/app/ui/common/votingPower";
 import NoData from "@/app/ui/common/noData";
 import TotalVoteCard from "@/app/ui/voting/totalVoteCard";
 import PayloadKey from './payloadKey';
+import Link from '../common/link';
+import { getAppContext } from '@/app/lib/appContext';
 
 interface PromotionStateProps {
   promotionPeriod: PromotionPeriod;
@@ -13,6 +15,7 @@ interface PromotionStateProps {
 }
 
 export default function PromotionState({ promotionPeriod, config }: PromotionStateProps) {
+  const context = getAppContext();
   const tableCellClass = 'text-center border border-slate-500 p-2';
 
   const votersTable = promotionPeriod.voters.length ? <table className="table-auto w-full border-collapse border border-slate-500">
@@ -27,7 +30,7 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
     <tbody>
       {promotionPeriod.voters.map(v =>
         <tr key={v.address}>
-          <td className={tableCellClass}>{v.address} - {v.operationHash}</td>
+          <td className={clsx(tableCellClass, 'underline')}><Link href={context.explorer.getOperationUrl(v.operationHash)} target="_blank">{v.address}</Link></td>
           <td className={tableCellClass}><VotingPower value={v.votingPower} /></td>
           <td className={clsx(tableCellClass, v.vote === 'yea' && 'text-emerald-400', v.vote === 'nay' && 'text-red-400')}>{v.vote}</td>
           <td className={tableCellClass}>{formatDateTimeCompact(v.operationTime)}</td>

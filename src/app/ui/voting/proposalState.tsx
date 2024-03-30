@@ -5,6 +5,8 @@ import clsx from 'clsx';
 import VotingPower from '@/app/ui/common/votingPower';
 import NoData from '@/app/ui/common/noData';
 import PayloadKey from './payloadKey';
+import Link from '../common/link';
+import { getAppContext } from '@/app/lib/appContext';
 
 interface ProposalStateProps {
   proposalPeriod: ProposalPeriod;
@@ -15,6 +17,7 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
   if (!proposalPeriod.proposals.length)
     return <NoData text="No proposals" />
 
+  const context = getAppContext();
   const minimumProposalQuorum = natToPercent(config.proposalQuorum, config.scale);
 
   const proposalList = <ul>
@@ -48,7 +51,7 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
     </thead>
     <tbody>
       {proposalPeriod.upvoters.map(p => <tr key={JSON.stringify(p.proposalKey)}>
-        <td className={tableCellClass}>{p.address} - {p.operationHash}</td>
+        <td className={clsx(tableCellClass, 'underline')}><Link href={context.explorer.getOperationUrl(p.operationHash)} target="_blank">{p.address}</Link></td>
         <td className={tableCellClass}><VotingPower value={p.votingPower} /></td>
         <td className={tableCellClass}><PayloadKey value={p.proposalKey} /></td>
         <td className={tableCellClass}>{formatDateTimeCompact(p.operationTime)}</td>

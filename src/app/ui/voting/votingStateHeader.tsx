@@ -67,6 +67,7 @@ export default async function VotingStateHeader({ contract, periodIndex, votingC
         buttonText="Contract"
         contractName={contract.name}
         contractAddress={contract.address}
+        contractUrl={context.explorer.getAccountUrl(contract.address)}
         config={config}
       />
       <NavButton contractName={contract.name} isNext disabled={nextPeriodIndex > (currentPeriodIndex)} periodIndex={nextPeriodIndex} />

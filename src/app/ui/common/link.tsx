@@ -3,18 +3,21 @@
 import clsx from "clsx";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
+import { HTMLAttributeAnchorTarget } from 'react';
 
 interface LinkProps {
   href: string;
   disabled?: boolean;
   className?: string;
+  target?: HTMLAttributeAnchorTarget;
   children: React.ReactNode;
 }
 
-export default function Link({ children, href, disabled, className }: LinkProps) {
+export default function Link({ children, href, disabled, className, target }: LinkProps) {
   const pathname = usePathname();
 
   return !disabled ? <NextLink
+    target={target}
     href={href}
     className={clsx(className, 'hover:text-sky-500', { 'text-sky-400': href && pathname.startsWith(href) })}>
     {children}

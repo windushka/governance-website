@@ -7,4 +7,5 @@ export interface Config {
   contracts: Contract[];
   rpcUrl: string;
   tzktApiUrl: string;
+  tzktExplorerUrl: string;
 }
