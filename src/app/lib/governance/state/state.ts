@@ -25,6 +25,7 @@ export interface Proposal {
 
 export interface Upvoter {
   readonly address: string;
+  readonly alias: string | undefined;
   readonly proposalKey: PayloadKey;
   readonly votingPower: bigint;
   readonly operationHash: string;
@@ -46,6 +47,7 @@ export interface ProposalPeriod {
 
 export interface Voter {
   readonly address: string;
+  readonly alias: string | undefined;
   readonly vote: Vote;
   readonly votingPower: bigint;
   readonly operationHash: string;

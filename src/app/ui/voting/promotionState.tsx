@@ -30,7 +30,7 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
     <tbody>
       {promotionPeriod.voters.map(v =>
         <tr key={v.address}>
-          <td className={clsx(tableCellClass, 'underline')}><Link href={context.explorer.getOperationUrl(v.operationHash)} target="_blank">{v.address}</Link></td>
+          <td className={clsx(tableCellClass, 'underline')}><Link href={context.explorer.getOperationUrl(v.operationHash)} target="_blank">{v.alias || v.address}</Link></td>
           <td className={tableCellClass}><VotingPower value={v.votingPower} /></td>
           <td className={clsx(tableCellClass, v.vote === 'yea' && 'text-emerald-400', v.vote === 'nay' && 'text-red-400')}>{v.vote}</td>
           <td className={tableCellClass}>{formatDateTimeCompact(v.operationTime)}</td>

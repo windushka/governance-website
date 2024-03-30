@@ -298,10 +298,12 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
       //TODO: improve
       upvoters = rawEntries.map(({ key }) => {
         const operation = operationsMap.get(key.key_hash);
+        const baker = bakers.get(key.key_hash);
         return {
           address: key.key_hash,
+          alias: baker!.alias,
           proposalKey: 'bytes' in key ? key.bytes : mapPayloadKey(key),
-          votingPower: bakers.get(key.key_hash)!.votingPower,
+          votingPower: baker!.votingPower,
           operationHash: operation!.hash,
           operationTime: operation!.time
         } as Upvoter
@@ -330,10 +332,12 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
       const operationsMap = new Map(operations.map(o => [o.sender.address, o]));
       voters = rawEntries.map(({ key, value }) => {
         const operation = operationsMap.get(key);
+        const baker = bakers.get(key);
         return {
           address: key,
+          alias: baker!.alias,
           vote: value,
-          votingPower: bakers.get(key)!.votingPower,
+          votingPower: baker!.votingPower,
           operationHash: operation!.hash,
           operationTime: operation!.time
         } as Voter

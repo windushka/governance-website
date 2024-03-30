@@ -51,7 +51,7 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
     </thead>
     <tbody>
       {proposalPeriod.upvoters.map(p => <tr key={JSON.stringify(p.proposalKey)}>
-        <td className={clsx(tableCellClass, 'underline')}><Link href={context.explorer.getOperationUrl(p.operationHash)} target="_blank">{p.address}</Link></td>
+        <td className={clsx(tableCellClass, 'underline')}><Link href={context.explorer.getOperationUrl(p.operationHash)} target="_blank">{p.alias || p.address}</Link></td>
         <td className={tableCellClass}><VotingPower value={p.votingPower} /></td>
         <td className={tableCellClass}><PayloadKey value={p.proposalKey} /></td>
         <td className={tableCellClass}>{formatDateTimeCompact(p.operationTime)}</td>
