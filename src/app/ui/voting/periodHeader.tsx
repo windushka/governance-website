@@ -1,7 +1,6 @@
 import { PeriodType } from "@/app/lib/governance/state/state"
-import Link from "@/app/ui/common/link";
+import { LinkPure } from "@/app/ui/common";
 import { getPeriodPageUrl } from '@/app/actions';
-import { formatDateTimeCompact } from '@/app/lib/governance/utils';
 import PeriodTime from './periodTime';
 
 interface PeriodHeaderProps {
@@ -28,7 +27,7 @@ export default function PeriodHeader({
   const periodName = periodType === PeriodType.Proposal ? 'Proposal' : 'Promotion';
 
   return <div className="flex flex-col items-start">
-    <Link href={getPeriodPageUrl(contractName, periodIndex.toString())} disabled={disabled}>{`${periodName}`}</Link>
+    <LinkPure href={getPeriodPageUrl(contractName, periodIndex.toString())} disabled={disabled}>{`${periodName}`}</LinkPure>
     <div className="text-[10px]">
       <PeriodTime time={startTime} level={startLevel} /> - <PeriodTime time={endTime} level={endLevel} />
     </div>

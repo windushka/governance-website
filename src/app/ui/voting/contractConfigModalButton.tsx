@@ -5,8 +5,7 @@ import clsx from 'clsx';
 import { useState } from 'react';
 import { GovernanceConfig } from '@/app/lib/governance';
 import { formatPercentageCompact, natToPercent } from '@/app/lib/governance/utils';
-import Link from '../common/link';
-import { getAppContext } from '@/app/lib/appContext';
+import { LinkPure } from '@/app/ui/common';
 
 interface ContractConfigProps {
   buttonText: string;
@@ -50,7 +49,7 @@ export default function ContractConfigModalButton({ buttonText, contractName, co
           </tr>
           <tr>
             <td className={cellClassName}>Contract address</td>
-            <td className={clsx(cellClassName, 'text-right')}><Link href={contractUrl} target="_blank">{contractAddress}</Link></td>
+            <td className={clsx(cellClassName, 'text-right')}><LinkPure href={contractUrl} target="_blank">{contractAddress}</LinkPure></td>
           </tr>
           <tr>
             <td className={cellClassName}>Started at level</td>

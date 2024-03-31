@@ -1,12 +1,10 @@
 import { ProposalPeriod, GovernanceConfig } from '@/app/lib/governance';
-import { getProposalQuorumPercent, natToPercent, formatPercentageCompact, formatDateTimeCompact } from '@/app/lib/governance/utils';
+import { getProposalQuorumPercent, natToPercent, formatDateTimeCompact } from '@/app/lib/governance/utils';
 import BigNumber from 'bignumber.js'
 import clsx from 'clsx';
-import VotingPower from '@/app/ui/common/votingPower';
-import NoData from '@/app/ui/common/noData';
 import PayloadKey from './payloadKey';
-import Link from '../common/link';
 import { getAppContext } from '@/app/lib/appContext';
+import { ProgressPure, LinkPure, NoDataPure, IntValuePure } from '@/app/ui/common';
 
 interface ProposalStateProps {
   proposalPeriod: ProposalPeriod;
@@ -15,7 +13,7 @@ interface ProposalStateProps {
 
 export default function ProposalState({ proposalPeriod, config }: ProposalStateProps) {
   if (!proposalPeriod.proposals.length)
-    return <NoData text="No proposals" />
+    return <NoDataPure text="No proposals" />
 
   const context = getAppContext();
   const minimumProposalQuorum = natToPercent(config.proposalQuorum, config.scale);
@@ -33,7 +31,7 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
         </div>
         <div className="flex flex-col">
           <span className="mb-1">upvotes:</span>
-          <VotingPower className="text-xl" value={p.upvotesVotingPower} />
+          <IntValuePure className="text-xl" value={p.upvotesVotingPower} />
         </div>
       </li>)}
   </ul>
@@ -51,8 +49,8 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
     </thead>
     <tbody>
       {proposalPeriod.upvoters.map(p => <tr key={JSON.stringify(p.proposalKey)}>
-        <td className={clsx(tableCellClass, 'underline')}><Link href={context.explorer.getOperationUrl(p.operationHash)} target="_blank">{p.alias || p.address}</Link></td>
-        <td className={tableCellClass}><VotingPower value={p.votingPower} /></td>
+        <td className={clsx(tableCellClass, 'underline')}><LinkPure href={context.explorer.getOperationUrl(p.operationHash)} target="_blank">{p.alias || p.address}</LinkPure></td>
+        <td className={tableCellClass}><IntValuePure value={p.votingPower} /></td>
         <td className={tableCellClass}><PayloadKey value={p.proposalKey} /></td>
         <td className={tableCellClass}>{formatDateTimeCompact(p.operationTime)}</td>
       </tr>)}
@@ -64,12 +62,7 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
   return <>
     <div className="flex flex-row justify-between items-center mb-2">
       <h2 className="text-xl">Proposals</h2>
-      <div>
-        <span>Quorum: </span>
-        <span className={clsx(proposalQuorum.gte(minimumProposalQuorum) ? 'text-emerald-400' : 'text-red-400')}>
-          {`${formatPercentageCompact(proposalQuorum)} of ${formatPercentageCompact(minimumProposalQuorum)}`}
-        </span>
-      </div>
+      <ProgressPure text="Quorum" value={proposalQuorum} target={minimumProposalQuorum} />
     </div>
     {proposalList}
 

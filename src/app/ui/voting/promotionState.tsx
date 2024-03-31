@@ -1,12 +1,10 @@
 import { PromotionPeriod } from "@/app/lib/governance/state/state";
-import { getPromotionQuorumPercent, getPromotionSupermajorityPercent, natToPercent, formatPercentageCompact, formatDateTimeCompact } from "@/app/lib/governance/utils";
+import { getPromotionQuorumPercent, getPromotionSupermajorityPercent, natToPercent, formatDateTimeCompact } from "@/app/lib/governance/utils";
 import { GovernanceConfig } from "@/app/lib/governance/config/config";
 import { clsx } from "clsx";
-import VotingPower from "@/app/ui/common/votingPower";
-import NoData from "@/app/ui/common/noData";
 import TotalVoteCard from "@/app/ui/voting/totalVoteCard";
 import PayloadKey from './payloadKey';
-import Link from '../common/link';
+import { LinkPure, ProgressPure, NoDataPure, IntValuePure } from '@/app/ui/common';
 import { getAppContext } from '@/app/lib/appContext';
 
 interface PromotionStateProps {
@@ -30,8 +28,10 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
     <tbody>
       {promotionPeriod.voters.map(v =>
         <tr key={v.address}>
-          <td className={clsx(tableCellClass, 'underline')}><Link href={context.explorer.getOperationUrl(v.operationHash)} target="_blank">{v.alias || v.address}</Link></td>
-          <td className={tableCellClass}><VotingPower value={v.votingPower} /></td>
+          <td className={clsx(tableCellClass, 'underline')}>
+            <LinkPure href={context.explorer.getOperationUrl(v.operationHash)} target="_blank">{v.alias || v.address}</LinkPure>
+          </td>
+          <td className={tableCellClass}><IntValuePure value={v.votingPower} /></td>
           <td className={clsx(tableCellClass, v.vote === 'yea' && 'text-emerald-400', v.vote === 'nay' && 'text-red-400')}>{v.vote}</td>
           <td className={tableCellClass}>{formatDateTimeCompact(v.operationTime)}</td>
         </tr>)}
@@ -43,7 +43,6 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
   const minimumPromotionSupermajority = natToPercent(config.promotionSupermajority, config.scale);
   const minimumPromotionQuorum = natToPercent(config.promotionQuorum, config.scale);
 
-
   return votersTable ? <>
     <div className="flex flex-row justify-between items-center mb-8">
       <div className="flex flex-col">
@@ -51,19 +50,9 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
         <PayloadKey value={promotionPeriod.winnerCandidate} />
       </div>
 
-      <div className="flex flex-col">
-        <div>
-          <span>Supermajority: </span>
-          <span className={clsx(promotionSupermajority.gte(minimumPromotionSupermajority) ? 'text-emerald-400' : 'text-red-400')}>
-            {`${formatPercentageCompact(promotionSupermajority)} of ${formatPercentageCompact(minimumPromotionSupermajority)}`}
-          </span>
-        </div>
-        <div>
-          <span>Quorum: </span>
-          <span className={clsx(promotionQuorum.gte(minimumPromotionQuorum) ? 'text-emerald-400' : 'text-red-400')}>
-            {`${formatPercentageCompact(promotionQuorum)} of ${formatPercentageCompact(minimumPromotionQuorum)}`}
-          </span>
-        </div>
+      <div className="flex flex-col gap-2">
+        <ProgressPure text="Supermajority" value={promotionSupermajority} target={minimumPromotionSupermajority} />
+        <ProgressPure text="Quorum" value={promotionQuorum} target={minimumPromotionQuorum} />
       </div>
     </div>
     <div className="flex flex-row justify-between">
@@ -75,5 +64,5 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
     <h2 className="text-xl mb-2">Voters</h2>
     {votersTable}
   </>
-    : <NoData text="No voters" />
+    : <NoDataPure text="No voters" />
 }
