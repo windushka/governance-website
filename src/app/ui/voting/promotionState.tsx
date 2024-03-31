@@ -16,7 +16,7 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
   const context = getAppContext();
   const tableCellClass = 'text-center border border-slate-500 p-2';
 
-  const votersTable = promotionPeriod.voters.length ? <table className="table-auto w-full border-collapse border border-slate-500">
+  const votersTable = promotionPeriod.voters.length ? <table className="table-auto w-full border-collapse border border-slate-500 text-sm">
     <thead>
       <tr>
         <th className={tableCellClass}>Baker</th>
@@ -38,6 +38,8 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
     </tbody>
   </table> : null;
 
+  const votingPowerSum = promotionPeriod.yeaVotingPower + promotionPeriod.nayVotingPower + promotionPeriod.passVotingPower;
+
   const promotionSupermajority = getPromotionSupermajorityPercent(promotionPeriod.yeaVotingPower, promotionPeriod.nayVotingPower);
   const promotionQuorum = getPromotionQuorumPercent(promotionPeriod.yeaVotingPower, promotionPeriod.nayVotingPower, promotionPeriod.passVotingPower, promotionPeriod.totalVotingPower);
   const minimumPromotionSupermajority = natToPercent(config.promotionSupermajority, config.scale);
@@ -50,17 +52,16 @@ export default function PromotionState({ promotionPeriod, config }: PromotionSta
         <PayloadKey value={promotionPeriod.winnerCandidate} />
       </div>
 
-      <div className="flex flex-col gap-2">
-        <ProgressPure text="Supermajority" value={promotionSupermajority} target={minimumPromotionSupermajority} />
+      <div className="flex flex-col gap-4">
         <ProgressPure text="Quorum" value={promotionQuorum} target={minimumPromotionQuorum} />
+        <ProgressPure text="Supermajority" value={promotionSupermajority} target={minimumPromotionSupermajority} />
       </div>
     </div>
-    <div className="flex flex-row justify-between">
-      <TotalVoteCard className="border-emerald-400" text="Yea voting power" value={promotionPeriod.yeaVotingPower} />
-      <TotalVoteCard className="border-red-400" text="Nay voting power" value={promotionPeriod.nayVotingPower} />
-      <TotalVoteCard className="border-slate-500" text="Pass voting power" value={promotionPeriod.passVotingPower} />
+    <div className="flex flex-row justify-between mb-8 items-stretch gap-20">
+      <TotalVoteCard className="border-emerald-400" text="Total yea" votingPower={promotionPeriod.yeaVotingPower} totalVotingPower={votingPowerSum} />
+      <TotalVoteCard className="border-red-400" text="Total nay" votingPower={promotionPeriod.nayVotingPower} totalVotingPower={votingPowerSum} />
+      <TotalVoteCard className="border-slate-500" text="Total pass" votingPower={promotionPeriod.passVotingPower} totalVotingPower={votingPowerSum} />
     </div>
-    <br />
     <h2 className="text-xl mb-2">Voters</h2>
     {votersTable}
   </>

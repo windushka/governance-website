@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
-        <header className="container grow-0 mb-4 py-4 border-b flex flex-row justify-between items-center">
+        <header className="container grow-0 mb-4 py-4 border-b border-slate-400 flex flex-row justify-between items-center">
           <Link href="/" className="text-2xl">Etherlink governance</Link>
           <NavLinks />
         </header>

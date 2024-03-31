@@ -37,6 +37,17 @@ export const getPromotionSupermajorityPercent = (
   return totalYeaBN.div(totalYeaBN.plus(totalNayBN)).multipliedBy(100)
 };
 
+export const getVotingPowerPercent = (
+  votingPower: BigNumber | bigint,
+  totalVotingPower: BigNumber | bigint,
+): BigNumber => {
+  const votingPowerBN = toBigNumber(votingPower);
+  const totalVotingPowerBN = toBigNumber(totalVotingPower);
+
+  return votingPowerBN.multipliedBy(100).div(totalVotingPowerBN);
+};
+
+
 export const getFirstBlockOfPeriod = (
   periodIndex: bigint,
   startedAtLevel: bigint,

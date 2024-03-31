@@ -21,8 +21,7 @@ export const Progress = ({ value, target, text, className }: ProgressProps) => {
     </div>
     <ProgressAnt
       style={{ fontSize: 4 }}
-      strokeWidth={2}
-      size="small"
+      size={['small', 2]}
       percent={value.toNumber()}
       showInfo={false}
       strokeColor={value.gte(target) ? 'rgb(52, 211, 153)' : 'rgb(248, 113, 113)'}

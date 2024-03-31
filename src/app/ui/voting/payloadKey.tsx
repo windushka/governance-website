@@ -6,7 +6,7 @@ interface PayloadKeyProps {
 
 export default function PayloadKey({ value }: PayloadKeyProps) {
   if (typeof value === 'string')
-    return `0x${value}`
+    return <span>0x{value}</span>
 
   return <div>
     <span className="block">Pool Address: 0x{value.poolAddress}</span>

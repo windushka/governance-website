@@ -45,7 +45,7 @@ export default async function VotingStateHeader({ contract, periodIndex, votingC
     />
   }
 
-  return <div className="flex flex-row justify-between items-center pb-4 mb-8 border-b">
+  return <div className="flex flex-row justify-between items-center pb-4 mb-8 border-b border-slate-400">
     <div className="flex flex-row gap-10 items-center">
       <NavButton contractName={contract.name} disabled={prevPeriodIndex < 0} periodIndex={prevPeriodIndex} />
       <PeriodSelector

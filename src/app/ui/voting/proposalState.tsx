@@ -18,16 +18,16 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
   const context = getAppContext();
   const minimumProposalQuorum = natToPercent(config.proposalQuorum, config.scale);
 
-  const proposalList = <ul>
+  const proposalList = <ul className="flex flex-col gap-6 mb-8">
     {proposalPeriod.proposals.map(p =>
-      <li key={JSON.stringify(p.key)} className={clsx("block flex flex-row justify-between items-center py-8 px-8 border mb-4", JSON.stringify(p.key) === JSON.stringify(proposalPeriod.winnerCandidate) ? 'border-emerald-400' : 'border-slate-500')}>
+      <li key={JSON.stringify(p.key)} className={clsx("block flex flex-row justify-between items-center p-2 border", JSON.stringify(p.key) === JSON.stringify(proposalPeriod.winnerCandidate) ? 'border-emerald-400' : 'border-slate-500')}>
         <div className="flex flex-col">
-          <span className="mb-1">
-            Proposer: {p.proposer}
-          </span>
-          <div className="text-xl">
+          <div> 
             <PayloadKey value={p.key} />
           </div>
+          <span className="mb-1">
+            (by <LinkPure className="underline" href={context.explorer.getAccountUrl(p.proposer)} target="_blank">{p.proposer}</LinkPure>)
+          </span>
         </div>
         <div className="flex flex-col">
           <span className="mb-1">upvotes:</span>
@@ -38,7 +38,7 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
 
   const tableCellClass = 'text-center border border-slate-500 p-2';
 
-  const upvotersTable = proposalPeriod.upvoters.length ? <table className="table-auto w-full border-collapse border border-slate-500">
+  const upvotersTable = proposalPeriod.upvoters.length ? <table className="table-auto w-full border-collapse border border-slate-500 text-sm">
     <thead>
       <tr>
         <th className={tableCellClass}>Baker</th>
@@ -49,7 +49,9 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
     </thead>
     <tbody>
       {proposalPeriod.upvoters.map(p => <tr key={JSON.stringify(p.proposalKey)}>
-        <td className={clsx(tableCellClass, 'underline')}><LinkPure href={context.explorer.getOperationUrl(p.operationHash)} target="_blank">{p.alias || p.address}</LinkPure></td>
+        <td className={tableCellClass}>
+          <LinkPure className="underline" href={context.explorer.getOperationUrl(p.operationHash)} target="_blank">{p.alias || p.address}</LinkPure>
+        </td>
         <td className={tableCellClass}><IntValuePure value={p.votingPower} /></td>
         <td className={tableCellClass}><PayloadKey value={p.proposalKey} /></td>
         <td className={tableCellClass}>{formatDateTimeCompact(p.operationTime)}</td>
@@ -66,7 +68,6 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
     </div>
     {proposalList}
 
-    <br />
     <h2 className="text-xl mb-2">Upvoters</h2>
     {upvotersTable}
   </>
