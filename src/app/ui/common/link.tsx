@@ -4,6 +4,7 @@ import clsx from "clsx";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { HTMLAttributeAnchorTarget, memo } from 'react';
+import { appTheme } from '.';
 
 interface LinkProps {
   href: string;
@@ -19,7 +20,7 @@ export const Link = ({ children, href, disabled, className, target }: LinkProps)
   return !disabled ? <NextLink
     target={target}
     href={href}
-    className={clsx(className, 'hover:text-sky-500', { 'text-sky-400': href && pathname.startsWith(href) })}>
+    className={clsx(className, appTheme.accentTextColorHover, { [appTheme.accentTextColor]: href && pathname.startsWith(href) })}>
     {children}
   </NextLink> : <span className="text-slate-400">{children}</span>;
 };

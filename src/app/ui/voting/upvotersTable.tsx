@@ -1,8 +1,14 @@
+'use client'
+
 import { getAppContext } from '@/app/lib/appContext';
-import { memo } from 'react';
-import { IntValuePure, LinkPure } from '@/app/ui/common';
+import { useEffect, useState } from 'react';
+import { IntValuePure, LinkPure, TablePure, appTheme } from '@/app/ui/common';
 import PayloadKey from './payloadKey';
 import { formatDateTimeCompact } from '@/app/lib/governance/utils';
+import { getUpvoters } from '@/app/actions';
+import { Upvoter } from '@/app/lib/governance';
+import { ColumnsType } from 'antd/es/table';
+import clsx from 'clsx';
 
 interface UpvotersTableProps {
   contractAddress: string;
@@ -11,37 +17,52 @@ interface UpvotersTableProps {
   periodEndLevel: number;
 }
 
-export const UpvotersTable = async ({ contractAddress, upvotersBigMapId, periodStartLevel, periodEndLevel }: UpvotersTableProps) => {
+export const UpvotersTable = ({ contractAddress, upvotersBigMapId, periodStartLevel, periodEndLevel }: UpvotersTableProps) => {
+  const [loading, setLoading] = useState(true);
+  const [voters, setVoters] = useState<Upvoter[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const voters = upvotersBigMapId
+        ? await getUpvoters(
+          contractAddress,
+          upvotersBigMapId,
+          periodStartLevel,
+          periodEndLevel)
+        : [];
+      setVoters(voters);
+      setLoading(false);
+    })();
+  }, [contractAddress, upvotersBigMapId, periodStartLevel, periodEndLevel]);
+
   const context = getAppContext();
-  const upvoters = upvotersBigMapId ? await context.governance.operations.getUpvoters(
-    contractAddress,
-    upvotersBigMapId,
-    periodStartLevel,
-    periodEndLevel
-  ) : [];
 
-  const tableCellClass = 'text-center border border-slate-500 p-2';
+  const columns: ColumnsType<Upvoter> = [
+    {
+      title: 'Baker',
+      dataIndex: 'address',
+      render: (_, r) => <LinkPure className={clsx(appTheme.textColor, 'underline')} href={context.explorer.getOperationUrl(r.operationHash)} target="_blank">{r.alias || r.address}</LinkPure>,
+      sorter: (a, b) => (a.alias || a.address).localeCompare(b.alias || b.address),
+    },
+    {
+      title: 'Voting power',
+      dataIndex: 'votingPower',
+      render: (_, r) => <IntValuePure value={r.votingPower} />,
+      sorter: (a, b) => parseInt((a.votingPower - b.votingPower).toString()),
+    },
+    {
+      title: 'Proposal',
+      dataIndex: 'proposal',
+      render: (_, r) => <PayloadKey value={r.proposalKey} />,
+    },
+    {
+      title: 'Time',
+      dataIndex: 'operationTime',
+      render: (_, r) => <span>{formatDateTimeCompact(r.operationTime)}</span>,
+      sorter: (a, b) => a.operationTime.getTime() - b.operationTime.getTime(),
+    },
+  ];
 
-  return upvoters.length ? <table className="table-auto w-full border-collapse border border-slate-500 text-sm">
-    <thead>
-      <tr>
-        <th className={tableCellClass}>Baker</th>
-        <th className={tableCellClass}>Voting power</th>
-        <th className={tableCellClass}>Proposal</th>
-        <th className={tableCellClass}>Time</th>
-      </tr>
-    </thead>
-    <tbody>
-      {upvoters.map(p => <tr key={JSON.stringify(p.proposalKey)}>
-        <td className={tableCellClass}>
-          <LinkPure className="underline" href={context.explorer.getOperationUrl(p.operationHash)} target="_blank">{p.alias || p.address}</LinkPure>
-        </td>
-        <td className={tableCellClass}><IntValuePure value={p.votingPower} /></td>
-        <td className={tableCellClass}><PayloadKey value={p.proposalKey} /></td>
-        <td className={tableCellClass}>{formatDateTimeCompact(p.operationTime)}</td>
-      </tr>)}
-    </tbody>
-  </table> : <span className="block">No Upvoters</span>
+  return <TablePure rowKey="address" dataSource={voters} columns={columns} loading={loading} />
 }
-
-export const UpvotersTablePure = memo(UpvotersTable);

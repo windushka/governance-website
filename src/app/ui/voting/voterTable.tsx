@@ -1,8 +1,13 @@
-import { getAppContext } from '@/app/lib/appContext';
-import { memo } from 'react';
-import { IntValuePure, LinkPure } from '@/app/ui/common';
+'use client'
+
+import { useEffect, useState } from 'react';
+import { Vote, Voter } from '@/app/lib/governance';
+import { ColumnsType } from 'antd/es/table';
+import { getVoters } from '@/app/actions';
+import { IntValuePure, LinkPure, TablePure, appTheme } from '../common';
 import { formatDateTimeCompact } from '@/app/lib/governance/utils';
 import clsx from 'clsx';
+import { getAppContext } from '@/app/lib/appContext';
 
 interface VotersTableProps {
   contractAddress: string;
@@ -11,38 +16,68 @@ interface VotersTableProps {
   periodEndLevel: number;
 }
 
-export const VotersTable = async ({ contractAddress, votersBigMapId, periodStartLevel, periodEndLevel }: VotersTableProps) => {
+export const VotersTable = ({ contractAddress, votersBigMapId, periodStartLevel, periodEndLevel }: VotersTableProps) => {
+  const [loading, setLoading] = useState(true);
+  const [voters, setVoters] = useState<Voter[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const voters = votersBigMapId
+        ? await getVoters(
+          contractAddress,
+          votersBigMapId,
+          periodStartLevel,
+          periodEndLevel)
+        : [];
+      setVoters(voters);
+      setLoading(false);
+    })();
+  }, [contractAddress, votersBigMapId, periodStartLevel, periodEndLevel]);
+
   const context = getAppContext();
-  const voters = votersBigMapId ? await context.governance.operations.getVoters(
-    contractAddress,
-    votersBigMapId,
-    periodStartLevel,
-    periodEndLevel
-  ) : [];
 
-  const tableCellClass = 'text-center border border-slate-500 p-2';
+  const columns: ColumnsType<Voter> = [
+    {
+      title: 'Baker',
+      dataIndex: 'address',
+      render: (_, r) => <LinkPure className={clsx(appTheme.textColor, 'underline')} href={context.explorer.getOperationUrl(r.operationHash)} target="_blank">{r.alias || r.address}</LinkPure>,
+      sorter: (a, b) => (a.alias || a.address).localeCompare(b.alias || b.address),
+    },
+    {
+      title: 'Voting power',
+      dataIndex: 'votingPower',
+      render: (_, r) => <IntValuePure value={r.votingPower} />,
+      sorter: (a, b) => parseInt((a.votingPower - b.votingPower).toString()),
+    },
+    {
+      title: 'Vote',
+      dataIndex: 'vote',
+      render: (_, r) => <span className={clsx(r.vote === 'yea' && appTheme.accentTextColor, r.vote === 'nay' && 'text-red-400')}>{r.vote}</span>,
+      sorter: (a, b) => a.vote.localeCompare(b.vote),
+      filters: [
+        {
+          text: 'Yea',
+          value: Vote.Yea,
+        },
+        {
+          text: 'Nay',
+          value: Vote.Nay,
+        },
+        {
+          text: 'Pass',
+          value: Vote.Pass,
+        },
+      ],
+      onFilter: (value, record) => record.vote.indexOf(value as string) === 0,
+    },
+    {
+      title: 'Time',
+      dataIndex: 'operationTime',
+      render: (_, r) => <span>{formatDateTimeCompact(r.operationTime)}</span>,
+      sorter: (a, b) => a.operationTime.getTime() - b.operationTime.getTime(),
+    },
+  ];
 
-  return voters.length ? <table className="table-auto w-full border-collapse border border-slate-500 text-sm">
-    <thead>
-      <tr>
-        <th className={tableCellClass}>Baker</th>
-        <th className={tableCellClass}>Voting power</th>
-        <th className={tableCellClass}>Vote</th>
-        <th className={tableCellClass}>Time</th>
-      </tr>
-    </thead>
-    <tbody>
-      {voters.map(v =>
-        <tr key={v.address}>
-          <td className={clsx(tableCellClass, 'underline')}>
-            <LinkPure href={context.explorer.getOperationUrl(v.operationHash)} target="_blank">{v.alias || v.address}</LinkPure>
-          </td>
-          <td className={tableCellClass}><IntValuePure value={v.votingPower} /></td>
-          <td className={clsx(tableCellClass, v.vote === 'yea' && 'text-emerald-400', v.vote === 'nay' && 'text-red-400')}>{v.vote}</td>
-          <td className={tableCellClass}>{formatDateTimeCompact(v.operationTime)}</td>
-        </tr>)}
-    </tbody>
-  </table> : null;
+  return <TablePure rowKey="address" dataSource={voters} columns={columns} loading={loading} />
 }
-
-export const VotersTablePure = memo(VotersTable);

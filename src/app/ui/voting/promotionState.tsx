@@ -3,8 +3,8 @@ import { getPromotionQuorumPercent, getPromotionSupermajorityPercent, natToPerce
 import { GovernanceConfig } from "@/app/lib/governance/config/config";
 import TotalVoteCard from "@/app/ui/voting/totalVoteCard";
 import PayloadKey from './payloadKey';
-import { ProgressPure, NoDataPure } from '@/app/ui/common';
-import { VotersTablePure } from './voterTable';
+import { ProgressPure, NoDataPure, appTheme } from '@/app/ui/common';
+import { VotersTable } from './voterTable';
 
 interface PromotionStateProps {
   contractAddress: string;
@@ -34,12 +34,12 @@ export default function PromotionState({ contractAddress, promotionPeriod, confi
         </div>
       </div>
       <div className="flex flex-row justify-between mb-8 items-stretch gap-20">
-        <TotalVoteCard className="border-emerald-400" text="Total yea" votingPower={promotionPeriod.yeaVotingPower} totalVotingPower={votingPowerSum} />
+        <TotalVoteCard className={appTheme.accentBorderColor} text="Total yea" votingPower={promotionPeriod.yeaVotingPower} totalVotingPower={votingPowerSum} />
         <TotalVoteCard className="border-red-400" text="Total nay" votingPower={promotionPeriod.nayVotingPower} totalVotingPower={votingPowerSum} />
-        <TotalVoteCard className="border-slate-500" text="Total pass" votingPower={promotionPeriod.passVotingPower} totalVotingPower={votingPowerSum} />
+        <TotalVoteCard className={appTheme.borderColor} text="Total pass" votingPower={promotionPeriod.passVotingPower} totalVotingPower={votingPowerSum} />
       </div>
       <h2 className="text-xl mb-2">Voters</h2>
-      <VotersTablePure
+      <VotersTable
         contractAddress={contractAddress}
         votersBigMapId={promotionPeriod.votersBigMapId}
         periodStartLevel={promotionPeriod.startLevel}

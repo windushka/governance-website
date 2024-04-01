@@ -3,8 +3,8 @@ import { getProposalQuorumPercent, natToPercent } from '@/app/lib/governance/uti
 import clsx from 'clsx';
 import PayloadKey from './payloadKey';
 import { getAppContext } from '@/app/lib/appContext';
-import { ProgressPure, LinkPure, NoDataPure, IntValuePure } from '@/app/ui/common';
-import { UpvotersTablePure } from './upvotersTable';
+import { ProgressPure, LinkPure, NoDataPure, IntValuePure, appTheme } from '@/app/ui/common';
+import { UpvotersTable } from './upvotersTable';
 
 interface ProposalStateProps {
   contractAddress: string;
@@ -23,7 +23,7 @@ export default function ProposalState({ contractAddress, proposalPeriod, config 
     {proposalPeriod.proposals.map(p =>
       <li
         key={JSON.stringify(p.key)}
-        className={clsx('block flex flex-row justify-between items-center p-2 border', JSON.stringify(p.key) === JSON.stringify(proposalPeriod.winnerCandidate) ? 'border-emerald-400' : 'border-slate-500')}>
+        className={clsx(`block flex flex-row justify-between items-center p-2 border ${appTheme.componentBgColor}`, JSON.stringify(p.key) === JSON.stringify(proposalPeriod.winnerCandidate) ? appTheme.accentBorderColor : appTheme.borderColor)}>
         <div className="flex flex-col">
           <div>
             <PayloadKey value={p.key} />
@@ -49,7 +49,7 @@ export default function ProposalState({ contractAddress, proposalPeriod, config 
     {proposalList}
 
     <h2 className="text-xl mb-2">Upvoters</h2>
-    <UpvotersTablePure
+    <UpvotersTable
       contractAddress={contractAddress}
       upvotersBigMapId={proposalPeriod.upvotersBigMapId}
       periodStartLevel={proposalPeriod.startLevel}

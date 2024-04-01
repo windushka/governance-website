@@ -1,6 +1,7 @@
 import { getPeriodPageUrl } from '@/app/actions';
 import clsx from 'clsx';
 import Link from 'next/link';
+import { appTheme } from '../common';
 
 interface NavButtonProps {
   contractName: string;
@@ -10,7 +11,7 @@ interface NavButtonProps {
 }
 
 export default function NavButton({ contractName, periodIndex, isNext, disabled }: NavButtonProps) {
-  const className = clsx('flex justify-center items-center border rounded-md h-[40px] w-[40px] text-lg', disabled ? 'border-slate-500 text-slate-500' : 'hover:bg-neutral-700');
+  const className = clsx(`flex justify-center items-center ${appTheme.componentBgColor} border ${appTheme.borderColor} rounded-md h-[40px] w-[40px] text-lg`, disabled ? 'border-slate-500 text-slate-500' : appTheme.componentBgHoverColor);
   const content = { __html: isNext ? '&#8594;' : '&#8592;' };
 
   return !disabled

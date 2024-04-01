@@ -7,6 +7,8 @@ import PeriodSelector from './periodSelector';
 import ContractConfigModalButton from './contractConfigModalButton';
 import { Contract } from '@/app/lib/config';
 import { getAppContext } from '@/app/lib/appContext';
+import clsx from 'clsx';
+import { appTheme } from '../common';
 
 interface VotingStateHeaderProps {
   contract: Contract;
@@ -44,7 +46,7 @@ export default async function VotingStateHeader({ contract, periodIndex, votingC
     />
   }
 
-  return <div className="flex flex-row justify-between items-center pb-4 mb-8 border-b border-slate-400">
+  return <div className={`flex flex-row justify-between items-center ${appTheme.componentBgColor} px-2 py-4 mb-8`}>
     <div className="flex flex-row gap-10 items-center">
       <NavButton contractName={contract.name} disabled={prevPeriodIndex < 0} periodIndex={prevPeriodIndex} />
       <PeriodSelector

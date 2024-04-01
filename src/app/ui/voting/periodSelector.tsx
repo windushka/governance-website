@@ -29,6 +29,7 @@ export default function PeriodSelector({ contract, config, currentPeriodIndex }:
 
   useEffect(() => {
     (async () => {
+      setLoading(true);
       const periods = await getPeriods(contract.address, config);
       setPeriods(periods);
       setLoading(false);

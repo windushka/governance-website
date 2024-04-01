@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { useState } from 'react';
 import { GovernanceConfig } from '@/app/lib/governance';
 import { formatPercentageCompact, natToPercent } from '@/app/lib/governance/utils';
-import { LinkPure } from '@/app/ui/common';
+import { LinkPure, appTheme } from '@/app/ui/common';
 import { Contract } from '@/app/lib/config';
 
 interface ContractConfigProps {
@@ -30,7 +30,7 @@ export default function ContractConfigModalButton({ buttonText, contract, contra
     setIsModalOpen(false);
   };
 
-  const cellClassName = 'border border-slate-500 p-2';
+  const cellClassName = `border ${appTheme.borderColor} p-2`;
 
   return <>
     <button className="hover:text-gray-300" onClick={showModal}>{buttonText}</button>
@@ -49,7 +49,7 @@ export default function ContractConfigModalButton({ buttonText, contract, contra
           </tr>
           <tr>
             <td className={cellClassName}>Contract address</td>
-            <td className={clsx(cellClassName, 'text-right')}><LinkPure href={contractUrl} target="_blank">{contract.address}</LinkPure></td>
+            <td className={clsx(cellClassName, 'text-right')}><LinkPure className={`${appTheme.accentTextColor} underline`} href={contractUrl} target="_blank">{contract.address}</LinkPure></td>
           </tr>
           <tr>
             <td className={cellClassName}>Started at level</td>
