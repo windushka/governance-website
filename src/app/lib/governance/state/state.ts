@@ -3,12 +3,6 @@ export enum PeriodType {
   Promotion = 'Promotion'
 }
 
-export enum Vote {
-  Yea = 'yea',
-  Nay = 'nay',
-  Pass = 'pass'
-}
-
 export type KernelKey = string;
 export interface SequencerKey {
   readonly poolAddress: string;
@@ -23,35 +17,17 @@ export interface Proposal {
   readonly upvotesVotingPower: bigint;
 }
 
-export interface Upvoter {
-  readonly address: string;
-  readonly alias: string | undefined;
-  readonly proposalKey: PayloadKey;
-  readonly votingPower: bigint;
-  readonly operationHash: string;
-  readonly operationTime: Date;
-}
-
 export interface ProposalPeriod {
   readonly index: number;
   readonly startLevel: number;
   readonly startTime: Date;
   readonly endLevel: number;
   readonly endTime: Date;
-  readonly proposals: Array<Proposal>;
-  readonly upvoters: Array<Upvoter>;
+  readonly proposals: Proposal[];
+  readonly upvotersBigMapId: string | null;
   readonly totalVotingPower: bigint;
-  readonly winnerCandidate: NonNullable<PayloadKey> | undefined;
-  readonly candidateUpvotesVotingPower: bigint | undefined;
-}
-
-export interface Voter {
-  readonly address: string;
-  readonly alias: string | undefined;
-  readonly vote: Vote;
-  readonly votingPower: bigint;
-  readonly operationHash: string;
-  readonly operationTime: Date;
+  readonly winnerCandidate: NonNullable<PayloadKey> | null;
+  readonly candidateUpvotesVotingPower: bigint | null;
 }
 
 export interface PromotionPeriod {
@@ -61,7 +37,7 @@ export interface PromotionPeriod {
   readonly endLevel: number;
   readonly endTime: Date;
   readonly winnerCandidate: PayloadKey;
-  readonly voters: Voter[];
+  readonly votersBigMapId: string | null;
   readonly yeaVotingPower: bigint;
   readonly nayVotingPower: bigint;
   readonly passVotingPower: bigint;
@@ -72,10 +48,10 @@ export interface VotingContext {
   readonly periodIndex: number;
   readonly periodType: PeriodType;
   readonly proposalPeriod: ProposalPeriod;
-  readonly promotionPeriod: PromotionPeriod | undefined;
+  readonly promotionPeriod: PromotionPeriod | null;
 }
 
 export interface GovernanceState {
   readonly votingContext: VotingContext;
-  readonly lastWinnerPayload: NonNullable<PayloadKey> | undefined;
+  readonly lastWinnerPayload: NonNullable<PayloadKey> | null;
 }

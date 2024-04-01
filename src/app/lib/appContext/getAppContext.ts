@@ -1,7 +1,7 @@
 import { TezosToolkit } from '@taquito/taquito';
 import { TzktProvider } from '../blockchain';
 import { ghostnetConfig } from '../config';
-import { RpcGovernancePeriodsProvider, RpcGovernanceConfigProvider, RpcGovernanceStateProvider } from '../governance';
+import { RpcGovernancePeriodsProvider, RpcGovernanceConfigProvider, RpcGovernanceStateProvider, RpcGovernanceOperationsProvider } from '../governance';
 import { AppContext } from './appContext';
 import { TzktExplorer } from '../explorer';
 
@@ -19,7 +19,8 @@ export const getAppContext = (): AppContext => {
       governance: {
         config: new RpcGovernanceConfigProvider(toolkit),
         state: new RpcGovernanceStateProvider(config.rpcUrl, blockchainProvider),
-        periods: new RpcGovernancePeriodsProvider(toolkit, blockchainProvider)
+        periods: new RpcGovernancePeriodsProvider(toolkit, blockchainProvider),
+        operations: new RpcGovernanceOperationsProvider(blockchainProvider)
       }
     };
   }

@@ -29,7 +29,7 @@ export default async function VotingState({ config, contract, periodIndex }: Vot
       votingContext={votingContext}
       config={config} />
     {votingContext.promotionPeriod && periodIndex == votingContext.promotionPeriod.index
-      ? <PromotionState promotionPeriod={votingContext.promotionPeriod} config={config} />
-      : <ProposalState proposalPeriod={votingContext.proposalPeriod} config={config} />}
+      ? <PromotionState contractAddress={contract.address} promotionPeriod={votingContext.promotionPeriod} config={config} />
+      : <ProposalState contractAddress={contract.address} proposalPeriod={votingContext.proposalPeriod} config={config} />}
   </>
 }

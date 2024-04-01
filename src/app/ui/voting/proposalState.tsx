@@ -1,17 +1,18 @@
 import { ProposalPeriod, GovernanceConfig } from '@/app/lib/governance';
-import { getProposalQuorumPercent, natToPercent, formatDateTimeCompact } from '@/app/lib/governance/utils';
-import BigNumber from 'bignumber.js'
+import { getProposalQuorumPercent, natToPercent } from '@/app/lib/governance/utils';
 import clsx from 'clsx';
 import PayloadKey from './payloadKey';
 import { getAppContext } from '@/app/lib/appContext';
 import { ProgressPure, LinkPure, NoDataPure, IntValuePure } from '@/app/ui/common';
+import { UpvotersTablePure } from './upvotersTable';
 
 interface ProposalStateProps {
+  contractAddress: string;
   proposalPeriod: ProposalPeriod;
   config: GovernanceConfig;
 }
 
-export default function ProposalState({ proposalPeriod, config }: ProposalStateProps) {
+export default function ProposalState({ contractAddress, proposalPeriod, config }: ProposalStateProps) {
   if (!proposalPeriod.proposals.length)
     return <NoDataPure text="No proposals" />
 
@@ -20,7 +21,9 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
 
   const proposalList = <ul className="flex flex-col gap-6 mb-8">
     {proposalPeriod.proposals.map(p =>
-      <li key={JSON.stringify(p.key)} className={clsx("block flex flex-row justify-between items-center p-2 border", JSON.stringify(p.key) === JSON.stringify(proposalPeriod.winnerCandidate) ? 'border-emerald-400' : 'border-slate-500')}>
+      <li
+        key={JSON.stringify(p.key)}
+        className={clsx('block flex flex-row justify-between items-center p-2 border', JSON.stringify(p.key) === JSON.stringify(proposalPeriod.winnerCandidate) ? 'border-emerald-400' : 'border-slate-500')}>
         <div className="flex flex-col">
           <div>
             <PayloadKey value={p.key} />
@@ -36,29 +39,6 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
       </li>)}
   </ul>
 
-  const tableCellClass = 'text-center border border-slate-500 p-2';
-
-  const upvotersTable = proposalPeriod.upvoters.length ? <table className="table-auto w-full border-collapse border border-slate-500 text-sm">
-    <thead>
-      <tr>
-        <th className={tableCellClass}>Baker</th>
-        <th className={tableCellClass}>Voting power</th>
-        <th className={tableCellClass}>Proposal</th>
-        <th className={tableCellClass}>Time</th>
-      </tr>
-    </thead>
-    <tbody>
-      {proposalPeriod.upvoters.map(p => <tr key={JSON.stringify(p.proposalKey)}>
-        <td className={tableCellClass}>
-          <LinkPure className="underline" href={context.explorer.getOperationUrl(p.operationHash)} target="_blank">{p.alias || p.address}</LinkPure>
-        </td>
-        <td className={tableCellClass}><IntValuePure value={p.votingPower} /></td>
-        <td className={tableCellClass}><PayloadKey value={p.proposalKey} /></td>
-        <td className={tableCellClass}>{formatDateTimeCompact(p.operationTime)}</td>
-      </tr>)}
-    </tbody>
-  </table> : <span className="block">No Upvoters</span>
-
   const proposalQuorum = getProposalQuorumPercent(proposalPeriod.candidateUpvotesVotingPower || BigInt(0), proposalPeriod.totalVotingPower)
 
   return <>
@@ -69,6 +49,11 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
     {proposalList}
 
     <h2 className="text-xl mb-2">Upvoters</h2>
-    {upvotersTable}
+    <UpvotersTablePure
+      contractAddress={contractAddress}
+      upvotersBigMapId={proposalPeriod.upvotersBigMapId}
+      periodStartLevel={proposalPeriod.startLevel}
+      periodEndLevel={proposalPeriod.endLevel}
+    />
   </>
 }
