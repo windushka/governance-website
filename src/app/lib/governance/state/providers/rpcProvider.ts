@@ -1,7 +1,7 @@
-import { GovernanceState, PeriodType, Proposal, ProposalPeriod, Upvoter, Voter, VotingContext } from '../state';
+import { GovernanceState, PeriodType, PromotionPeriod, Proposal, ProposalPeriod, Upvoter, Voter, VotingContext } from '../state';
 import { TezosToolkit } from '@taquito/taquito';
 import * as Storage from '../../contract/storage';
-import { VotingState } from '../../contract/views';
+import { VotingFinishedEventPayload, VotingState } from '../../contract/views';
 import BigNumber from 'bignumber.js';
 import { MichelsonOptional } from '../../contract/types';
 import { BlockchainProvider, Baker } from '../../../blockchain';
@@ -24,9 +24,11 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
       return await this.getEmptyGovernanceState(periodIndex, config);
 
     const toolkit = this.getToolkit(blockLevel);
-    const storage = await this.loadStorage(contractAddress, toolkit);
-    const stateViewResult = await callGetVotingStateView(contractAddress, toolkit);
-    return await this.getStateCore(contractAddress, periodIndex, storage, stateViewResult, currentBlockLevel);
+    const [storage, stateViewResult] = await Promise.all([
+      this.loadStorage(contractAddress, toolkit),
+      callGetVotingStateView(contractAddress, toolkit)
+    ]);
+    return await this.getStateCore(contractAddress, currentBlockLevel, periodIndex, storage, stateViewResult, config);
   }
 
   private getToolkit(blockLevel?: bigint): TezosToolkit {
@@ -36,35 +38,6 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
   private async loadStorage(contractAddress: string, toolkit: TezosToolkit): Promise<Storage.GovernanceContractStorage> {
     const contract = await toolkit.contract.at(contractAddress);
     return contract.storage<Storage.GovernanceContractStorage>();
-  }
-
-  private initializeProposalPeriod(totalVotingPower: bigint): Storage.ProposalPeriod {
-    return {
-      upvoters_upvotes_count: null,
-      upvoters_proposals: null,
-      proposals: null,
-      max_upvotes_voting_power: null,
-      winner_candidate: null,
-      total_voting_power: BigNumber(totalVotingPower.toString())
-    }
-  }
-
-  private initializePromotionPeriod(period: Storage.MichelsonPeriodType, totalVotingPower: bigint): Storage.PromotionPeriod {
-    if (!('proposal' in period))
-      throw new Error('Not proposal period')
-
-    const winnerCandidate = period.proposal.winner_candidate?.Some
-    if (!winnerCandidate)
-      throw new Error('Unable to detect winner candidate')
-
-    return {
-      winner_candidate: winnerCandidate,
-      yea_voting_power: BigNumber(0),
-      nay_voting_power: BigNumber(0),
-      pass_voting_power: BigNumber(0),
-      voters: null,
-      total_voting_power: BigNumber(totalVotingPower.toString())
-    }
   }
 
   private async getEmptyGovernanceState(periodIndex: bigint, config: GovernanceConfig): Promise<GovernanceState> {
@@ -98,94 +71,167 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
     }
   }
 
-  private unpackLastWinnerPayload(lastWinner: MichelsonOptional<Storage.VotingWinner>): NonNullable<Storage.PayloadKey> | undefined {
-    const lastWinnerData = lastWinner?.Some
-    return lastWinnerData && lastWinnerData.payload;
+  private async getStateCore(
+    contractAddress: string,
+    currentBlockLevel: bigint,
+    periodIndex: bigint,
+    storage: Storage.GovernanceContractStorage,
+    stateViewResult: VotingState,
+    config: GovernanceConfig
+  ): Promise<GovernanceState> {
+    const periodType = 'proposal' in stateViewResult.period_type ? PeriodType.Proposal : PeriodType.Promotion;
+    const votingContext = storage.voting_context?.Some;
+    const period = votingContext?.period;
+
+    const lastWinner = this.unpackLastWinnerPayload(stateViewResult.finished_voting, storage.last_winner);
+    const [proposalPeriod, promotionPeriod] = votingContext && periodIndex.toString(10) === votingContext.period_index.toString(10) && period
+      ? await this.getPeriodsFromActualStorage(contractAddress, periodIndex, periodType, period, currentBlockLevel, config)
+      : await this.getPeriodsFromOutdatedStorage(periodIndex, periodType, period, currentBlockLevel, config)
+
+    return this.createState(contractAddress, periodIndex, periodType, proposalPeriod, promotionPeriod, lastWinner, currentBlockLevel, config);
+  }
+
+  private async getPeriodsFromActualStorage(
+    contractAddress: string,
+    periodIndex: bigint,
+    periodType: PeriodType,
+    period: Storage.MichelsonPeriodType,
+    currentBlockLevel: bigint,
+    config: GovernanceConfig
+  ): Promise<[Storage.ProposalPeriod, Storage.PromotionPeriod | undefined]> {
+    let proposalPeriod: Storage.ProposalPeriod;
+    let promotionPeriod: Storage.PromotionPeriod | undefined;
+
+    if (periodType === PeriodType.Proposal) {
+      proposalPeriod = this.unpackProposalPeriod(period)
+      const lastBlockOfPromotionPeriod = getLastBlockOfPeriod(periodIndex + BigInt(1), config.startedAtLevel, config.periodLength);
+      const historicalToolkit = this.getToolkit(min(lastBlockOfPromotionPeriod, currentBlockLevel));
+      const promotionPeriodViewResult = await callGetVotingStateView(contractAddress, historicalToolkit);
+      if ('promotion' in promotionPeriodViewResult.period_type) {
+        const storageOfNextPromotionPeriod = await this.loadStorage(contractAddress, historicalToolkit);
+        const promotionMichelsonPeriod = storageOfNextPromotionPeriod.voting_context?.Some.period;
+        promotionPeriod = promotionMichelsonPeriod
+          && 'promotion' in promotionMichelsonPeriod
+          && promotionPeriodViewResult.period_index.eq(storageOfNextPromotionPeriod.voting_context.Some.period_index)
+          ? this.unpackPromotionPeriod(promotionMichelsonPeriod)
+          : this.initializePromotionPeriod(period, await this.blockchainProvider.getTotalVotingPower(lastBlockOfPromotionPeriod));
+      }
+    } else {
+      const lastBlockOfProposalPeriod = getLastBlockOfPeriod(periodIndex - BigInt(1), config.startedAtLevel, config.periodLength);
+      const historicalToolkit = this.getToolkit(lastBlockOfProposalPeriod);
+      const storageOfPreviousProposalPeriod = await this.loadStorage(contractAddress, historicalToolkit);
+      proposalPeriod = this.unpackProposalPeriod(storageOfPreviousProposalPeriod.voting_context?.Some.period!);
+      promotionPeriod = this.unpackPromotionPeriod(period);
+    }
+
+    return [proposalPeriod, promotionPeriod];
+  }
+
+  private async getPeriodsFromOutdatedStorage(
+    periodIndex: bigint,
+    periodType: PeriodType,
+    period: Storage.MichelsonPeriodType | undefined,
+    currentBlockLevel: bigint,
+    config: GovernanceConfig
+  ): Promise<[Storage.ProposalPeriod, Storage.PromotionPeriod | undefined]> {
+    const firstBlockOfPeriod = getFirstBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
+    const totalVotingPower = await this.blockchainProvider.getTotalVotingPower(min(firstBlockOfPeriod, currentBlockLevel));
+    return (periodType === PeriodType.Proposal || !period)
+      ? [this.initializeProposalPeriod(totalVotingPower), undefined]
+      : [this.unpackProposalPeriod(period), this.initializePromotionPeriod(period, totalVotingPower)];
+  }
+
+  private initializeProposalPeriod(totalVotingPower: bigint): Storage.ProposalPeriod {
+    return {
+      upvoters_upvotes_count: null,
+      upvoters_proposals: null,
+      proposals: null,
+      max_upvotes_voting_power: null,
+      winner_candidate: null,
+      total_voting_power: BigNumber(totalVotingPower.toString())
+    }
+  }
+
+  private initializePromotionPeriod(period: Storage.MichelsonPeriodType, totalVotingPower: bigint): Storage.PromotionPeriod {
+    if (!('proposal' in period))
+      throw new Error('Not proposal period')
+
+    const winnerCandidate = period.proposal.winner_candidate?.Some
+    if (!winnerCandidate)
+      throw new Error('Unable to detect winner candidate')
+
+    return {
+      winner_candidate: winnerCandidate,
+      yea_voting_power: BigNumber(0),
+      nay_voting_power: BigNumber(0),
+      pass_voting_power: BigNumber(0),
+      voters: null,
+      total_voting_power: BigNumber(totalVotingPower.toString())
+    }
+  }
+
+  private unpackLastWinnerPayload(
+    finishedVoting: MichelsonOptional<VotingFinishedEventPayload>,
+    lastWinner: MichelsonOptional<Storage.VotingWinner>
+  ): NonNullable<Storage.PayloadKey> | undefined {
+    const winnerPayloadFromEvent = finishedVoting?.Some.winner_proposal_payload;
+    return winnerPayloadFromEvent?.Some || lastWinner?.Some?.payload
   }
 
   private unpackProposalPeriod(period: Storage.MichelsonPeriodType): Storage.ProposalPeriod {
     if ('proposal' in period)
       return period.proposal;
 
-    throw new Error('Unable to find proposal period')
+    throw new Error('Unable to find proposal period');
   }
+  
   private unpackPromotionPeriod(period: Storage.MichelsonPeriodType): Storage.PromotionPeriod {
     if ('promotion' in period)
       return period.promotion;
 
-    throw new Error('Unable to find promotion period')
-  }
-
-  private async getStateCore(
-    contractAddress: string,
-    periodIndex: bigint,
-    storage: Storage.GovernanceContractStorage,
-    stateViewResult: VotingState,
-    currentBlockLevel: bigint,
-  ): Promise<GovernanceState> {
-    const periodType = 'proposal' in stateViewResult.period_type ? PeriodType.Proposal : PeriodType.Promotion;
-    const votingContext = storage.voting_context?.Some;
-    const period = votingContext?.period;
-    const startedAtLevel = BigInt(storage.config.started_at_level.toString());
-    const periodLength = BigInt(storage.config.period_length.toString());
-
-    let proposalPeriod: Storage.ProposalPeriod;
-    let promotionPeriod: Storage.PromotionPeriod | undefined;
-    let lastWinner: NonNullable<Storage.PayloadKey> | undefined;
-
-    if (votingContext && periodIndex.toString(10) === votingContext.period_index.toString(10) && period) {
-      if (periodType === PeriodType.Proposal) {
-        proposalPeriod = this.unpackProposalPeriod(period)
-        const lastBlockOfPromotionPeriod = getLastBlockOfPeriod(periodIndex + BigInt(1), startedAtLevel, periodLength);
-        const historicalToolkit = this.getToolkit(min(lastBlockOfPromotionPeriod, currentBlockLevel));
-        const promotionPeriodViewResult = await callGetVotingStateView(contractAddress, historicalToolkit);
-        if ('promotion' in promotionPeriodViewResult.period_type) {
-          const storageOfNextPromotionPeriod = await this.loadStorage(contractAddress, historicalToolkit);
-          const promotionMichelsonPeriod = storageOfNextPromotionPeriod.voting_context?.Some.period;
-          promotionPeriod = promotionMichelsonPeriod
-            && 'promotion' in promotionMichelsonPeriod
-            && promotionPeriodViewResult.period_index.eq(storageOfNextPromotionPeriod.voting_context.Some.period_index)
-            ? this.unpackPromotionPeriod(promotionMichelsonPeriod)
-            : this.initializePromotionPeriod(period, await this.blockchainProvider.getTotalVotingPower(lastBlockOfPromotionPeriod));
-        }
-      } else {
-        const lastBlockOfProposalPeriod = getLastBlockOfPeriod(periodIndex - BigInt(1), startedAtLevel, periodLength);
-        const historicalToolkit = this.getToolkit(lastBlockOfProposalPeriod);
-        const storageOfPreviousProposalPeriod = await this.loadStorage(contractAddress, historicalToolkit);
-        proposalPeriod = this.unpackProposalPeriod(storageOfPreviousProposalPeriod.voting_context?.Some.period!)
-        promotionPeriod = this.unpackPromotionPeriod(period)
-      }
-      lastWinner = this.unpackLastWinnerPayload(storage.last_winner);
-    } else {
-      const firstBlockOfPeriod = getFirstBlockOfPeriod(periodIndex, startedAtLevel, periodLength);
-      const totalVotingPower = await this.blockchainProvider.getTotalVotingPower(min(firstBlockOfPeriod, currentBlockLevel));
-      [proposalPeriod, promotionPeriod] = (periodType === PeriodType.Proposal || !period)
-        ? [this.initializeProposalPeriod(totalVotingPower), undefined]
-        : [this.unpackProposalPeriod(period), this.initializePromotionPeriod(period, totalVotingPower)];
-
-      const winnerPayloadFromEvent = stateViewResult.finished_voting?.Some.winner_proposal_payload;
-      lastWinner = winnerPayloadFromEvent?.Some
-        ? winnerPayloadFromEvent.Some
-        : this.unpackLastWinnerPayload(storage.last_winner);
-    }
-
-    return this.createState(contractAddress, periodIndex, periodType, startedAtLevel, periodLength, proposalPeriod, promotionPeriod, lastWinner, currentBlockLevel);
+    throw new Error('Unable to find promotion period');
   }
 
   private async createState(
     contractAddress: string,
     periodIndex: bigint,
     periodType: PeriodType,
-    startedAtLevel: bigint,
-    periodLength: bigint,
     proposal: Storage.ProposalPeriod,
     promotion: Storage.PromotionPeriod | undefined,
     lastWinnerPayload: NonNullable<Storage.PayloadKey> | undefined,
-    currentBlockLevel: bigint
+    currentBlockLevel: bigint,
+    config: GovernanceConfig
   ): Promise<GovernanceState> {
+    const [
+      proposalPeriod,
+      promotionPeriod
+    ] = await Promise.all([
+      this.createProposalPeriodState(contractAddress, proposal, periodIndex, periodType, currentBlockLevel, config),
+      promotion && await this.createPromotionPeriodState(contractAddress, promotion, periodIndex, periodType, currentBlockLevel, config)
+    ]);
+
+    return {
+      votingContext: {
+        periodIndex,
+        periodType,
+        proposalPeriod,
+        promotionPeriod,
+      },
+      lastWinnerPayload: lastWinnerPayload && mapPayloadKey(lastWinnerPayload)
+    }
+  }
+
+  private async createProposalPeriodState(
+    contractAddress: string,
+    proposal: Storage.ProposalPeriod,
+    periodIndex: bigint,
+    periodType: PeriodType,
+    currentBlockLevel: bigint,
+    config: GovernanceConfig
+  ): Promise<ProposalPeriod> {
     const proposalPeriodIndex = periodType === PeriodType.Proposal ? periodIndex : periodIndex - BigInt(1);
-    const proposalPeriodStartLevel = getFirstBlockOfPeriod(proposalPeriodIndex, startedAtLevel, periodLength);
-    const proposalPeriodEndLevel = getLastBlockOfPeriod(proposalPeriodIndex, startedAtLevel, periodLength);
+    const proposalPeriodStartLevel = getFirstBlockOfPeriod(proposalPeriodIndex, config.startedAtLevel, config.periodLength);
+    const proposalPeriodEndLevel = getLastBlockOfPeriod(proposalPeriodIndex, config.startedAtLevel, config.periodLength);
     const winnerCandidate = proposal.winner_candidate?.Some;
 
     const [
@@ -202,8 +248,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
 
     const proposalPeriodBakersMap = new Map(proposalPeriodBakers.map(b => [b.address, b]));
 
-    //TODO: promise all
-    const proposalPeriod: ProposalPeriod = {
+    return {
       totalVotingPower: BigInt(proposal.total_voting_power.toString()),
       winnerCandidate: winnerCandidate && mapPayloadKey(winnerCandidate),
       candidateUpvotesVotingPower: proposal.max_upvotes_voting_power?.Some && BigInt(proposal.max_upvotes_voting_power.Some.toString()),
@@ -215,52 +260,44 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
       proposals,
       upvoters: await this.getUpvoters(contractAddress, proposal, proposalPeriodBakersMap, proposalPeriodStartLevel, proposalPeriodEndLevel)
     };
+  }
 
-    //TODO: refactor
-    let votingContext: VotingContext = {
-      periodIndex,
-      proposalPeriod,
-      periodType,
-      promotionPeriod: undefined
-    }
+  private async createPromotionPeriodState(
+    contractAddress: string,
+    promotion: Storage.PromotionPeriod,
+    periodIndex: bigint,
+    periodType: PeriodType,
+    currentBlockLevel: bigint,
+    config: GovernanceConfig
+  ): Promise<PromotionPeriod> {
+    const promotionPeriodIndex = periodType === PeriodType.Proposal ? periodIndex + BigInt(1) : periodIndex;
+    const promotionPeriodStartLevel = getFirstBlockOfPeriod(promotionPeriodIndex, config.startedAtLevel, config.periodLength);
+    const promotionPeriodEndLevel = getLastBlockOfPeriod(promotionPeriodIndex, config.startedAtLevel, config.periodLength);
 
-    if (promotion) {
-      const promotionPeriodIndex = periodType === PeriodType.Proposal ? periodIndex + BigInt(1) : periodIndex;
-      const promotionPeriodStartLevel = getFirstBlockOfPeriod(promotionPeriodIndex, startedAtLevel, periodLength);
-      const promotionPeriodEndLevel = getLastBlockOfPeriod(promotionPeriodIndex, startedAtLevel, periodLength);
+    const [
+      periodStartTime,
+      periodEndTime,
+      promotionPeriodBakers
+    ] = await Promise.all([
+      this.blockchainProvider.getBlockCreationTime(promotionPeriodStartLevel),
+      this.blockchainProvider.getBlockCreationTime(promotionPeriodEndLevel),
+      this.blockchainProvider.getBakers(min(promotionPeriodEndLevel, currentBlockLevel))
+    ]);
 
-      const [
-        periodStartTime,
-        periodEndTime,
-        promotionPeriodBakers
-      ] = await Promise.all([
-        this.blockchainProvider.getBlockCreationTime(promotionPeriodStartLevel),
-        this.blockchainProvider.getBlockCreationTime(promotionPeriodEndLevel),
-        this.blockchainProvider.getBakers(min(promotionPeriodEndLevel, currentBlockLevel))
-      ])
-      const promotionPeriodBakersMap = new Map(promotionPeriodBakers.map(b => [b.address, b]));
-
-      votingContext = {
-        ...votingContext,
-        promotionPeriod: {
-          index: promotionPeriodIndex,
-          startLevel: promotionPeriodStartLevel,
-          startTime: periodStartTime,
-          endLevel: promotionPeriodEndLevel,
-          endTime: periodEndTime,
-          totalVotingPower: BigInt(promotion.total_voting_power.toString()),
-          yeaVotingPower: BigInt(promotion.yea_voting_power.toString()),
-          nayVotingPower: BigInt(promotion.nay_voting_power.toString()),
-          passVotingPower: BigInt(promotion.pass_voting_power.toString()),
-          winnerCandidate: promotion.winner_candidate && mapPayloadKey(promotion.winner_candidate),
-          voters: await this.getVoters(contractAddress, promotion, promotionPeriodBakersMap, promotionPeriodStartLevel, promotionPeriodEndLevel)
-        }
-      }
-    }
+    const promotionPeriodBakersMap = new Map(promotionPeriodBakers.map(b => [b.address, b]));
 
     return {
-      votingContext,
-      lastWinnerPayload: lastWinnerPayload && mapPayloadKey(lastWinnerPayload)
+      index: promotionPeriodIndex,
+      startLevel: promotionPeriodStartLevel,
+      startTime: periodStartTime,
+      endLevel: promotionPeriodEndLevel,
+      endTime: periodEndTime,
+      totalVotingPower: BigInt(promotion.total_voting_power.toString()),
+      yeaVotingPower: BigInt(promotion.yea_voting_power.toString()),
+      nayVotingPower: BigInt(promotion.nay_voting_power.toString()),
+      passVotingPower: BigInt(promotion.pass_voting_power.toString()),
+      winnerCandidate: promotion.winner_candidate && mapPayloadKey(promotion.winner_candidate),
+      voters: await this.getVoters(contractAddress, promotion, promotionPeriodBakersMap, promotionPeriodStartLevel, promotionPeriodEndLevel)
     }
   }
 
@@ -295,7 +332,6 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
       ])
       const operationsMap = new Map(operations.map(o => [o.sender.address, o]));
 
-      //TODO: improve
       upvoters = rawEntries.map(({ key }) => {
         const operation = operationsMap.get(key.key_hash);
         const baker = bakers.get(key.key_hash);
