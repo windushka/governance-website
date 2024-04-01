@@ -4,7 +4,7 @@ import { formatDateTimeCompact } from '@/app/lib/governance/utils';
 
 interface PeriodTimeProps {
   time: Date;
-  level: bigint;
+  level: number;
 }
 
 export default function PeriodTime({ time, level }: PeriodTimeProps) {

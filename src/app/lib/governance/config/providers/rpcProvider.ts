@@ -16,14 +16,14 @@ export class RpcGovernanceConfigProvider implements GovernanceConfigProvider {
 
   private mapConfig(config: MichelsonConfig): GovernanceConfig {
     return {
-      startedAtLevel: BigInt(config.started_at_level.toString()),
-      upvotingLimit: BigInt(config.upvoting_limit.toString()),
-      adoptionPeriodSec: BigInt(config.adoption_period_sec.toString()),
-      periodLength: BigInt(config.period_length.toString()),
-      scale: BigInt(config.scale.toString()),
-      proposalQuorum: BigInt(config.promotion_quorum.toString()),
-      promotionQuorum: BigInt(config.promotion_quorum.toString()),
-      promotionSupermajority: BigInt(config.promotion_supermajority.toString()),
+      startedAtLevel: config.started_at_level.toNumber(),
+      upvotingLimit: config.upvoting_limit.toNumber(),
+      adoptionPeriodSec: config.adoption_period_sec.toNumber(),
+      periodLength: config.period_length.toNumber(),
+      scale: config.scale.toNumber(),
+      proposalQuorum: config.promotion_quorum.toNumber(),
+      promotionQuorum: config.promotion_quorum.toNumber(),
+      promotionSupermajority: config.promotion_supermajority.toNumber(),
     }
   }
 }

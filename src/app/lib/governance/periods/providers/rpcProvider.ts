@@ -26,9 +26,9 @@ export class RpcGovernancePeriodsProvider implements GovernancePeriodsProvider {
       this.blockchainProvider.getTimeBetweenBlocks()
     ]);
 
-    const currentPeriodIndex = BigInt(getCurrentPeriodIndex(currentBlockLevel, config.startedAtLevel, config.periodLength).toString());
-    let blockLevels: bigint[] = [];
-    for (let periodIndex = BigInt(0); periodIndex <= currentPeriodIndex; periodIndex++) {
+    const currentPeriodIndex = getCurrentPeriodIndex(currentBlockLevel, config.startedAtLevel, config.periodLength);
+    let blockLevels: number[] = [];
+    for (let periodIndex = 0; periodIndex <= currentPeriodIndex; periodIndex++) {
       const levels = [getFirstBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength), getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength)]
       levels.forEach(l => {
         if (l <= currentBlockLevel)
@@ -39,7 +39,7 @@ export class RpcGovernancePeriodsProvider implements GovernancePeriodsProvider {
     const periodsFromEventsMap = await this.getPeriodsFromEvents(finishedEvents, pendingEvent, config, currentBlockLevel, timeBetweenBlocks, blockCreationTimeMap);
 
     const result: GovernancePeriod[] = [];
-    for (let i = currentPeriodIndex; i >= BigInt(0); i--) {
+    for (let i = currentPeriodIndex; i >= 0; i--) {
       const period = periodsFromEventsMap.get(i)
         || this.createEmptyProposalPeriod(i, config, currentBlockLevel, timeBetweenBlocks, blockCreationTimeMap);
       result.push(period);
@@ -52,10 +52,10 @@ export class RpcGovernancePeriodsProvider implements GovernancePeriodsProvider {
     finishedEvents: VotingFinishedEventPayloadDto[],
     pendingEvent: VotingFinishedEventPayload | undefined,
     config: GovernanceConfig,
-    currentBlockLevel: bigint,
-    timeBetweenBlocks: bigint,
-    blockCreationTimeMap: Map<bigint, Date>
-  ): Promise<Map<bigint, GovernancePeriod>> {
+    currentBlockLevel: number,
+    timeBetweenBlocks: number,
+    blockCreationTimeMap: Map<number, Date>
+  ): Promise<Map<number, GovernancePeriod>> {
     const periodsFromEvents: GovernancePeriod[] = [];
     if (pendingEvent)
       periodsFromEvents.push(this.mapEventToPeriod(pendingEvent, config, currentBlockLevel, timeBetweenBlocks, blockCreationTimeMap));
@@ -73,12 +73,12 @@ export class RpcGovernancePeriodsProvider implements GovernancePeriodsProvider {
   private mapEventToPeriod(
     event: VotingFinishedEventPayloadDto | VotingFinishedEventPayload,
     config: GovernanceConfig,
-    currentBlockLevel: bigint,
-    timeBetweenBlocks: bigint,
-    blockCreationTimeMap: Map<bigint, Date>
+    currentBlockLevel: number,
+    timeBetweenBlocks: number,
+    blockCreationTimeMap: Map<number, Date>
   ): GovernancePeriod {
-    const finishedAtPeriodIndex = BigInt(event.finished_at_period_index.toString())
-    const periodIndex = finishedAtPeriodIndex - BigInt(1);
+    const finishedAtPeriodIndex = parseInt(event.finished_at_period_index.toString())
+    const periodIndex = finishedAtPeriodIndex - 1;
     const startLevel = getFirstBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
     const endLevel = getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
     const rawPayload = event.winner_proposal_payload;
@@ -96,11 +96,11 @@ export class RpcGovernancePeriodsProvider implements GovernancePeriodsProvider {
   }
 
   private createEmptyProposalPeriod(
-    periodIndex: bigint,
+    periodIndex: number,
     config: GovernanceConfig,
-    currentBlockLevel: bigint,
-    timeBetweenBlocks: bigint,
-    blockCreationTimeMap: Map<bigint, Date>
+    currentBlockLevel: number,
+    timeBetweenBlocks: number,
+    blockCreationTimeMap: Map<number, Date>
   ): GovernancePeriod {
     const startLevel = getFirstBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
     const endLevel = getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
@@ -117,10 +117,10 @@ export class RpcGovernancePeriodsProvider implements GovernancePeriodsProvider {
   }
 
   private getBlockCreationTime(
-    level: bigint,
-    currentBlockLevel: bigint,
-    timeBetweenBlocks: bigint,
-    blockCreationTimeMap: Map<bigint, Date>
+    level: number,
+    currentBlockLevel: number,
+    timeBetweenBlocks: number,
+    blockCreationTimeMap: Map<number, Date>
   ): Date {
     return blockCreationTimeMap.get(level) || getEstimatedBlockCreationTime(level, currentBlockLevel, timeBetweenBlocks);
   }

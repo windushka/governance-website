@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 interface NavButtonProps {
   contractName: string;
-  periodIndex: bigint;
+  periodIndex: number;
   disabled?: boolean;
   isNext?: boolean;
 }

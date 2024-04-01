@@ -1,7 +1,6 @@
 import { getAppContext } from '@/app/lib/appContext/getAppContext';
 import { getCurrentPeriodIndex } from '@/app/lib/governance/utils/calculators';
 import VotingState from '@/app/ui/voting/votingState';
-import BigNumber from 'bignumber.js';
 import { redirectToPeriodPage } from '@/app/actions';
 
 interface HomeProps {
@@ -25,8 +24,8 @@ export default async function Home({ params }: HomeProps) {
   const { startedAtLevel, periodLength } = config;
   const currentPeriodIndex = getCurrentPeriodIndex(currentBlockLevel, startedAtLevel, periodLength);
 
-  const periodIndex = params.periodIndex && params.periodIndex.length === 1 ? BigInt(params.periodIndex[0]) : undefined;
-  if (periodIndex === undefined || periodIndex > currentPeriodIndex || periodIndex < 0) {
+  const periodIndex = params.periodIndex && params.periodIndex.length === 1 ? parseInt(params.periodIndex[0]) : undefined;
+  if (periodIndex === undefined || Number.isNaN(periodIndex) || periodIndex > currentPeriodIndex || periodIndex < 0) {
     redirectToPeriodPage(contract.name, currentPeriodIndex.toString());
     return;
   }

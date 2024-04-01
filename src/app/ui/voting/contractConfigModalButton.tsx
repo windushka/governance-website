@@ -6,16 +6,16 @@ import { useState } from 'react';
 import { GovernanceConfig } from '@/app/lib/governance';
 import { formatPercentageCompact, natToPercent } from '@/app/lib/governance/utils';
 import { LinkPure } from '@/app/ui/common';
+import { Contract } from '@/app/lib/config';
 
 interface ContractConfigProps {
   buttonText: string;
   config: GovernanceConfig;
-  contractAddress: string;
+  contract: Contract;
   contractUrl: string;
-  contractName: string;
 }
 
-export default function ContractConfigModalButton({ buttonText, contractName, contractAddress, contractUrl, config }: ContractConfigProps) {
+export default function ContractConfigModalButton({ buttonText, contract, contractUrl, config }: ContractConfigProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const showModal = () => {
@@ -45,11 +45,11 @@ export default function ContractConfigModalButton({ buttonText, contractName, co
         <tbody>
           <tr>
             <td className={cellClassName}>Contract type</td>
-            <td className={clsx(cellClassName, 'text-right')}><span className="capitalize">{contractName}</span></td>
+            <td className={clsx(cellClassName, 'text-right')}><span className="capitalize">{contract.name}</span></td>
           </tr>
           <tr>
             <td className={cellClassName}>Contract address</td>
-            <td className={clsx(cellClassName, 'text-right')}><LinkPure href={contractUrl} target="_blank">{contractAddress}</LinkPure></td>
+            <td className={clsx(cellClassName, 'text-right')}><LinkPure href={contractUrl} target="_blank">{contract.address}</LinkPure></td>
           </tr>
           <tr>
             <td className={cellClassName}>Started at level</td>

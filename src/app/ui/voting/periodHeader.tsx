@@ -7,11 +7,11 @@ interface PeriodHeaderProps {
   contractName: string;
   periodType: PeriodType;
   disabled?: boolean;
-  periodIndex: bigint;
-  startLevel: bigint;
+  periodIndex: number;
+  startLevel: number;
   startTime: Date;
   endTime: Date;
-  endLevel: bigint;
+  endLevel: number;
 }
 
 export default function PeriodHeader({

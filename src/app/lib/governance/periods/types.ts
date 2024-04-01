@@ -2,10 +2,10 @@ import { PayloadKey, PeriodType } from '..';
 
 export interface GovernancePeriod {
   readonly type: PeriodType;
-  readonly index: bigint;
-  readonly startLevel: bigint;
+  readonly index: number;
+  readonly startLevel: number;
   readonly startTime: Date;
-  readonly endLevel: bigint;
+  readonly endLevel: number;
   readonly endTime: Date;
   readonly winnerPayload: PayloadKey | null;
 }

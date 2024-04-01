@@ -9,7 +9,7 @@ import { getAppContext } from '@/app/lib/appContext/getAppContext';
 interface VotingStateProps {
   contract: Contract;
   config: GovernanceConfig;
-  periodIndex: bigint;
+  periodIndex: number;
 }
 
 export default async function VotingState({ config, contract, periodIndex }: VotingStateProps) {

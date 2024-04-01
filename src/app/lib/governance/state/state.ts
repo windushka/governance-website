@@ -33,10 +33,10 @@ export interface Upvoter {
 }
 
 export interface ProposalPeriod {
-  readonly index: bigint;
-  readonly startLevel: bigint;
+  readonly index: number;
+  readonly startLevel: number;
   readonly startTime: Date;
-  readonly endLevel: bigint;
+  readonly endLevel: number;
   readonly endTime: Date;
   readonly proposals: Array<Proposal>;
   readonly upvoters: Array<Upvoter>;
@@ -55,10 +55,10 @@ export interface Voter {
 }
 
 export interface PromotionPeriod {
-  readonly index: bigint;
-  readonly startLevel: bigint;
+  readonly index: number;
+  readonly startLevel: number;
   readonly startTime: Date;
-  readonly endLevel: bigint;
+  readonly endLevel: number;
   readonly endTime: Date;
   readonly winnerCandidate: PayloadKey;
   readonly voters: Voter[];
@@ -69,7 +69,7 @@ export interface PromotionPeriod {
 }
 
 export interface VotingContext {
-  readonly periodIndex: bigint;
+  readonly periodIndex: number;
   readonly periodType: PeriodType;
   readonly proposalPeriod: ProposalPeriod;
   readonly promotionPeriod: PromotionPeriod | undefined;

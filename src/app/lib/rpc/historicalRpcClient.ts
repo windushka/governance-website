@@ -1,14 +1,14 @@
 import { ContractResponse, RpcClient, RPCRunScriptViewParam, RunScriptViewResult } from '@taquito/rpc';
 
 export class HistoricalRpcClient extends RpcClient {
-  private blockLevel: bigint;
+  private blockLevel: number;
 
-  constructor(url: string, blockLevel: bigint) {
+  constructor(url: string, blockLevel: number) {
     super(url);
     this.blockLevel = blockLevel;
   }
 
-  setBlockLevel(blockLevel: bigint) {
+  setBlockLevel(blockLevel: number) {
     this.blockLevel = blockLevel;
   }
 

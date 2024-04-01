@@ -22,7 +22,7 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
     {proposalPeriod.proposals.map(p =>
       <li key={JSON.stringify(p.key)} className={clsx("block flex flex-row justify-between items-center p-2 border", JSON.stringify(p.key) === JSON.stringify(proposalPeriod.winnerCandidate) ? 'border-emerald-400' : 'border-slate-500')}>
         <div className="flex flex-col">
-          <div> 
+          <div>
             <PayloadKey value={p.key} />
           </div>
           <span className="mb-1">
@@ -59,7 +59,7 @@ export default function ProposalState({ proposalPeriod, config }: ProposalStateP
     </tbody>
   </table> : <span className="block">No Upvoters</span>
 
-  const proposalQuorum = getProposalQuorumPercent(proposalPeriod.candidateUpvotesVotingPower || BigNumber(0), proposalPeriod.totalVotingPower)
+  const proposalQuorum = getProposalQuorumPercent(proposalPeriod.candidateUpvotesVotingPower || BigInt(0), proposalPeriod.totalVotingPower)
 
   return <>
     <div className="flex flex-row justify-between items-center mb-2">

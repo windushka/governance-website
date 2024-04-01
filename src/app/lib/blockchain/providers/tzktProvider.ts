@@ -7,7 +7,7 @@ export class TzktProvider implements BlockchainProvider {
     private readonly baseUrl: string
   ) { }
 
-  async getContractOperations(address: string, entrypoints: string[], startLevel: bigint, endLevel: bigint): Promise<ContractOperation[]> {
+  async getContractOperations(address: string, entrypoints: string[], startLevel: number, endLevel: number): Promise<ContractOperation[]> {
     const url = 'https://api.ghostnet.tzkt.io/v1/operations/transactions';
     const params = {
       target: address,
@@ -24,8 +24,8 @@ export class TzktProvider implements BlockchainProvider {
     }))
   }
 
-  async getBlocksCreationTime(levels: bigint[]): Promise<Map<bigint, Date>> {
-    const result = new Map();
+  async getBlocksCreationTime(levels: number[]): Promise<Map<number, Date>> {
+    const result = new Map<number, Date>();
     const url = `${this.baseUrl}/v1/blocks`;
     const limit = 500;
     let promises = [];
@@ -41,13 +41,13 @@ export class TzktProvider implements BlockchainProvider {
 
     const results = await Promise.all(promises);
     results.forEach(blocks => {
-      blocks.forEach(([level, timestamp]) => result.set(BigInt(level), new Date(timestamp)));
+      blocks.forEach(([level, timestamp]) => result.set(level, new Date(timestamp)));
     });
 
     return result;
   }
 
-  async getBlockCreationTime(level: bigint): Promise<Date> {
+  async getBlockCreationTime(level: number): Promise<Date> {
     const url = `${this.baseUrl}/v1/blocks/${level.toString()}`;
     let result;
 
@@ -79,27 +79,27 @@ export class TzktProvider implements BlockchainProvider {
     return this.fetchAllChunks(url, 300, params);
   }
 
-  async getContractOriginationLevel(address: string): Promise<bigint> {
+  async getContractOriginationLevel(address: string): Promise<number> {
     const url = `${this.baseUrl}/v1/contracts/${address}`;
-    return BigInt((await this.fetchJson(url) as any).firstActivity.toString());
+    return (await this.fetchJson(url) as any).firstActivity;
   }
 
-  async getCurrentBlockLevel(): Promise<bigint> {
+  async getCurrentBlockLevel(): Promise<number> {
     const url = `${this.baseUrl}/v1/head`;
-    return BigInt((await this.fetchJson(url) as any).level.toString());
+    return (await this.fetchJson(url) as any).level;
   }
 
-  async getTimeBetweenBlocks(): Promise<bigint> {
+  async getTimeBetweenBlocks(): Promise<number> {
     const url = `${this.baseUrl}/v1/protocols/current`;
-    return BigInt((await this.fetchJson(url) as any).constants.timeBetweenBlocks.toString());
+    return (await this.fetchJson(url) as any).constants.timeBetweenBlocks;
   }
 
-  async getTotalVotingPower(level: bigint): Promise<bigint> {
+  async getTotalVotingPower(level: number): Promise<bigint> {
     const period = await this.getTezosVotingPeriod(level)
     return BigInt(period.totalVotingPower.toString());
   }
 
-  async getTezosVotingPeriod(level: bigint): Promise<TzktTezosPeriodInfo> {
+  async getTezosVotingPeriod(level: number): Promise<TzktTezosPeriodInfo> {
     const url = `${this.baseUrl}/v1/voting/periods`;
     const params = {
       'firstLevel.le': level.toString(),
@@ -114,7 +114,7 @@ export class TzktProvider implements BlockchainProvider {
     return result;
   }
 
-  async getBakers(level: bigint): Promise<Baker[]> {
+  async getBakers(level: number): Promise<Baker[]> {
     const votingPeriod = await this.getTezosVotingPeriod(level);
     const index = votingPeriod.index;
     const url = `${this.baseUrl}/v1/voting/periods/${index}/voters`;
@@ -126,8 +126,8 @@ export class TzktProvider implements BlockchainProvider {
     }) as Baker)
   }
 
-  async getBigMapEntries<K, V>(id: bigint): Promise<Array<TzktBigMapEntry<K, V>>> {
-    const url = `${this.baseUrl}/v1/bigmaps/${id.toString(10)}/keys`;
+  async getBigMapEntries<K, V>(id: string): Promise<Array<TzktBigMapEntry<K, V>>> {
+    const url = `${this.baseUrl}/v1/bigmaps/${id}/keys`;
     return this.fetchJson(url, { select: 'key,value' });
   }
 

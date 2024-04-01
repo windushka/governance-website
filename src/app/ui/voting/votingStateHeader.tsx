@@ -10,20 +10,19 @@ import { getAppContext } from '@/app/lib/appContext';
 
 interface VotingStateHeaderProps {
   contract: Contract;
-  periodIndex: bigint;
-  currentPeriodIndex: bigint;
+  periodIndex: number;
+  currentPeriodIndex: number;
   votingContext: VotingContext;
-  config: GovernanceConfig
+  config: GovernanceConfig;
 }
 
 export default async function VotingStateHeader({ contract, periodIndex, votingContext, currentPeriodIndex, config }: VotingStateHeaderProps) {
-  const promotionPeriodIndex = votingContext.proposalPeriod.index + BigInt(1);
+  const promotionPeriodIndex = votingContext.proposalPeriod.index + 1;
   const { startedAtLevel, periodLength } = config;
-  const prevPeriodIndex = periodIndex - BigInt(1);
-  const nextPeriodIndex = periodIndex + BigInt(1);
+  const prevPeriodIndex = periodIndex - 1;
+  const nextPeriodIndex = periodIndex + 1;
 
   const context = getAppContext();
-  const periods = await context.governance.periods.getPeriods(contract.address, config);
 
   let promotionPeriodHeader = null;
   if (votingContext.promotionPeriod || currentPeriodIndex === votingContext.proposalPeriod.index) {
@@ -49,8 +48,8 @@ export default async function VotingStateHeader({ contract, periodIndex, votingC
     <div className="flex flex-row gap-10 items-center">
       <NavButton contractName={contract.name} disabled={prevPeriodIndex < 0} periodIndex={prevPeriodIndex} />
       <PeriodSelector
-        contractName={contract.name}
-        periods={periods}
+        contract={contract}
+        config={config}
         currentPeriodIndex={periodIndex} />
       <PeriodHeader
         contractName={contract.name}
@@ -65,8 +64,7 @@ export default async function VotingStateHeader({ contract, periodIndex, votingC
     <div className='flex flex-row gap-10 items-center'>
       <ContractConfigModalButton
         buttonText="Contract"
-        contractName={contract.name}
-        contractAddress={contract.address}
+        contract={contract}
         contractUrl={context.explorer.getAccountUrl(contract.address)}
         config={config}
       />
