@@ -7,10 +7,11 @@
         "supermajority",
         "Tzkt",
         "upvoted",
-        "Upvoter",
+        "upvoter",
         "upvoters",
         "upvotes",
-        "upvoting"
+        "upvoting",
+        "Tezos",
     ],
     "javascript.preferences.quoteStyle": "single",
     "typescript.preferences.quoteStyle": "single",

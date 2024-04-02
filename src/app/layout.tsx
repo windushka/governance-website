@@ -30,7 +30,10 @@ export default function RootLayout({
           <AntdRegistry>{children}</AntdRegistry>
         </main>
         <footer className={`container grow-0 text-center text-sm ${appTheme.disabledTextColor} border-t ${appTheme.borderColor} p-2 mt-4 `}>
-          {new Date().getFullYear()} | <LinkPure href="https://www.etherlink.com/">Etherlink</LinkPure> | <LinkPure href="https://docs.etherlink.com/">Documentation</LinkPure> | Terms of use
+          {new Date().getFullYear()}
+          &nbsp;| <LinkPure href="https://www.etherlink.com/" target="_blank" >Etherlink</LinkPure>
+          &nbsp;| <LinkPure href="https://docs.etherlink.com/" target="_blank" >Documentation</LinkPure>
+          &nbsp;| <LinkPure href="#" >Terms of use</LinkPure>
         </footer>
       </body>
     </html >
