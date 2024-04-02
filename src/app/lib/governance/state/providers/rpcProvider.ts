@@ -17,9 +17,14 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
   ) { }
 
   async getState(contractAddress: string, config: GovernanceConfig, periodIndex: number): Promise<GovernanceState> {
-    const currentBlockLevel = await this.blockchainProvider.getCurrentBlockLevel();
+    const [
+      currentBlockLevel,
+      originatedAtLevel
+    ] = await Promise.all([
+      this.blockchainProvider.getCurrentBlockLevel(),
+      this.blockchainProvider.getContractOriginationLevel(contractAddress)
+    ]);
     const blockLevel = Math.min(getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength), currentBlockLevel);
-    const originatedAtLevel = await this.blockchainProvider.getContractOriginationLevel(contractAddress);
     if (blockLevel <= originatedAtLevel)
       return await this.getEmptyGovernanceState(periodIndex, config);
 

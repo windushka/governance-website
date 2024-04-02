@@ -3,6 +3,7 @@ import { GovernanceConfigProvider } from './provider';
 
 export class CachingGovernanceConfigProvider implements GovernanceConfigProvider {
   private readonly cache = new Map<string, GovernanceConfig>();
+
   constructor(
     private readonly provider: GovernanceConfigProvider
   ) { }
