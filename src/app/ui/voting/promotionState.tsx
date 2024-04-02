@@ -35,8 +35,8 @@ export default function PromotionState({ contractAddress, promotionPeriod, confi
       </div>
       <div className="flex flex-row justify-between mb-8 items-stretch gap-20">
         <TotalVoteCard className={appTheme.accentBorderColor} text="Total yea" votingPower={promotionPeriod.yeaVotingPower} totalVotingPower={votingPowerSum} />
-        <TotalVoteCard className="border-red-400" text="Total nay" votingPower={promotionPeriod.nayVotingPower} totalVotingPower={votingPowerSum} />
-        <TotalVoteCard className={appTheme.borderColor} text="Total pass" votingPower={promotionPeriod.passVotingPower} totalVotingPower={votingPowerSum} />
+        <TotalVoteCard className={appTheme.redBorderColor} text="Total nay" votingPower={promotionPeriod.nayVotingPower} totalVotingPower={votingPowerSum} />
+        <TotalVoteCard className={appTheme.whiteBorderColor} text="Total pass" votingPower={promotionPeriod.passVotingPower} totalVotingPower={votingPowerSum} />
       </div>
       <h2 className="text-xl mb-2">Voters</h2>
       <VotersTable

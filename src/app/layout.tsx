@@ -5,7 +5,7 @@ import Link from "next/link";
 import NavLinks from "./navLinks";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import clsx from 'clsx';
-import { appTheme } from './ui/common';
+import { LinkPure, appTheme } from './ui/common';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,7 +29,9 @@ export default function RootLayout({
         <main className="container grow flex flex-col">
           <AntdRegistry>{children}</AntdRegistry>
         </main>
-        <footer className={`container grow-0 text-center border-t ${appTheme.borderColor} p-2 mt-4 text-slate-400`}>2024 - {new Date().getFullYear()} | Etherlink | Terms | Privacy</footer>
+        <footer className={`container grow-0 text-center text-sm ${appTheme.disabledTextColor} border-t ${appTheme.borderColor} p-2 mt-4 `}>
+          {new Date().getFullYear()} | <LinkPure href="https://www.etherlink.com/">Etherlink</LinkPure> | <LinkPure href="https://docs.etherlink.com/">Documentation</LinkPure> | Terms of use
+        </footer>
       </body>
     </html >
   );

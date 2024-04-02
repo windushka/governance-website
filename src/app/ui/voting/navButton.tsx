@@ -11,7 +11,7 @@ interface NavButtonProps {
 }
 
 export default function NavButton({ contractName, periodIndex, isNext, disabled }: NavButtonProps) {
-  const className = clsx(`flex justify-center items-center ${appTheme.componentBgColor} border ${appTheme.borderColor} rounded-md h-[40px] w-[40px] text-lg`, disabled ? 'border-slate-500 text-slate-500' : appTheme.componentBgHoverColor);
+  const className = clsx(`flex justify-center items-center ${appTheme.componentBgColor} border ${appTheme.borderColor} rounded-md h-[40px] w-[40px] text-lg`, disabled ? 'opacity-50' : appTheme.componentBgHoverColor);
   const content = { __html: isNext ? '&#8594;' : '&#8592;' };
 
   return !disabled

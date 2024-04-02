@@ -40,7 +40,7 @@ export const VotersTable = ({ contractAddress, votersBigMapId, periodStartLevel,
     {
       title: 'Baker',
       dataIndex: 'address',
-      render: (_, r) => <LinkPure className={clsx(appTheme.textColor, 'underline')} href={context.explorer.getOperationUrl(r.operationHash)} target="_blank">{r.alias || r.address}</LinkPure>,
+      render: (_, r) => <LinkPure className={clsx(appTheme.textColor, 'underline hover:underline')} href={context.explorer.getOperationUrl(r.operationHash)} target="_blank">{r.alias || r.address}</LinkPure>,
       sorter: (a, b) => (a.alias || a.address).localeCompare(b.alias || b.address),
     },
     {
@@ -52,7 +52,7 @@ export const VotersTable = ({ contractAddress, votersBigMapId, periodStartLevel,
     {
       title: 'Vote',
       dataIndex: 'vote',
-      render: (_, r) => <span className={clsx(r.vote === 'yea' && appTheme.accentTextColor, r.vote === 'nay' && 'text-red-400')}>{r.vote}</span>,
+      render: (_, r) => <span className={clsx(r.vote === 'yea' && appTheme.accentTextColor, r.vote === 'nay' && appTheme.redTextColor)}>{r.vote}</span>,
       sorter: (a, b) => a.vote.localeCompare(b.vote),
       filters: [
         {
@@ -75,6 +75,7 @@ export const VotersTable = ({ contractAddress, votersBigMapId, periodStartLevel,
       dataIndex: 'operationTime',
       render: (_, r) => <span>{formatDateTime(r.operationTime)}</span>,
       sorter: (a, b) => a.operationTime.getTime() - b.operationTime.getTime(),
+      defaultSortOrder: 'descend'
     },
   ];
 

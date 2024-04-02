@@ -41,7 +41,7 @@ export const UpvotersTable = ({ contractAddress, upvotersBigMapId, periodStartLe
     {
       title: 'Baker',
       dataIndex: 'address',
-      render: (_, r) => <LinkPure className={clsx(appTheme.textColor, 'underline')} href={context.explorer.getOperationUrl(r.operationHash)} target="_blank">{r.alias || r.address}</LinkPure>,
+      render: (_, r) => <LinkPure className={clsx(appTheme.textColor, 'underline hover:underline')} href={context.explorer.getOperationUrl(r.operationHash)} target="_blank">{r.alias || r.address}</LinkPure>,
       sorter: (a, b) => (a.alias || a.address).localeCompare(b.alias || b.address),
     },
     {
@@ -60,6 +60,7 @@ export const UpvotersTable = ({ contractAddress, upvotersBigMapId, periodStartLe
       dataIndex: 'operationTime',
       render: (_, r) => <span>{formatDateTime(r.operationTime)}</span>,
       sorter: (a, b) => a.operationTime.getTime() - b.operationTime.getTime(),
+      defaultSortOrder: 'descend'
     },
   ];
 

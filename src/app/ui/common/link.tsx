@@ -22,7 +22,7 @@ export const Link = ({ children, href, disabled, className, target }: LinkProps)
     href={href}
     className={clsx(className, appTheme.accentTextColorHover, { [appTheme.accentTextColor]: href && pathname.startsWith(href) })}>
     {children}
-  </NextLink> : <span className="text-slate-400">{children}</span>;
+  </NextLink> : <span className={appTheme.disabledTextColor}>{children}</span>;
 };
 
 export const LinkPure = memo(Link);

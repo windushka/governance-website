@@ -16,7 +16,7 @@ export const Progress = ({ value, target, text, className }: ProgressProps) => {
   return <div className={clsx('flex flex-col', className)}>
     <div className="flex flex-row gap-6 justify-between">
       <span>{text}:</span>
-      <span className={value.gte(target) ? appTheme.accentTextColor : 'text-red-400'}>
+      <span className={value.gte(target) ? appTheme.accentTextColor : appTheme.redTextColor}>
         {`${formatPercentageCompact(value)} of ${formatPercentageCompact(target)}`}
       </span>
     </div>
@@ -25,7 +25,7 @@ export const Progress = ({ value, target, text, className }: ProgressProps) => {
       size={['small', 2]}
       percent={value.toNumber()}
       showInfo={false}
-      strokeColor={value.gte(target) ? appTheme.accentColorValue : 'rgb(248, 113, 113)'}
+      strokeColor={value.gte(target) ? appTheme.accentColorValue : appTheme.redColorValue}
       trailColor={appTheme.borderColorValue}
       status={value.gte(target) ? 'success' : 'exception'} />
   </div>
