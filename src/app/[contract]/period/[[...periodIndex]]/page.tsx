@@ -13,24 +13,23 @@ interface HomeProps {
 export default async function Home({ params }: HomeProps) {
   const context = getAppContext();
   const contract = context.config.contracts.find(c => c.name === params.contract);
-  if (!contract) {
-    redirectToPeriodPage(context.config.contracts[0].name);
-    return;
-  }
+  if (!contract)
+    return redirectToPeriodPage(context.config.contracts[0].name);
 
-  const currentBlockLevel = await context.blockchain.getCurrentBlockLevel();
+  const [
+    currentBlockLevel,
+    config
+  ] = await Promise.all([
+    context.blockchain.getCurrentBlockLevel(),
+    context.governance.config.getConfig(contract.address)
+  ]);
 
-  const config = await context.governance.config.getConfig(contract.address);
   const { startedAtLevel, periodLength } = config;
   const currentPeriodIndex = getCurrentPeriodIndex(currentBlockLevel, startedAtLevel, periodLength);
 
   const periodIndex = params.periodIndex && params.periodIndex.length === 1 ? parseInt(params.periodIndex[0]) : undefined;
-  if (periodIndex === undefined || Number.isNaN(periodIndex) || periodIndex > currentPeriodIndex || periodIndex < 0) {
-    redirectToPeriodPage(contract.name, currentPeriodIndex.toString());
-    return;
-  }
+  if (periodIndex === undefined || Number.isNaN(periodIndex) || periodIndex > currentPeriodIndex || periodIndex < 0)
+    return redirectToPeriodPage(contract.name, currentPeriodIndex.toString());
 
-  return <>
-    <VotingState contract={contract} config={config} periodIndex={periodIndex} />
-  </>;
+  return <VotingState contract={contract} config={config} periodIndex={periodIndex} />
 }
