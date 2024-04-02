@@ -7,7 +7,8 @@ import {
   RpcGovernanceStateProvider,
   RpcGovernanceOperationsProvider,
   CachingGovernanceConfigProvider,
-  CachingGovernanceStateProvider
+  CachingGovernanceStateProvider,
+  CachingGovernancePeriodsProvider
 } from '../governance';
 import { AppContext } from './appContext';
 import { TzktExplorer } from '../explorer';
@@ -26,7 +27,7 @@ export const getAppContext = (): AppContext => {
       governance: {
         config: new CachingGovernanceConfigProvider(new RpcGovernanceConfigProvider(toolkit)),
         state: new CachingGovernanceStateProvider(new RpcGovernanceStateProvider(config.rpcUrl, blockchainProvider), blockchainProvider),
-        periods: new RpcGovernancePeriodsProvider(toolkit, blockchainProvider),
+        periods: new CachingGovernancePeriodsProvider(new RpcGovernancePeriodsProvider(toolkit, blockchainProvider), blockchainProvider),
         operations: new RpcGovernanceOperationsProvider(blockchainProvider)
       }
     };
