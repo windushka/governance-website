@@ -5,7 +5,7 @@ import { Vote, Voter } from '@/app/lib/governance';
 import { ColumnsType } from 'antd/es/table';
 import { getVoters } from '@/app/actions';
 import { IntValuePure, LinkPure, TablePure, appTheme } from '../common';
-import { formatDateTimeCompact } from '@/app/lib/governance/utils';
+import { formatDateTime } from '@/app/lib/governance/utils';
 import clsx from 'clsx';
 import { getAppContext } from '@/app/lib/appContext';
 
@@ -74,7 +74,7 @@ export const VotersTable = ({ contractAddress, votersBigMapId, periodStartLevel,
     {
       title: 'Time',
       dataIndex: 'operationTime',
-      render: (_, r) => <span>{formatDateTimeCompact(r.operationTime)}</span>,
+      render: (_, r) => <span>{formatDateTime(r.operationTime)}</span>,
       sorter: (a, b) => a.operationTime.getTime() - b.operationTime.getTime(),
     },
   ];

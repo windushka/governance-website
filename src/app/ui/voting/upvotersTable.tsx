@@ -4,7 +4,7 @@ import { getAppContext } from '@/app/lib/appContext';
 import { useEffect, useState } from 'react';
 import { IntValuePure, LinkPure, TablePure, appTheme } from '@/app/ui/common';
 import PayloadKey from './payloadKey';
-import { formatDateTimeCompact } from '@/app/lib/governance/utils';
+import { formatDateTime} from '@/app/lib/governance/utils';
 import { getUpvoters } from '@/app/actions';
 import { Upvoter } from '@/app/lib/governance';
 import { ColumnsType } from 'antd/es/table';
@@ -59,7 +59,7 @@ export const UpvotersTable = ({ contractAddress, upvotersBigMapId, periodStartLe
     {
       title: 'Time',
       dataIndex: 'operationTime',
-      render: (_, r) => <span>{formatDateTimeCompact(r.operationTime)}</span>,
+      render: (_, r) => <span>{formatDateTime(r.operationTime)}</span>,
       sorter: (a, b) => a.operationTime.getTime() - b.operationTime.getTime(),
     },
   ];

@@ -4,7 +4,7 @@ import { GovernanceConfig } from "@/app/lib/governance/config/config";
 import TotalVoteCard from "@/app/ui/voting/totalVoteCard";
 import PayloadKey from './payloadKey';
 import { ProgressPure, NoDataPure, appTheme } from '@/app/ui/common';
-import { VotersTable } from './voterTable';
+import { VotersTable } from './votersTable';
 
 interface PromotionStateProps {
   contractAddress: string;
