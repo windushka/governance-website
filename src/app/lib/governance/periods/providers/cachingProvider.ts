@@ -3,23 +3,31 @@ import { GovernancePeriod } from '../types';
 import { GovernancePeriodsProvider } from './provider';
 import { GovernanceConfig } from '../..';
 
+interface CacheValue {
+  storedAtBlockLevel: number;
+  periods: GovernancePeriod[];
+}
+
 export class CachingGovernancePeriodsProvider implements GovernancePeriodsProvider {
-  private lastBlockLevel: number = -1;
-  private storedPeriods: GovernancePeriod[] = [];
+  private readonly cache = new Map<string, CacheValue>();
 
   constructor(
     private readonly provider: GovernancePeriodsProvider,
     private readonly blockchainProvider: BlockchainProvider,
-    private readonly cacheLifetimeInBlocks: number = 10 
+    private readonly cacheLifetimeInBlocks: number = 10
   ) { }
 
   async getPeriods(contractAddress: string, config: GovernanceConfig): Promise<GovernancePeriod[]> {
     const currentBlockLevel = await this.blockchainProvider.getCurrentBlockLevel();
-    if (currentBlockLevel - this.lastBlockLevel > this.cacheLifetimeInBlocks) {
-      this.storedPeriods = await this.provider.getPeriods(contractAddress, config);
-      this.lastBlockLevel = currentBlockLevel;
+    let cacheValue = this.cache.get(contractAddress);
+    if (!cacheValue || (currentBlockLevel - cacheValue.storedAtBlockLevel) > this.cacheLifetimeInBlocks) {
+      cacheValue = {
+        storedAtBlockLevel: currentBlockLevel,
+        periods: await this.provider.getPeriods(contractAddress, config)
+      }
+      this.cache.set(contractAddress, cacheValue);
     }
 
-    return this.storedPeriods;
+    return cacheValue.periods;
   }
 }
