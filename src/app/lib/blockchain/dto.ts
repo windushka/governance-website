@@ -39,6 +39,10 @@ export interface TzktContractOperation {
     alias?: string;
     address: string;
   }
+  parameter: {
+    entrypoint: string,
+    value: PayloadKey
+  }
 }
 
 export interface ContractOperation {
@@ -48,4 +52,8 @@ export interface ContractOperation {
     alias?: string;
   };
   time: Date;
+  parameter: {
+    entrypoint: string,
+    value: PayloadKey
+  }
 }

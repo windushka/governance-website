@@ -14,13 +14,14 @@ export class TzktProvider implements BlockchainProvider {
       'entrypoint.in': entrypoints.join(','),
       'level.ge': startLevel.toString(),
       'level.le': endLevel.toString(),
-      'select': 'hash,timestamp,sender'
+      'select': 'hash,timestamp,sender,parameter'
     };
     const rawResult = await this.fetchAllChunks<TzktContractOperation>(url, 100, params);
     return rawResult.map(r => ({
       hash: r.hash,
       sender: r.sender,
-      time: new Date(r.timestamp)
+      time: new Date(r.timestamp),
+      parameter: r.parameter
     }))
   }
 

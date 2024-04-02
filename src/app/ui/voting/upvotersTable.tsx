@@ -4,7 +4,7 @@ import { getAppContext } from '@/app/lib/appContext';
 import { useEffect, useState } from 'react';
 import { IntValuePure, LinkPure, TablePure, appTheme } from '@/app/ui/common';
 import PayloadKey from './payloadKey';
-import { formatDateTime} from '@/app/lib/governance/utils';
+import { formatDateTime } from '@/app/lib/governance/utils';
 import { getUpvoters } from '@/app/actions';
 import { Upvoter } from '@/app/lib/governance';
 import { ColumnsType } from 'antd/es/table';
@@ -27,7 +27,6 @@ export const UpvotersTable = ({ contractAddress, upvotersBigMapId, periodStartLe
       const voters = upvotersBigMapId
         ? await getUpvoters(
           contractAddress,
-          upvotersBigMapId,
           periodStartLevel,
           periodEndLevel)
         : [];
@@ -64,5 +63,5 @@ export const UpvotersTable = ({ contractAddress, upvotersBigMapId, periodStartLe
     },
   ];
 
-  return <TablePure rowKey="address" dataSource={voters} columns={columns} loading={loading} />
+  return <TablePure rowKey="operationHash" dataSource={voters} columns={columns} loading={loading} />
 }

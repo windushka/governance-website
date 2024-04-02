@@ -13,45 +13,40 @@ export class CachingGovernanceOperationsProvider implements GovernanceOperations
 
   async getUpvoters(
     contractAddress: string,
-    bigMapId: string,
     periodStartLevel: number,
     periodEndLevel: number
   ): Promise<Upvoter[]> {
     return this.getData(
       contractAddress,
-      bigMapId,
       periodStartLevel,
       periodEndLevel,
       this.upvotersCache,
-      () => this.provider.getUpvoters(contractAddress, bigMapId, periodStartLevel, periodEndLevel)
+      () => this.provider.getUpvoters(contractAddress, periodStartLevel, periodEndLevel)
     )
   }
 
   async getVoters(
     contractAddress: string,
-    bigMapId: string,
     periodStartLevel: number,
     periodEndLevel: number
   ): Promise<Voter[]> {
     return this.getData(
       contractAddress,
-      bigMapId,
       periodStartLevel,
       periodEndLevel,
       this.votersCache,
-      () => this.provider.getVoters(contractAddress, bigMapId, periodStartLevel, periodEndLevel)
+      () => this.provider.getVoters(contractAddress, periodStartLevel, periodEndLevel)
     )
   }
 
   async getData<T>(
     contractAddress: string,
-    bigMapId: string,
     periodStartLevel: number,
     periodEndLevel: number,
     cache: Map<string, T[]>,
     fetchFunction: () => Promise<T[]>
   ): Promise<T[]> {
-    const key = this.getCacheKey(contractAddress, bigMapId, periodStartLevel, periodEndLevel);
+    const key = this.getCacheKey(contractAddress, periodStartLevel, periodEndLevel);
 
     let data = cache.get(key);
     if (!data) {
@@ -71,10 +66,9 @@ export class CachingGovernanceOperationsProvider implements GovernanceOperations
 
   private getCacheKey(
     contractAddress: string,
-    bigMapId: string,
     periodStartLevel: number,
     periodEndLevel: number
   ): string {
-    return `${contractAddress}-${bigMapId}-${periodStartLevel}-${periodEndLevel}`;
+    return `${contractAddress}-${periodStartLevel}-${periodEndLevel}`;
   }
 }

@@ -26,7 +26,6 @@ export const VotersTable = ({ contractAddress, votersBigMapId, periodStartLevel,
       const voters = votersBigMapId
         ? await getVoters(
           contractAddress,
-          votersBigMapId,
           periodStartLevel,
           periodEndLevel)
         : [];
@@ -79,5 +78,5 @@ export const VotersTable = ({ contractAddress, votersBigMapId, periodStartLevel,
     },
   ];
 
-  return <TablePure rowKey="address" dataSource={voters} columns={columns} loading={loading} />
+  return <TablePure rowKey="operationHash" dataSource={voters} columns={columns} loading={loading} />
 }
