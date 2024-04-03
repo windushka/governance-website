@@ -12,7 +12,7 @@ interface ProposalStateProps {
 
 export default function ProposalState({ contractAddress, proposalPeriod, config }: ProposalStateProps) {
   if (!proposalPeriod.proposals.length)
-    return <NoDataPure text="No proposals" />
+    return <NoDataPure text="Nothing has been proposed at this period" />
 
   const minimumProposalQuorum = natToPercent(config.proposalQuorum, config.scale);
   const proposalQuorum = getProposalQuorumPercent(proposalPeriod.candidateUpvotesVotingPower || BigInt(0), proposalPeriod.totalVotingPower)

@@ -20,30 +20,32 @@ export default function PromotionState({ contractAddress, promotionPeriod, confi
   const minimumPromotionSupermajority = natToPercent(config.promotionSupermajority, config.scale);
   const minimumPromotionQuorum = natToPercent(config.promotionQuorum, config.scale);
 
-  return promotionPeriod.votersBigMapId
-    ? <>
-      <div className="flex flex-row justify-between items-center mb-8">
-        <div className="flex flex-col">
-          <span>Candidate:</span>
-          <PayloadKey value={promotionPeriod.winnerCandidate} />
-        </div>
+  return <>
+    <div className="flex flex-row justify-between items-center mb-8">
+      <div className="flex flex-col">
+        <span>Candidate:</span>
+        <PayloadKey value={promotionPeriod.winnerCandidate} />
+      </div>
 
-        <div className="flex flex-col gap-4">
-          <ProgressPure text="Quorum" value={promotionQuorum} target={minimumPromotionQuorum} />
-          <ProgressPure text="Supermajority" value={promotionSupermajority} target={minimumPromotionSupermajority} />
+      <div className="flex flex-col gap-4">
+        <ProgressPure text="Quorum" value={promotionQuorum} target={minimumPromotionQuorum} />
+        <ProgressPure text="Supermajority" value={promotionSupermajority} target={minimumPromotionSupermajority} />
+      </div>
+    </div>
+    {promotionPeriod.votersBigMapId
+      ? <>
+        <div className="flex flex-row justify-between mb-8 items-stretch gap-20">
+          <TotalVoteCard className={appTheme.accentBorderColor} text="Total yea" votingPower={promotionPeriod.yeaVotingPower} totalVotingPower={votingPowerSum} />
+          <TotalVoteCard className={appTheme.redBorderColor} text="Total nay" votingPower={promotionPeriod.nayVotingPower} totalVotingPower={votingPowerSum} />
+          <TotalVoteCard className={appTheme.whiteBorderColor} text="Total pass" votingPower={promotionPeriod.passVotingPower} totalVotingPower={votingPowerSum} />
         </div>
-      </div>
-      <div className="flex flex-row justify-between mb-8 items-stretch gap-20">
-        <TotalVoteCard className={appTheme.accentBorderColor} text="Total yea" votingPower={promotionPeriod.yeaVotingPower} totalVotingPower={votingPowerSum} />
-        <TotalVoteCard className={appTheme.redBorderColor} text="Total nay" votingPower={promotionPeriod.nayVotingPower} totalVotingPower={votingPowerSum} />
-        <TotalVoteCard className={appTheme.whiteBorderColor} text="Total pass" votingPower={promotionPeriod.passVotingPower} totalVotingPower={votingPowerSum} />
-      </div>
-      <h2 className="text-xl mb-2">Voters</h2>
-      <VotersTable
-        contractAddress={contractAddress}
-        votersBigMapId={promotionPeriod.votersBigMapId}
-        periodStartLevel={promotionPeriod.startLevel}
-        periodEndLevel={promotionPeriod.endLevel} />
-    </>
-    : <NoDataPure text="No voters" />
+        <h2 className="text-xl mb-2">Voters</h2>
+        <VotersTable
+          contractAddress={contractAddress}
+          votersBigMapId={promotionPeriod.votersBigMapId}
+          periodStartLevel={promotionPeriod.startLevel}
+          periodEndLevel={promotionPeriod.endLevel} />
+      </>
+      : <NoDataPure text="No one has voted at this period" />}
+  </>
 }
