@@ -4,7 +4,6 @@ import "./globals.css";
 import Link from "next/link";
 import NavLinks from "./navLinks";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
-import clsx from 'clsx';
 import { LinkPure, appTheme } from './ui/common';
 
 const inter = Inter({ subsets: ["latin"] });
@@ -21,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} flex flex-col min-h-screen`}>
+      <body className={`${inter.className} antialiased flex flex-col min-h-screen`}>
         <header className="container grow-0 py-4 flex flex-row justify-between items-center">
           <Link href="/" className="text-2xl">Etherlink governance</Link>
           <NavLinks />

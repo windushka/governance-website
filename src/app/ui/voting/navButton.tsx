@@ -2,6 +2,7 @@ import { getPeriodPageUrl } from '@/app/actions';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { appTheme } from '../common';
+import { ArrowRightIcon, ArrowLeftIcon } from '@heroicons/react/24/solid';
 
 interface NavButtonProps {
   contractName: string;
@@ -12,12 +13,14 @@ interface NavButtonProps {
 
 export default function NavButton({ contractName, periodIndex, isNext, disabled }: NavButtonProps) {
   const className = clsx(`flex justify-center items-center ${appTheme.componentBgColor} border ${appTheme.borderColor} rounded-md h-[40px] w-[40px] text-lg`, disabled ? 'opacity-50' : appTheme.componentBgHoverColor);
-  const content = { __html: isNext ? '&#8594;' : '&#8592;' };
+  const iconClassName = "h-5 w-5";
+  const content = isNext ? <ArrowRightIcon className={iconClassName} /> : <ArrowLeftIcon className={iconClassName} />;
 
   return !disabled
     ? <Link
       className={className}
-      href={getPeriodPageUrl(contractName, periodIndex.toString())}
-      dangerouslySetInnerHTML={content} />
-    : <span className={clsx(className, 'cursor-default')} dangerouslySetInnerHTML={content}></span>
+      href={getPeriodPageUrl(contractName, periodIndex.toString())}>
+      {content}
+    </Link>
+    : <span className={clsx(className, 'cursor-default')}>{content}</span>
 }
