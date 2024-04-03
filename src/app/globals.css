@@ -79,6 +79,9 @@ body {
 
 .ant-modal-content {
   color: rgb(var(--foreground-rgb));
+  border-style: solid !important;
+  border-width: 1px   !important;
+  border-color: rgb(var(--component-border-color-rgb)) !important;
   background-color: rgb(var(--component-background-rgb)) !important;
 }
 .ant-modal-header {

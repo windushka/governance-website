@@ -30,7 +30,8 @@ export default function ContractConfigModalButton({ buttonText, contract, contra
     setIsModalOpen(false);
   };
 
-  const cellClassName = `border ${appTheme.borderColor} p-2`;
+  const cellClassName = `border-b ${appTheme.borderColor} p-2`;
+  const rowClassName = appTheme.componentBgHoverColor;
 
   return <>
     <button className={appTheme.textColorHover} onClick={showModal}>{buttonText}</button>
@@ -43,39 +44,39 @@ export default function ContractConfigModalButton({ buttonText, contract, contra
     >
       <table className="w-full mt-4">
         <tbody>
-          <tr>
+          <tr className={rowClassName}>
             <td className={cellClassName}>Contract type</td>
             <td className={clsx(cellClassName, 'text-right')}><span className="capitalize">{contract.name}</span></td>
           </tr>
-          <tr>
+          <tr className={rowClassName}>
             <td className={cellClassName}>Contract address</td>
             <td className={clsx(cellClassName, 'text-right')}><LinkPure className={`${appTheme.textColor} ${appTheme.accentTextColorHover} underline hover:underline`} href={contractUrl} target="_blank">{contract.address}</LinkPure></td>
           </tr>
-          <tr>
+          <tr className={rowClassName}>
             <td className={cellClassName}>Started at level</td>
             <td className={clsx(cellClassName, 'text-right')}>{config.startedAtLevel.toString()}</td>
           </tr>
-          <tr>
+          <tr className={rowClassName}>
             <td className={cellClassName}>Period length</td>
             <td className={clsx(cellClassName, 'text-right')}>{config.periodLength.toString()} blocks</td>
           </tr>
-          <tr>
+          <tr className={rowClassName}>
             <td className={cellClassName}>Adoption period</td>
             <td className={clsx(cellClassName, 'text-right')}>{config.adoptionPeriodSec.toString()} seconds</td>
           </tr>
-          <tr>
+          <tr className={rowClassName}>
             <td className={cellClassName}>Upvoting limit</td>
             <td className={clsx(cellClassName, 'text-right')}>{config.upvotingLimit.toString()}</td>
           </tr>
-          <tr>
+          <tr className={rowClassName}>
             <td className={cellClassName}>Proposal quorum</td>
             <td className={clsx(cellClassName, 'text-right')}>{formatPercentageCompact(natToPercent(config.proposalQuorum, config.scale))}</td>
           </tr>
-          <tr>
+          <tr className={rowClassName}>
             <td className={cellClassName}>Promotion quorum</td>
             <td className={clsx(cellClassName, 'text-right')}>{formatPercentageCompact(natToPercent(config.promotionQuorum, config.scale))}</td>
           </tr>
-          <tr>
+          <tr className={rowClassName}>
             <td className={cellClassName}>Promotion supermajority</td>
             <td className={clsx(cellClassName, 'text-right')}>{formatPercentageCompact(natToPercent(config.promotionSupermajority, config.scale))}</td>
           </tr>
