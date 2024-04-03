@@ -6,6 +6,7 @@ import PeriodTime from './periodTime';
 interface PeriodHeaderProps {
   contractName: string;
   periodType: PeriodType;
+  active?: boolean;
   disabled?: boolean;
   periodIndex: number;
   startLevel: number;
@@ -17,6 +18,7 @@ interface PeriodHeaderProps {
 export default function PeriodHeader({
   contractName,
   periodType,
+  active,
   disabled,
   periodIndex,
   startTime,
@@ -27,7 +29,7 @@ export default function PeriodHeader({
   const periodName = periodType === PeriodType.Proposal ? 'Proposal' : 'Promotion';
 
   return <div className="flex flex-col items-start">
-    <LinkPure href={getPeriodPageUrl(contractName, periodIndex.toString())} disabled={disabled}>{`${periodName}`}</LinkPure>
+    <LinkPure href={getPeriodPageUrl(contractName, periodIndex.toString())} active={active} disabled={disabled}>{`${periodName}`}</LinkPure>
     <div className="text-[10px]">
       <PeriodTime time={startTime} level={startLevel} /> - <PeriodTime time={endTime} level={endLevel} />
     </div>

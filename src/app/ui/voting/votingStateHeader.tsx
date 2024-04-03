@@ -7,7 +7,6 @@ import PeriodSelector from './periodSelector';
 import ContractConfigModalButton from './contractConfigModalButton';
 import { Contract } from '@/app/lib/config';
 import { getAppContext } from '@/app/lib/appContext';
-import clsx from 'clsx';
 import { appTheme } from '../common';
 
 interface VotingStateHeaderProps {
@@ -37,6 +36,7 @@ export default async function VotingStateHeader({ contract, periodIndex, votingC
     promotionPeriodHeader = <PeriodHeader
       contractName={contract.name}
       disabled={!votingContext.promotionPeriod}
+      active={periodIndex === promotionPeriodIndex}
       periodIndex={promotionPeriodIndex}
       periodType={PeriodType.Promotion}
       startTime={periodStartTime}
@@ -56,6 +56,7 @@ export default async function VotingStateHeader({ contract, periodIndex, votingC
       <PeriodHeader
         contractName={contract.name}
         periodType={PeriodType.Proposal}
+        active={periodIndex === votingContext.proposalPeriod.index}
         periodIndex={votingContext.proposalPeriod.index}
         startTime={votingContext.proposalPeriod.startTime}
         startLevel={votingContext.proposalPeriod.startLevel}

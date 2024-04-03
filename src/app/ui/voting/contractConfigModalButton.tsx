@@ -49,7 +49,7 @@ export default function ContractConfigModalButton({ buttonText, contract, contra
           </tr>
           <tr>
             <td className={cellClassName}>Contract address</td>
-            <td className={clsx(cellClassName, 'text-right')}><LinkPure className={`${appTheme.accentTextColor} underline`} href={contractUrl} target="_blank">{contract.address}</LinkPure></td>
+            <td className={clsx(cellClassName, 'text-right')}><LinkPure className={`${appTheme.textColor} ${appTheme.accentTextColorHover} underline hover:underline`} href={contractUrl} target="_blank">{contract.address}</LinkPure></td>
           </tr>
           <tr>
             <td className={cellClassName}>Started at level</td>
