@@ -3,6 +3,7 @@ export const appTheme = {
   componentBgHoverColor: 'hover:bg-light-black',
   textColor: 'text-white',
   textColorValue: 'rgb(255, 255, 255)',
+  textColorHover: 'hover:text-gray-300',
   disabledTextColor: 'text-gray-400',
   redTextColor: 'text-red-400',
   redColorValue: 'rgb(248, 113, 113)',

@@ -1,10 +1,8 @@
 import { ProposalPeriod, GovernanceConfig } from '@/app/lib/governance';
 import { getProposalQuorumPercent, natToPercent } from '@/app/lib/governance/utils';
-import clsx from 'clsx';
-import PayloadKey from './payloadKey';
-import { getAppContext } from '@/app/lib/appContext';
-import { ProgressPure, LinkPure, NoDataPure, IntValuePure, appTheme } from '@/app/ui/common';
+import { ProgressPure, NoDataPure } from '@/app/ui/common';
 import { UpvotersTable } from './upvotersTable';
+import { ProposalListPure } from './proposalsList';
 
 interface ProposalStateProps {
   contractAddress: string;
@@ -16,29 +14,7 @@ export default function ProposalState({ contractAddress, proposalPeriod, config 
   if (!proposalPeriod.proposals.length)
     return <NoDataPure text="No proposals" />
 
-  const context = getAppContext();
   const minimumProposalQuorum = natToPercent(config.proposalQuorum, config.scale);
-
-  const proposalList = <ul className="flex flex-col gap-6 mb-8">
-    {proposalPeriod.proposals.map(p =>
-      <li
-        key={JSON.stringify(p.key)}
-        className={clsx(`block flex flex-row justify-between items-center p-2 border ${appTheme.componentBgColor}`, JSON.stringify(p.key) === JSON.stringify(proposalPeriod.winnerCandidate) ? appTheme.accentBorderColor : appTheme.borderColor)}>
-        <div className="flex flex-col">
-          <div>
-            <PayloadKey value={p.key} />
-          </div>
-          <span className="mb-1">
-            (by <LinkPure className="underline" href={context.explorer.getAccountUrl(p.proposer)} target="_blank">{p.proposer}</LinkPure>)
-          </span>
-        </div>
-        <div className="flex flex-col">
-          <span className="mb-1">upvotes:</span>
-          <IntValuePure className="text-xl" value={p.upvotesVotingPower} />
-        </div>
-      </li>)}
-  </ul>
-
   const proposalQuorum = getProposalQuorumPercent(proposalPeriod.candidateUpvotesVotingPower || BigInt(0), proposalPeriod.totalVotingPower)
 
   return <>
@@ -46,7 +22,7 @@ export default function ProposalState({ contractAddress, proposalPeriod, config 
       <h2 className="text-xl">Proposals</h2>
       <ProgressPure text="Quorum" value={proposalQuorum} target={minimumProposalQuorum} />
     </div>
-    {proposalList}
+    <ProposalListPure proposals={proposalPeriod.proposals} winnerCandidate={proposalPeriod.winnerCandidate} />
 
     <h2 className="text-xl mb-2">Upvoters</h2>
     <UpvotersTable

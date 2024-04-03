@@ -33,7 +33,7 @@ export default function ContractConfigModalButton({ buttonText, contract, contra
   const cellClassName = `border ${appTheme.borderColor} p-2`;
 
   return <>
-    <button className="hover:text-gray-300" onClick={showModal}>{buttonText}</button>
+    <button className={appTheme.textColorHover} onClick={showModal}>{buttonText}</button>
     <Modal
       title="Contract config"
       open={isModalOpen}
