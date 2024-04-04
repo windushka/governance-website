@@ -24,7 +24,7 @@ export const ProposalList = ({ proposals, winnerCandidate }: ProposalListProps) 
   const visibleProposals = showAll ? proposals : proposals.slice(0, defaultVisibleProposalsCount);
   const showAllButtonVisible = proposals.length > defaultVisibleProposalsCount;
 
-  return <div className="flex flex-col gap-2 mb-8">
+  return <div className="flex flex-col gap-2 mb-12">
     <ul className="flex flex-col gap-6">
       {visibleProposals.map(p =>
         <li

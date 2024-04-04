@@ -15,7 +15,7 @@ interface NavButtonProps {
 
 export const NavButton = ({ contractName, periodIndex, isNext, disabled }: NavButtonProps) => {
   const className = clsx(`flex justify-center items-center ${appTheme.componentBgColor} border ${appTheme.borderColor} rounded-md h-[40px] w-[40px] text-lg`, disabled ? 'opacity-50' : appTheme.componentBgHoverColor);
-  const iconClassName = "h-5 w-5";
+  const iconClassName = 'h-5 w-5';
   const content = isNext ? <ArrowRightIcon className={iconClassName} /> : <ArrowLeftIcon className={iconClassName} />;
 
   return !disabled

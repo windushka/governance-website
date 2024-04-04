@@ -1,9 +1,9 @@
 import { PromotionPeriod } from "@/app/lib/governance/state/state";
 import { getPromotionQuorumPercent, getPromotionSupermajorityPercent, natToPercent } from "@/app/lib/governance/utils";
 import { GovernanceConfig } from "@/app/lib/governance/config/config";
-import { TotalVoteCard } from "@/app/ui/voting/totalVoteCard";
+import { TotalVoteCard, TotalVoteType } from "@/app/ui/voting/totalVoteCard";
 import { PayloadKey } from './payloadKey';
-import { ProgressPure, NoDataPure, appTheme } from '@/app/ui/common';
+import { ProgressPure, NoDataPure, } from '@/app/ui/common';
 import { VotersTable } from './votersTable';
 
 interface PromotionStateProps {
@@ -21,7 +21,7 @@ export const PromotionState = ({ contractAddress, promotionPeriod, config }: Pro
   const minimumPromotionQuorum = natToPercent(config.promotionQuorum, config.scale);
 
   return <>
-    <div className="flex flex-row justify-between items-center mb-8">
+    <div className="flex flex-row justify-between items-center mb-12">
       {promotionPeriod.winnerCandidate && <div className="flex flex-col">
         <span>Candidate:</span>
         <PayloadKey value={promotionPeriod.winnerCandidate} />
@@ -34,10 +34,10 @@ export const PromotionState = ({ contractAddress, promotionPeriod, config }: Pro
     </div>
     {promotionPeriod.votersBigMapId
       ? <>
-        <div className="flex flex-row justify-between mb-8 items-stretch gap-20">
-          <TotalVoteCard className={appTheme.accentBorderColor} text="Total yea" votingPower={promotionPeriod.yeaVotingPower} totalVotingPower={votingPowerSum} />
-          <TotalVoteCard className={appTheme.redBorderColor} text="Total nay" votingPower={promotionPeriod.nayVotingPower} totalVotingPower={votingPowerSum} />
-          <TotalVoteCard className={appTheme.whiteBorderColor} text="Total pass" votingPower={promotionPeriod.passVotingPower} totalVotingPower={votingPowerSum} />
+        <div className="flex flex-row justify-between mb-12 items-stretch gap-20">
+          <TotalVoteCard type={TotalVoteType.Yea} votingPower={promotionPeriod.yeaVotingPower} totalVotingPower={votingPowerSum} />
+          <TotalVoteCard type={TotalVoteType.Nay} votingPower={promotionPeriod.nayVotingPower} totalVotingPower={votingPowerSum} />
+          <TotalVoteCard type={TotalVoteType.Pass} votingPower={promotionPeriod.passVotingPower} totalVotingPower={votingPowerSum} />
         </div>
         <h2 className="text-xl mb-2">Voters</h2>
         <VotersTable
