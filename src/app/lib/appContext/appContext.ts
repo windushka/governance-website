@@ -6,7 +6,6 @@ import { GovernanceConfigProvider, GovernanceStateProvider, GovernancePeriodsPro
 export interface AppContext {
   config: Config;
   blockchain: BlockchainProvider;
-  explorer: Explorer;
   governance: {
     config: GovernanceConfigProvider;
     state: GovernanceStateProvider;

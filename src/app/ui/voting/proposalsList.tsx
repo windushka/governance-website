@@ -1,11 +1,10 @@
 'use client'
 
 import clsx from 'clsx'
-import { appTheme, LinkPure, IntValuePure } from '@/app/ui/common'
+import { appTheme, LinkPure, IntValuePure, useClientContext } from '@/app/ui/common'
 import { PayloadKey } from './payloadKey'
-import { getAppContext } from '@/app/lib/appContext'
 import { Proposal, PayloadKey as PayloadKeyType } from '@/app/lib/governance'
-import { memo, useState } from 'react'
+import { useState } from 'react'
 
 interface ProposalListProps {
   proposals: Proposal[];
@@ -19,7 +18,7 @@ export const ProposalList = ({ proposals, winnerCandidate }: ProposalListProps) 
   }
   const defaultVisibleProposalsCount = 2;
 
-  const context = getAppContext();
+  const context = useClientContext();
   const baseItemClassName = 'block flex flex-row justify-between items-center p-2 border';
   const visibleProposals = showAll ? proposals : proposals.slice(0, defaultVisibleProposalsCount);
   const showAllButtonVisible = proposals.length > defaultVisibleProposalsCount;
@@ -50,5 +49,3 @@ export const ProposalList = ({ proposals, winnerCandidate }: ProposalListProps) 
     {showAllButtonVisible && <button onClick={handleShowAllClick} className={`${appTheme.textColorHover} inline-block self-center px-4`}>{showAll ? 'show less' : 'show all'}</button>}
   </div>
 };
-
-export const ProposalListPure = memo(ProposalList);

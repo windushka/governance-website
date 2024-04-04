@@ -1,8 +1,7 @@
 'use client'
 
-import { getAppContext } from '@/app/lib/appContext';
 import { useEffect, useState } from 'react';
-import { IntValuePure, LinkPure, TablePure, appTheme } from '@/app/ui/common';
+import { IntValuePure, LinkPure, TablePure, appTheme, useClientContext } from '@/app/ui/common';
 import { PayloadKey } from './payloadKey';
 import { formatDateTime } from '@/app/lib/governance/utils';
 import { getUpvoters } from '@/app/actions';
@@ -35,7 +34,7 @@ export const UpvotersTable = ({ contractAddress, upvotersBigMapId, periodStartLe
     })();
   }, [contractAddress, upvotersBigMapId, periodStartLevel, periodEndLevel]);
 
-  const context = getAppContext();
+  const context = useClientContext();
 
   const columns: ColumnsType<Upvoter> = [
     {

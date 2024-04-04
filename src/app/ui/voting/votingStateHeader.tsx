@@ -7,8 +7,7 @@ import { NavButton } from './navButton';
 import { PeriodSelector } from './periodSelector';
 import { ContractConfigModalButton } from './contractConfigModalButton';
 import { Contract } from '@/app/lib/config';
-import { getAppContext } from '@/app/lib/appContext';
-import { appTheme } from '../common';
+import { appTheme, useClientContext } from '../common';
 import { Skeleton } from 'antd';
 
 interface VotingStateHeaderProps {
@@ -23,7 +22,7 @@ export const VotingStateHeader = ({ contract, periodIndex, votingContext, curren
   const prevPeriodIndex = periodIndex - 1;
   const nextPeriodIndex = periodIndex + 1;
 
-  const context = getAppContext();
+  const context = useClientContext();
 
   let promotionPeriodHeader = null;
   if (votingContext && (votingContext.promotionPeriod.happened || currentPeriodIndex === votingContext.proposalPeriod.index)) {

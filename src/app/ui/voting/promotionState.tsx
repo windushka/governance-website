@@ -5,6 +5,7 @@ import { TotalVoteCard, TotalVoteType } from "@/app/ui/voting/totalVoteCard";
 import { PayloadKey } from './payloadKey';
 import { ProgressPure, NoDataPure, } from '@/app/ui/common';
 import { VotersTable } from './votersTable';
+import { Config } from '@/app/lib/config';
 
 interface PromotionStateProps {
   contractAddress: string;

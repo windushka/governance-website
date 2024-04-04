@@ -2,7 +2,7 @@ import { ProposalPeriod, GovernanceConfig } from '@/app/lib/governance';
 import { getProposalQuorumPercent, natToPercent } from '@/app/lib/governance/utils';
 import { ProgressPure, NoDataPure } from '@/app/ui/common';
 import { UpvotersTable } from './upvotersTable';
-import { ProposalListPure } from './proposalsList';
+import { ProposalList } from './proposalsList';
 
 interface ProposalStateProps {
   contractAddress: string;
@@ -25,7 +25,7 @@ export const ProposalState = ({ contractAddress, proposalPeriod, config }: Propo
       <h2 className="text-xl">Proposals</h2>
       <ProgressPure text="Quorum" value={proposalQuorum} target={minimumProposalQuorum} />
     </div>
-    <ProposalListPure proposals={proposalPeriod.proposals} winnerCandidate={proposalPeriod.winnerCandidate} />
+    <ProposalList proposals={proposalPeriod.proposals} winnerCandidate={proposalPeriod.winnerCandidate} />
 
     <h2 className="text-xl mb-2">Upvoters</h2>
     <UpvotersTable

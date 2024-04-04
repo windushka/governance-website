@@ -1,1 +1,2 @@
-export { ghostnetConfig } from './ghostnet';
+export { ghostnetConfig, ghostnetTestConfig } from './ghostnet';
+export { mainnetConfig } from './mainnet';
