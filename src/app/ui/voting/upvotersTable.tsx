@@ -3,7 +3,7 @@
 import { getAppContext } from '@/app/lib/appContext';
 import { useEffect, useState } from 'react';
 import { IntValuePure, LinkPure, TablePure, appTheme } from '@/app/ui/common';
-import PayloadKey from './payloadKey';
+import { PayloadKey } from './payloadKey';
 import { formatDateTime } from '@/app/lib/governance/utils';
 import { getUpvoters } from '@/app/actions';
 import { Upvoter } from '@/app/lib/governance';

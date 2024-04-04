@@ -2,7 +2,7 @@
 
 import clsx from 'clsx'
 import { appTheme, LinkPure, IntValuePure } from '@/app/ui/common'
-import PayloadKey from './payloadKey'
+import { PayloadKey } from './payloadKey'
 import { getAppContext } from '@/app/lib/appContext'
 import { Proposal, PayloadKey as PayloadKeyType } from '@/app/lib/governance'
 import { memo, useState } from 'react'

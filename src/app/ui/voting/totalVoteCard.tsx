@@ -9,7 +9,7 @@ interface TotalVoteCardProps {
   className?: string;
 }
 
-export default function TotalVoteCard({ text, votingPower, totalVotingPower, className }: TotalVoteCardProps) {
+export const TotalVoteCard = ({ text, votingPower, totalVotingPower, className }: TotalVoteCardProps) => {
   return <div className={clsx(appTheme.componentBgColor, 'flex flex-column justify-center grow shrink basis-0 border py-4 px-8', className)}>
     <span>{text}:&nbsp;</span>
     <IntValuePure value={votingPower} />

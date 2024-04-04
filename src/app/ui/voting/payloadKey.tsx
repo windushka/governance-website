@@ -1,10 +1,10 @@
-import { PayloadKey } from '@/app/lib/governance/'
+import { PayloadKey as PayloadKeyType } from '@/app/lib/governance/'
 
 interface PayloadKeyProps {
-  value: PayloadKey
+  value: PayloadKeyType
 }
 
-export default function PayloadKey({ value }: PayloadKeyProps) {
+export const PayloadKey = ({ value }: PayloadKeyProps) => {
   if (typeof value === 'string')
     return <span>0x{value}</span>
 

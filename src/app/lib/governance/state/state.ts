@@ -31,12 +31,13 @@ export interface ProposalPeriod {
 }
 
 export interface PromotionPeriod {
+  readonly happened: boolean;
   readonly index: number;
   readonly startLevel: number;
   readonly startTime: Date;
   readonly endLevel: number;
   readonly endTime: Date;
-  readonly winnerCandidate: PayloadKey;
+  readonly winnerCandidate: PayloadKey | null;
   readonly votersBigMapId: string | null;
   readonly yeaVotingPower: bigint;
   readonly nayVotingPower: bigint;
@@ -48,7 +49,7 @@ export interface VotingContext {
   readonly periodIndex: number;
   readonly periodType: PeriodType;
   readonly proposalPeriod: ProposalPeriod;
-  readonly promotionPeriod: PromotionPeriod | null;
+  readonly promotionPeriod: PromotionPeriod;
 }
 
 export interface GovernanceState {

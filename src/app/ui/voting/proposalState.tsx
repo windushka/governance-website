@@ -6,11 +6,14 @@ import { ProposalListPure } from './proposalsList';
 
 interface ProposalStateProps {
   contractAddress: string;
-  proposalPeriod: ProposalPeriod;
+  proposalPeriod: ProposalPeriod | null;
   config: GovernanceConfig;
 }
 
-export default function ProposalState({ contractAddress, proposalPeriod, config }: ProposalStateProps) {
+export const ProposalState = ({ contractAddress, proposalPeriod, config }: ProposalStateProps) => {
+  if (!proposalPeriod)
+    return <NoDataPure text="Loading..." />;
+
   if (!proposalPeriod.proposals.length)
     return <NoDataPure text="Nothing has been proposed at this period" />
 

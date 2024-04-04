@@ -4,3 +4,5 @@ export { NoData, NoDataPure } from './noData';
 export { IntValue, IntValuePure } from './intValue';
 export { Table, TablePure } from './table';
 export { appTheme } from './appTheme';
+export { Loader, LoaderPure } from './loader';
+export { SpinIcon } from './spinIcon';

@@ -7,7 +7,7 @@ interface PeriodTimeProps {
   level: number;
 }
 
-export default function PeriodTime({ time, level }: PeriodTimeProps) {
+export const PeriodTime = ({ time, level }: PeriodTimeProps) => {
   const now = new Date();
   const timeStr = formatDateTimeCompact(time);
   const isEstimatedTime = now < time;

@@ -1,7 +1,9 @@
+'use client'
+
 import { PeriodType } from "@/app/lib/governance/state/state"
 import { LinkPure } from "@/app/ui/common";
 import { getPeriodPageUrl } from '@/app/actions';
-import PeriodTime from './periodTime';
+import { PeriodTime } from './periodTime';
 
 interface PeriodHeaderProps {
   contractName: string;
@@ -15,7 +17,7 @@ interface PeriodHeaderProps {
   endLevel: number;
 }
 
-export default function PeriodHeader({
+export const PeriodHeader = ({
   contractName,
   periodType,
   active,
@@ -25,7 +27,7 @@ export default function PeriodHeader({
   startLevel,
   endTime,
   endLevel
-}: PeriodHeaderProps) {
+}: PeriodHeaderProps) => {
   const periodName = periodType === PeriodType.Proposal ? 'Proposal' : 'Promotion';
 
   return <div className="flex flex-col items-start">

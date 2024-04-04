@@ -1,3 +1,5 @@
+'use client'
+
 import { getPeriodPageUrl } from '@/app/actions';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -11,7 +13,7 @@ interface NavButtonProps {
   isNext?: boolean;
 }
 
-export default function NavButton({ contractName, periodIndex, isNext, disabled }: NavButtonProps) {
+export const NavButton = ({ contractName, periodIndex, isNext, disabled }: NavButtonProps) => {
   const className = clsx(`flex justify-center items-center ${appTheme.componentBgColor} border ${appTheme.borderColor} rounded-md h-[40px] w-[40px] text-lg`, disabled ? 'opacity-50' : appTheme.componentBgHoverColor);
   const iconClassName = "h-5 w-5";
   const content = isNext ? <ArrowRightIcon className={iconClassName} /> : <ArrowLeftIcon className={iconClassName} />;
@@ -23,4 +25,4 @@ export default function NavButton({ contractName, periodIndex, isNext, disabled 
       {content}
     </Link>
     : <span className={clsx(className, 'cursor-default')}>{content}</span>
-}
+};

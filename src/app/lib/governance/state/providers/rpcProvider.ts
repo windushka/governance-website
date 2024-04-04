@@ -26,7 +26,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
     ]);
     const blockLevel = Math.min(getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength), currentBlockLevel);
     if (blockLevel <= originatedAtLevel)
-      return await this.getEmptyGovernanceState(periodIndex, config);
+      return await this.createEmptyGovernanceState(periodIndex, config);
 
     const toolkit = this.getToolkit(blockLevel);
     const [storage, stateViewResult] = await Promise.all([
@@ -45,13 +45,19 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
     return contract.storage<Storage.GovernanceContractStorage>();
   }
 
-  private async getEmptyGovernanceState(periodIndex: number, config: GovernanceConfig): Promise<GovernanceState> {
+  private async createEmptyGovernanceState(periodIndex: number, config: GovernanceConfig): Promise<GovernanceState> {
     const periodStartLevel = getFirstBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
     const periodEndLevel = getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
-    const [periodStartTime, periodEndTime, totalVotingPower] = await Promise.all([
+    const [
+      periodStartTime,
+      periodEndTime,
+      totalVotingPower,
+      promotionPeriod
+    ] = await Promise.all([
       this.blockchainProvider.getBlockCreationTime(periodStartLevel),
       this.blockchainProvider.getBlockCreationTime(periodEndLevel),
-      this.blockchainProvider.getTotalVotingPower(periodStartLevel)
+      this.blockchainProvider.getTotalVotingPower(periodStartLevel),
+      this.createEmptyPromotionPeriod(periodIndex + 1, config)
     ])
 
     return {
@@ -70,9 +76,36 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
           winnerCandidate: null,
           candidateUpvotesVotingPower: null,
         },
-        promotionPeriod: null,
+        promotionPeriod,
       },
       lastWinnerPayload: null
+    }
+  }
+
+  private async createEmptyPromotionPeriod(promotionPeriodIndex: number, config: GovernanceConfig): Promise<PromotionPeriod> {
+    const periodStartLevel = getFirstBlockOfPeriod(promotionPeriodIndex, config.startedAtLevel, config.periodLength);
+    const periodEndLevel = getLastBlockOfPeriod(promotionPeriodIndex, config.startedAtLevel, config.periodLength);
+    const [
+      periodStartTime,
+      periodEndTime
+    ] = await Promise.all([
+      this.blockchainProvider.getBlockCreationTime(periodStartLevel),
+      this.blockchainProvider.getBlockCreationTime(periodEndLevel)
+    ]);
+
+    return {
+      happened: false,
+      index: promotionPeriodIndex,
+      startLevel: periodStartLevel,
+      startTime: periodStartTime,
+      endLevel: periodEndLevel,
+      endTime: periodEndTime,
+      winnerCandidate: null,
+      votersBigMapId: null,
+      yeaVotingPower: BigInt(0),
+      nayVotingPower: BigInt(0),
+      passVotingPower: BigInt(0),
+      totalVotingPower: BigInt(0),
     }
   }
 
@@ -205,12 +238,15 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
     lastWinnerPayload: NonNullable<Storage.PayloadKey> | undefined,
     config: GovernanceConfig
   ): Promise<GovernanceState> {
+    const proposalPeriodIndex = periodType === PeriodType.Proposal ? periodIndex : periodIndex - 1;
+    const promotionPeriodIndex = periodType === PeriodType.Proposal ? periodIndex + 1 : periodIndex;
+
     const [
       proposalPeriod,
       promotionPeriod
     ] = await Promise.all([
-      this.createProposalPeriodState(proposal, periodIndex, periodType, config),
-      promotion ? await this.createPromotionPeriodState(promotion, periodIndex, periodType, config) : null
+      this.createProposalPeriodState(proposal, proposalPeriodIndex, config),
+      promotion ? this.createPromotionPeriodState(promotion, promotionPeriodIndex, config) : this.createEmptyPromotionPeriod(promotionPeriodIndex, config)
     ]);
 
     return {
@@ -227,12 +263,10 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
   private async createProposalPeriodState(
     proposal: Storage.ProposalPeriod,
     periodIndex: number,
-    periodType: PeriodType,
     config: GovernanceConfig
   ): Promise<ProposalPeriod> {
-    const proposalPeriodIndex = periodType === PeriodType.Proposal ? periodIndex : periodIndex - 1;
-    const proposalPeriodStartLevel = getFirstBlockOfPeriod(proposalPeriodIndex, config.startedAtLevel, config.periodLength);
-    const proposalPeriodEndLevel = getLastBlockOfPeriod(proposalPeriodIndex, config.startedAtLevel, config.periodLength);
+    const proposalPeriodStartLevel = getFirstBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
+    const proposalPeriodEndLevel = getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
     const winnerCandidate = proposal.winner_candidate?.Some;
 
     const [
@@ -249,7 +283,7 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
       totalVotingPower: BigInt(proposal.total_voting_power.toString()),
       winnerCandidate: winnerCandidate ? mapPayloadKey(winnerCandidate) : null,
       candidateUpvotesVotingPower: proposal.max_upvotes_voting_power?.Some ? BigInt(proposal.max_upvotes_voting_power.Some.toString()) : null,
-      index: proposalPeriodIndex,
+      index: periodIndex,
       startLevel: proposalPeriodStartLevel,
       startTime: periodStartTime,
       endLevel: proposalPeriodEndLevel,
@@ -262,12 +296,10 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
   private async createPromotionPeriodState(
     promotion: Storage.PromotionPeriod,
     periodIndex: number,
-    periodType: PeriodType,
     config: GovernanceConfig
   ): Promise<PromotionPeriod> {
-    const promotionPeriodIndex = periodType === PeriodType.Proposal ? periodIndex + 1 : periodIndex;
-    const promotionPeriodStartLevel = getFirstBlockOfPeriod(promotionPeriodIndex, config.startedAtLevel, config.periodLength);
-    const promotionPeriodEndLevel = getLastBlockOfPeriod(promotionPeriodIndex, config.startedAtLevel, config.periodLength);
+    const promotionPeriodStartLevel = getFirstBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
+    const promotionPeriodEndLevel = getLastBlockOfPeriod(periodIndex, config.startedAtLevel, config.periodLength);
 
     const [
       periodStartTime,
@@ -278,7 +310,8 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
     ]);
 
     return {
-      index: promotionPeriodIndex,
+      happened: true,
+      index: periodIndex,
       startLevel: promotionPeriodStartLevel,
       startTime: periodStartTime,
       endLevel: promotionPeriodEndLevel,

@@ -13,7 +13,6 @@ export class CachingGovernanceStateProvider implements GovernanceStateProvider {
 
   async getState(contractAddress: string, config: GovernanceConfig, periodIndex: number): Promise<GovernanceState> {
     const key = this.getCacheKey(contractAddress, periodIndex);
-
     let state = this.cache.get(key);
     if (!state) {
       const promiseResults = await Promise.all([

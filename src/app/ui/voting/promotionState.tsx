@@ -1,8 +1,8 @@
 import { PromotionPeriod } from "@/app/lib/governance/state/state";
 import { getPromotionQuorumPercent, getPromotionSupermajorityPercent, natToPercent } from "@/app/lib/governance/utils";
 import { GovernanceConfig } from "@/app/lib/governance/config/config";
-import TotalVoteCard from "@/app/ui/voting/totalVoteCard";
-import PayloadKey from './payloadKey';
+import { TotalVoteCard } from "@/app/ui/voting/totalVoteCard";
+import { PayloadKey } from './payloadKey';
 import { ProgressPure, NoDataPure, appTheme } from '@/app/ui/common';
 import { VotersTable } from './votersTable';
 
@@ -12,7 +12,7 @@ interface PromotionStateProps {
   config: GovernanceConfig;
 }
 
-export default function PromotionState({ contractAddress, promotionPeriod, config }: PromotionStateProps) {
+export const PromotionState = ({ contractAddress, promotionPeriod, config }: PromotionStateProps) => {
   const votingPowerSum = promotionPeriod.yeaVotingPower + promotionPeriod.nayVotingPower + promotionPeriod.passVotingPower;
 
   const promotionSupermajority = getPromotionSupermajorityPercent(promotionPeriod.yeaVotingPower, promotionPeriod.nayVotingPower);
@@ -22,10 +22,10 @@ export default function PromotionState({ contractAddress, promotionPeriod, confi
 
   return <>
     <div className="flex flex-row justify-between items-center mb-8">
-      <div className="flex flex-col">
+      {promotionPeriod.winnerCandidate && <div className="flex flex-col">
         <span>Candidate:</span>
         <PayloadKey value={promotionPeriod.winnerCandidate} />
-      </div>
+      </div>}
 
       <div className="flex flex-col gap-4">
         <ProgressPure text="Quorum" value={promotionQuorum} target={minimumPromotionQuorum} />

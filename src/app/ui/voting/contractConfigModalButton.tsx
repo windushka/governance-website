@@ -15,7 +15,7 @@ interface ContractConfigProps {
   contractUrl: string;
 }
 
-export default function ContractConfigModalButton({ buttonText, contract, contractUrl, config }: ContractConfigProps) {
+export const ContractConfigModalButton = ({ buttonText, contract, contractUrl, config }: ContractConfigProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const showModal = () => {

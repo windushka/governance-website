@@ -22,8 +22,8 @@ const labelRender: SelectProps['labelRender'] = (props) => {
 const filterOption = (input: string, option?: { label: string; value: string }) =>
   (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
-export default function PeriodSelector({ contract, config, currentPeriodIndex }: PeriodSelectorProps) {
-  const [loading, setLoading] = useState(true); 
+export const PeriodSelector = ({ contract, config, currentPeriodIndex }: PeriodSelectorProps) => {
+  const [loading, setLoading] = useState(true);
   const [periods, setPeriods] = useState<GovernancePeriod[]>([]);
   const [opened, setOpened] = useState(false);
 
@@ -60,5 +60,4 @@ export default function PeriodSelector({ contract, config, currentPeriodIndex }:
       options={options}
     />
   </ConfigProvider>
-
-}
+};
