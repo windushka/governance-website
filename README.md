@@ -34,3 +34,9 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+### Setup the NETWORK env variable
+
+* Set `NETWORK=mainnet` to use the official mainnet etherlink smart contracts; 
+* Set `NETWORK=ghostnet` to use the official ghostnet etherlink smart contracts; 
+* Set `NETWORK=ghostnet_test` to use the test ghostnet etherlink smart contracts (periods are short, smart contracts are not tracked by etherlink and it is safe here to do test voting process in order to debug and test voting state UI in the app); 
