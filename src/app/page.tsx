@@ -1,7 +1,8 @@
-import { getPeriodPageUrl } from './actions';
+import { getPeriodPageUrl, preload } from './actions';
 import { LinkPure, appTheme } from './ui/common';
 
 export default async function Home() {
+  preload();
   const linksClassName = `${appTheme.accentTextColor} underline hover:underline`;
   return <>
     <h2 className="text-xl mt-8 mb-4">Etherlink</h2>
