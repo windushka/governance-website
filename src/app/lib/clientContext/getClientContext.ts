@@ -2,14 +2,15 @@ import { Config } from '../config';
 import { TzktExplorer } from '../explorer';
 import { ClientContext } from './clientContext';
 
-let cachedClientContext: ClientContext | undefined;
 let cachedConfig: Config;
+const cache = new Map<string, ClientContext>();
 export const getClientContext = (config: Config): ClientContext => {
-  if (!cachedClientContext || cachedConfig !== config) {
+  let cachedClientContext = cache.get(config.key);
+  if (!cachedClientContext) {
     cachedClientContext = {
       explorer: new TzktExplorer(config.tzktExplorerUrl),
     };
-    cachedConfig = config;
+    cache.set(config.key, cachedClientContext);
   }
 
   return cachedClientContext;
