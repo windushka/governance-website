@@ -4,7 +4,8 @@ import "./globals.css";
 import Link from "next/link";
 import NavLinks from "./navLinks";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
-import { LinkPure, appTheme } from './ui/common';
+import { LinkPure, appTheme, NetworkSelector } from './ui/common';
+import { getAppContext } from './lib/appContext';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,12 +19,16 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const appContext = getAppContext();
 
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased flex flex-col min-h-screen`}>
         <header className="container grow-0 py-4 flex flex-row justify-between items-center">
-          <Link href="/" className="text-2xl">Etherlink governance</Link>
+          <div className="flex flex-row gap-4 items-center">
+            <Link href="/" className="text-2xl">Etherlink governance</Link>
+            <NetworkSelector currentConfigKey={appContext.config.key} allConfigs={appContext.allConfigs} />
+          </div>
           <NavLinks />
         </header>
         <main className="container grow flex flex-col">

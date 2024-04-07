@@ -1,10 +1,16 @@
-import { Config, Network } from '../types';
+import { BaseConfig, Network } from '../types';
 
-export const ghostnetConfig: Config = {
+const ghostnetBase: Pick<BaseConfig, 'network' | 'rpcUrl' | 'tzktApiUrl' | 'tzktExplorerUrl'> = {
   network: Network.Ghostnet,
   rpcUrl: 'https://rpc.tzkt.io/ghostnet',
   tzktApiUrl: 'https://api.ghostnet.tzkt.io',
   tzktExplorerUrl: 'https://ghostnet.tzkt.io',
+}
+
+export const ghostnetConfig: BaseConfig = {
+  key: 'ghostnet',
+  name: 'Ghostnet',
+  ...ghostnetBase,
   contracts: [{
     address: 'KT1MtNbeDYiBTFHfKrocHdzds1GYKNkNeAfe',
     name: 'kernel'
@@ -17,11 +23,10 @@ export const ghostnetConfig: Config = {
   }]
 };
 
-export const ghostnetTestConfig: Config = {
-  network: Network.Ghostnet,
-  rpcUrl: 'https://rpc.tzkt.io/ghostnet',
-  tzktApiUrl: 'https://api.ghostnet.tzkt.io',
-  tzktExplorerUrl: 'https://ghostnet.tzkt.io',
+export const ghostnetTestConfig: BaseConfig = {
+  key: 'ghostnet_test',
+  name: 'Ghostnet Test',
+  ...ghostnetBase,
   contracts: [{
     address: 'KT1QucBSp3oNuYXieNCw9ojpC3KTvccg4JMo',
     name: 'kernel'

@@ -5,6 +5,7 @@ import { GovernanceConfigProvider, GovernanceStateProvider, GovernancePeriodsPro
 
 export interface AppContext {
   config: Config;
+  allConfigs: Config[];
   blockchain: BlockchainProvider;
   governance: {
     config: GovernanceConfigProvider;

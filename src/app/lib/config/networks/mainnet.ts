@@ -1,6 +1,8 @@
-import { Config, Network } from '../types';
+import { BaseConfig, Network } from '../types';
 
-export const mainnetConfig: Config = {
+export const mainnetConfig: BaseConfig = {
+  key: 'mainnet',
+  name: 'Mainnet',
   network: Network.Mainnet,
   rpcUrl: 'https://rpc.tzkt.io/mainnet',
   tzktApiUrl: 'https://api.tzkt.io',

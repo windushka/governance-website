@@ -8,10 +8,16 @@ export interface Contract {
   address: string;
 }
 
-export interface Config {
+export interface BaseConfig {
+  key: string;
+  name: string;
   network: Network;
   contracts: Contract[];
   rpcUrl: string;
   tzktApiUrl: string;
   tzktExplorerUrl: string;
+}
+
+export type Config = BaseConfig & {
+  url: string;
 }

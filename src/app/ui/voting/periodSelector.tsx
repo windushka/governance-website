@@ -36,7 +36,7 @@ export const PeriodSelector = ({ contract, config, currentPeriodIndex }: PeriodS
     })()
   }, [config, contract.address])
 
-  let options = periods.map(p => ({
+  const options = periods.map(p => ({
     value: p.index.toString(),
     label: `${p.index}. ${p.type} (${formatDateTime(p.startTime)} - ${formatDateTime(p.endTime)})${p.winnerPayload ? ' (new winner)' : ''}`
   }));
