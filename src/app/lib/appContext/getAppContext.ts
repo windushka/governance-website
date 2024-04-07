@@ -1,6 +1,6 @@
 import { TezosToolkit } from '@taquito/taquito';
 import { TzktProvider } from '../blockchain';
-import { Config, BaseConfig, ghostnetConfig, ghostnetTestConfig, mainnetConfig, allConfigs } from '../config';
+import { Config, BaseConfig, allConfigs } from '../config';
 import {
   RpcGovernancePeriodsProvider,
   RpcGovernanceConfigProvider,
@@ -44,7 +44,7 @@ const getConfig = (baseConfig: BaseConfig): Config => {
   const domains = JSON.parse(domainsEnvVariable);
   const url = domains[baseConfig.key];
   if (!url)
-    throw new Error(`The DOMAINS env variable does not contain url for key: ${baseConfig.key}`);
+    throw new Error(`The DOMAINS env variable does not contain url for key: ${baseConfig.key}. See the .env.example file`);
 
   return {
     ...baseConfig,
@@ -53,14 +53,13 @@ const getConfig = (baseConfig: BaseConfig): Config => {
 }
 
 const getBaseConfig = (): BaseConfig => {
-  const envValue = process.env.NETWORK;
-  switch (envValue) {
-    case 'ghostnet':
-      return ghostnetConfig;
-    case 'ghostnet_test':
-      return ghostnetTestConfig;
-    case 'mainnet':
-      return mainnetConfig;
-  }
-  throw new Error(`Incorrect process.env.NETWORK value: ${envValue}`);
+  const networkKeyEnvValue = process.env.NETWORK_KEY;
+  if (!networkKeyEnvValue)
+    throw new Error('The NETWORK_KEY env variable is not set. See the .env.example file');
+
+  const config = allConfigs.find(c => c.key === networkKeyEnvValue);
+  if (!config)
+    throw new Error(`There is no config with key: ${networkKeyEnvValue}`);
+
+  return config;
 } 
