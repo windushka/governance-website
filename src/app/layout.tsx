@@ -24,22 +24,24 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased flex flex-col min-h-screen`}>
-        <header className="container grow-0 py-4 flex flex-row justify-between items-center">
-          <div className="flex flex-row gap-4 items-center">
-            <Link href="/" className="text-2xl">Etherlink governance</Link>
-            <NetworkSelector currentConfigKey={appContext.config.key} allConfigs={appContext.allConfigs} />
-          </div>
-          <NavLinks />
-        </header>
-        <main className="container grow flex flex-col">
-          <AntdRegistry>{children}</AntdRegistry>
-        </main>
-        <footer className={`container grow-0 text-center text-sm ${appTheme.disabledTextColor} border-t ${appTheme.borderColor} p-2 mt-4 `}>
-          {new Date().getFullYear()}
-          &nbsp;| <LinkPure href="https://www.etherlink.com/" target="_blank" >Etherlink</LinkPure>
-          &nbsp;| <LinkPure href="https://docs.etherlink.com/" target="_blank" >Documentation</LinkPure>
-          &nbsp;| <LinkPure href="#" >Terms of use</LinkPure>
-        </footer>
+        <AntdRegistry>
+          <header className="container grow-0 py-4 flex flex-row justify-between items-center">
+            <div className="flex flex-row gap-4 items-center">
+              <Link href="/" className="text-2xl">Etherlink governance</Link>
+              <NetworkSelector currentConfigKey={appContext.config.key} allConfigs={appContext.allConfigs} />
+            </div>
+            <NavLinks />
+          </header>
+          <main className="container grow flex flex-col">
+            {children}
+          </main>
+          <footer className={`container grow-0 text-center text-sm ${appTheme.disabledTextColor} border-t ${appTheme.borderColor} p-2 mt-4 `}>
+            {new Date().getFullYear()}
+            &nbsp;| <LinkPure href="https://www.etherlink.com/" target="_blank" >Etherlink</LinkPure>
+            &nbsp;| <LinkPure href="https://docs.etherlink.com/" target="_blank" >Documentation</LinkPure>
+            &nbsp;| <LinkPure href="#" >Terms of use</LinkPure>
+          </footer>
+        </AntdRegistry>
       </body>
     </html >
   );
