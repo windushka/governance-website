@@ -3,6 +3,7 @@
 import { Config } from '@/app/lib/config';
 import { ConfigProvider, Select, theme } from 'antd';
 import { useRouter } from 'next/navigation'
+import { memo } from 'react';
 
 interface NetworkSelectorProps {
   allConfigs: Config[];
@@ -38,3 +39,5 @@ export const NetworkSelector = ({ allConfigs, currentConfigKey }: NetworkSelecto
     />
   </ConfigProvider>
 };
+
+export const NetworkSelectorPure = memo(NetworkSelector);

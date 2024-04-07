@@ -4,7 +4,7 @@ import "./globals.css";
 import Link from "next/link";
 import NavLinks from "./navLinks";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
-import { LinkPure, appTheme, NetworkSelector } from './ui/common';
+import { LinkPure, appTheme, NetworkSelectorPure } from './ui/common';
 import { getAppContext } from './lib/appContext';
 
 const inter = Inter({ subsets: ["latin"] });
@@ -28,7 +28,7 @@ export default function RootLayout({
           <header className="container grow-0 py-4 flex flex-row justify-between items-center">
             <div className="flex flex-row gap-4 items-center">
               <Link href="/" className="text-2xl">Etherlink governance</Link>
-              <NetworkSelector currentConfigKey={appContext.config.key} allConfigs={appContext.allConfigs} />
+              <NetworkSelectorPure currentConfigKey={appContext.config.key} allConfigs={appContext.allConfigs} />
             </div>
             <NavLinks />
           </header>

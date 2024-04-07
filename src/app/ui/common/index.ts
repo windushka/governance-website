@@ -7,4 +7,4 @@ export { appTheme } from './appTheme';
 export { Loader, LoaderPure } from './loader';
 export { SpinIcon } from './spinIcon';
 export { ClientContextProvider, useClientContext } from './clientContext';
-export { NetworkSelector } from './networkSelector';
+export { NetworkSelector, NetworkSelectorPure } from './networkSelector';

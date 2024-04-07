@@ -16,13 +16,13 @@ import { AppContext } from './appContext';
 let appContext: AppContext | undefined;
 export const getAppContext = (): AppContext => {
   if (!appContext) {
-    const config = getConfig(getBaseConfig());
+    const config = buildConfig(getBaseConfig());
     const toolkit = new TezosToolkit(config.rpcUrl);
     const blockchainProvider = new TzktProvider(config.tzktApiUrl);
 
     appContext = {
       config,
-      allConfigs: allConfigs.map(c => getConfig(c)),
+      allConfigs: allConfigs.map(c => buildConfig(c)),
       blockchain: blockchainProvider,
       governance: {
         config: new CachingGovernanceConfigProvider(new RpcGovernanceConfigProvider(toolkit)),
@@ -36,7 +36,7 @@ export const getAppContext = (): AppContext => {
   return appContext;
 }
 
-const getConfig = (baseConfig: BaseConfig): Config => {
+const buildConfig = (baseConfig: BaseConfig): Config => {
   const domainsEnvVariable = process.env.DOMAINS;
   if (!domainsEnvVariable)
     throw new Error('The DOMAINS env variable is not set');
