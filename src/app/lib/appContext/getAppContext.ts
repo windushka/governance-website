@@ -17,12 +17,15 @@ let appContext: AppContext | undefined;
 export const getAppContext = (): AppContext => {
   if (!appContext) {
     const config = buildConfig(getBaseConfig());
+    if (!config)
+      throw new Error('Impossible to build config. Check env variables');
+
     const toolkit = new TezosToolkit(config.rpcUrl);
     const blockchainProvider = new TzktProvider(config.tzktApiUrl);
 
     appContext = {
       config,
-      allConfigs: allConfigs.map(c => buildConfig(c)),
+      allConfigs: allConfigs.map(c => buildConfig(c)).filter((c): c is Config => !!c),
       blockchain: blockchainProvider,
       governance: {
         config: new CachingGovernanceConfigProvider(new RpcGovernanceConfigProvider(toolkit)),
@@ -36,7 +39,7 @@ export const getAppContext = (): AppContext => {
   return appContext;
 }
 
-const buildConfig = (baseConfig: BaseConfig): Config => {
+const buildConfig = (baseConfig: BaseConfig): Config | null => {
   const domainsEnvVariable = process.env.DOMAINS;
   if (!domainsEnvVariable)
     throw new Error('The DOMAINS env variable is not set');
@@ -44,7 +47,7 @@ const buildConfig = (baseConfig: BaseConfig): Config => {
   const domains = JSON.parse(domainsEnvVariable);
   const url = domains[baseConfig.key];
   if (!url)
-    throw new Error(`The DOMAINS env variable does not contain url for key: ${baseConfig.key}. See the .env.example file`);
+    return null;
 
   return {
     ...baseConfig,

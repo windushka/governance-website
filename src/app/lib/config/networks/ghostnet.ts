@@ -25,7 +25,7 @@ export const ghostnetConfig: BaseConfig = {
 
 export const ghostnetTestConfig: BaseConfig = {
   key: 'ghostnet_test',
-  name: 'Ghostnet Test',
+  name: 'Demo',
   ...ghostnetBase,
   contracts: [{
     address: 'KT1QucBSp3oNuYXieNCw9ojpC3KTvccg4JMo',

@@ -32,7 +32,7 @@ export const NetworkSelector = ({ allConfigs, currentConfigKey }: NetworkSelecto
     }}>
     <Select
       defaultValue={currentConfigKey}
-      style={{ width: 130 }}
+      style={{ width: 100 }}
       onChange={onChange}
       options={options}
       size='small'
