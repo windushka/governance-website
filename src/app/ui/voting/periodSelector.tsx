@@ -5,6 +5,7 @@ import { Contract } from '@/app/lib/config';
 import { GovernanceConfig, GovernancePeriod } from '@/app/lib/governance';
 import { formatDateTime } from '@/app/lib/governance/utils';
 import { ConfigProvider, Select, SelectProps, theme } from 'antd';
+import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 
 interface PeriodSelectorProps {
@@ -48,13 +49,13 @@ export const PeriodSelector = ({ contract, config, currentPeriodIndex }: PeriodS
     <Select
       defaultValue={currentPeriodIndex.toString()}
       loading={loading}
-      style={{ height: 40, width: opened ? 200 : 'auto' }}
+      className={clsx('!h-[40px]', opened && 'sm:!w-[200px]')}
       labelRender={labelRender}
       showSearch
       optionFilterProp="children"
       open={opened}
       filterOption={filterOption}
-      dropdownStyle={{ width: 500 }}
+      popupClassName="sm:!w-[500px]"
       onDropdownVisibleChange={(e) => setOpened(!!e)}
       onChange={(v) => redirectToPeriodPage(contract.name, v)}
       options={options}

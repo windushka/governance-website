@@ -52,26 +52,26 @@ export const VotingStateHeader = ({ contract, periodIndex, votingContext, curren
       endLevel={votingContext.proposalPeriod.endLevel} />
     {promotionPeriodHeader}
   </>
-  return <div className={`flex flex-row justify-between items-center ${appTheme.componentBgColor} px-2 py-4 mb-8 gap-10`}>
-    <div className="flex flex-row gap-10 items-center">
-      <NavButton contractName={contract.name} disabled={prevPeriodIndex < 0} periodIndex={prevPeriodIndex} />
-      <PeriodSelector
-        contract={contract}
-        config={config}
-        currentPeriodIndex={periodIndex} />
-      {headerContent}
-    </div>
-    {!votingContext && <div className="grow flex justify-center items-center">
-      <Skeleton.Button active block style={{ height: 38 }} />
-    </div>}
-    <div className='flex flex-row gap-10 items-center'>
+  return <div className={`mt-3 sm:mt-0 flex flex-row justify-between items-start sm:items-center ${appTheme.componentBgColor} px-2 py-4 mb-8 gap-4 sm:gap-10`}>
+    <NavButton contractName={contract.name} disabled={prevPeriodIndex < 0} periodIndex={prevPeriodIndex} />
+    <div className="flex flex-col sm:flex-row flex-wrap grow gap-x-10 gap-y-4 justify-center sm:justify-between items-stretch sm:items-center">
+      <div className="contents sm:flex flex-row gap-x-10 gap-y-4 items-center">
+        <PeriodSelector
+          contract={contract}
+          config={config}
+          currentPeriodIndex={periodIndex} />
+        {headerContent}
+      </div>
+      {!votingContext && <div className="grow flex justify-center items-center self-stretch">
+        <Skeleton.Button active block style={{ height: 38 }} />
+      </div>}
       <ContractConfigModalButton
         buttonText="Contract"
         contract={contract}
         contractUrl={context.explorer.getAccountUrl(contract.address)}
         config={config}
       />
-      <NavButton contractName={contract.name} isNext disabled={nextPeriodIndex > (currentPeriodIndex)} periodIndex={nextPeriodIndex} />
     </div>
+    <NavButton contractName={contract.name} isNext disabled={nextPeriodIndex > (currentPeriodIndex)} periodIndex={nextPeriodIndex} />
   </div>
 }
