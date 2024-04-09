@@ -24,12 +24,20 @@ const config: Config = {
     },
     container: {
       center: true,
+      padding: {
+        DEFAULT: '12px',
+        sm: '12px',
+        md: '12px',
+        lg: '12px',
+        xl: '32px',
+        '2xl': '32px',
+      },
       screens: {
-        sm: '640px',
-        md: '768px',
-        lg: '1024px',
-        xl: '1280px',
-        '2xl': '1280px',
+        sm: '664px',
+        md: '792px',
+        lg: '1048px',
+        xl: '1344px',
+        '2xl': '1344px',
       },
     }
   },

@@ -25,9 +25,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} antialiased flex flex-col min-h-screen`}>
         <AntdRegistry>
-          <header className="container grow-0 py-4 flex flex-row justify-between items-center">
-            <div className="flex flex-row gap-4 items-center">
-              <Link href="/" className="text-2xl">Etherlink governance</Link>
+          <header className={`${appTheme.componentBgColor} container grow-0 py-4 flex flex-col justify-center items-center gap-x-4 gap-y-6 sm:flex-row sm:justify-between sm:bg-inherit`}>
+            <div className="flex flex-col sm:flex-row gap-x-4 gap-y-2 justify-center items-center">
+              <Link href="/" className="text-2xl text-center">Etherlink governance</Link>
               <NetworkSelectorPure currentConfigKey={appContext.config.key} allConfigs={appContext.allConfigs} />
             </div>
             <NavLinks />
@@ -39,7 +39,7 @@ export default function RootLayout({
             {new Date().getFullYear()}
             &nbsp;| <LinkPure href="https://www.etherlink.com/" target="_blank" >Etherlink</LinkPure>
             &nbsp;| <LinkPure href="https://docs.etherlink.com/" target="_blank" >Documentation</LinkPure>
-            &nbsp;| <LinkPure href="#" >Terms of use</LinkPure>
+            {/* &nbsp;| <LinkPure href="#" >Terms of use</LinkPure> */}
           </footer>
         </AntdRegistry>
       </body>
