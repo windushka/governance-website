@@ -38,7 +38,9 @@ export const UpvotersTable = ({ contractAddress, upvotersBigMapId, periodStartLe
   const context = useClientContext();
   const rowClassName = 'flex flex-col gap-1';
   const labelClassName = appTheme.disabledTextColor;
-  const renderBaker: (...args: Parameters<NonNullable<ColumnsType['0']['render']>>) => ReactNode = (_, r) => <LinkPure className={clsx(appTheme.textColor, 'underline hover:underline')} href={context.explorer.getOperationUrl(r.operationHash)} target="_blank">{r.alias || r.address}</LinkPure>;
+  const renderBaker: (...args: Parameters<NonNullable<ColumnsType<Upvoter>['0']['render']>>) => ReactNode = (_, r) => {
+    return <LinkPure className={clsx(appTheme.textColor, 'underline hover:underline')} href={context.explorer.getOperationUrl(r.operationHash)} target="_blank">{r.alias || r.address}</LinkPure>;
+  };
 
   return <Media query={`(max-width: ${appTheme.screenSMMaxWidth})`}>
     {isSmallScreen => {

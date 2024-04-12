@@ -5,7 +5,6 @@ import { TotalVoteCard, TotalVoteType } from "@/app/ui/voting/totalVoteCard";
 import { PayloadKey } from './payloadKey';
 import { ProgressPure, NoDataPure, } from '@/app/ui/common';
 import { VotersTable } from './votersTable';
-import { Config } from '@/app/lib/config';
 
 interface PromotionStateProps {
   contractAddress: string;
@@ -22,7 +21,7 @@ export const PromotionState = ({ contractAddress, promotionPeriod, config }: Pro
   const minimumPromotionQuorum = natToPercent(config.promotionQuorum, config.scale);
 
   return <>
-    <div className="flex flex-row justify-between items-center mb-12">
+    <div className="flex flex-col xl:flex-row justify-between xl:items-center mb-12 gap-4">
       {promotionPeriod.winnerCandidate && <div className="flex flex-col">
         <span>Candidate:</span>
         <PayloadKey value={promotionPeriod.winnerCandidate} />
@@ -35,7 +34,7 @@ export const PromotionState = ({ contractAddress, promotionPeriod, config }: Pro
     </div>
     {promotionPeriod.votersBigMapId
       ? <>
-        <div className="flex flex-row justify-between mb-12 items-stretch gap-20">
+        <div className="flex flex-col xl:flex-row justify-between mb-12 items-stretch gap-y-2 gap-x-20">
           <TotalVoteCard type={TotalVoteType.Yea} votingPower={promotionPeriod.yeaVotingPower} totalVotingPower={votingPowerSum} />
           <TotalVoteCard type={TotalVoteType.Nay} votingPower={promotionPeriod.nayVotingPower} totalVotingPower={votingPowerSum} />
           <TotalVoteCard type={TotalVoteType.Pass} votingPower={promotionPeriod.passVotingPower} totalVotingPower={votingPowerSum} />

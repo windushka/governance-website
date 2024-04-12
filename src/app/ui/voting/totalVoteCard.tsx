@@ -22,7 +22,7 @@ export const TotalVoteCard = ({ type, votingPower, totalVotingPower, className }
       ? ['Nay', appTheme.redBorderColor, <HandThumbDownIcon key={2} className={clsx(iconClassName, appTheme.redTextColor)} />]
       : ['Pass', appTheme.whiteBorderColor, <MinusCircleIcon key={3} className={clsx(iconClassName)} />]
 
-  return <div className={clsx(appTheme.componentBgColor, appTheme.componentBgHoverColor, 'flex flex-row justify-center items-center gap-4 grow shrink basis-0 border py-4 px-8', textColor, className)}>
+  return <div className={clsx(appTheme.componentBgColor, appTheme.componentBgHoverColor, 'flex flex-row justify-center items-center gap-4 grow shrink basis-0 border p-2 xl:py-4 xl:px-8', textColor, className)}>
     {icon}
     <div className="flex flex-row">
       {formatPercentageCompact(getVotingPowerPercent(votingPower, totalVotingPower))}
