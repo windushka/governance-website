@@ -15,5 +15,7 @@ export const appTheme = {
   accentTextColor: 'text-dark-green',
   accentTextColorHover: 'hover:text-dark-green',
   accentColorValue: 'rgb(89, 173, 140)',
-  accentBorderColor: 'border-dark-green'
+  accentBorderColor: 'border-dark-green',
+
+  screenSMMaxWidth: '791px'
 }

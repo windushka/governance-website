@@ -21,7 +21,7 @@ export const ProposalState = ({ contractAddress, proposalPeriod, config }: Propo
   const proposalQuorum = getProposalQuorumPercent(proposalPeriod.candidateUpvotesVotingPower || BigInt(0), proposalPeriod.totalVotingPower)
 
   return <>
-    <div className="flex flex-row justify-between items-center mb-2">
+    <div className="flex flex-col gap-4 sm:flex-row justify-between sm:items-center mb-2">
       <h2 className="text-xl">Proposals</h2>
       <ProgressPure text="Quorum" value={proposalQuorum} target={minimumProposalQuorum} />
     </div>

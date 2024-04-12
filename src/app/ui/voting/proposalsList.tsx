@@ -19,7 +19,7 @@ export const ProposalList = ({ proposals, winnerCandidate }: ProposalListProps) 
   const defaultVisibleProposalsCount = 2;
 
   const context = useClientContext();
-  const baseItemClassName = 'block flex flex-row justify-between items-center p-2 border';
+  const baseItemClassName = 'flex flex-col gap-4 sm:flex-row justify-between sm:items-center p-2 border';
   const visibleProposals = showAll ? proposals : proposals.slice(0, defaultVisibleProposalsCount);
   const showAllButtonVisible = proposals.length > defaultVisibleProposalsCount;
 
@@ -32,17 +32,17 @@ export const ProposalList = ({ proposals, winnerCandidate }: ProposalListProps) 
             `${baseItemClassName} ${appTheme.componentBgColor}`,
             JSON.stringify(p.key) === JSON.stringify(winnerCandidate) ? appTheme.accentBorderColor : appTheme.borderColor
           )}>
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-1">
             <div>
               <PayloadKey value={p.key} />
             </div>
-            <span className="mb-1">
+            <span className={`break-all ${appTheme.disabledTextColor}`}>
               (by <LinkPure className="underline" href={context.explorer.getAccountUrl(p.proposer)} target="_blank">{p.proposer}</LinkPure>)
             </span>
           </div>
-          <div className="flex flex-col">
-            <span className="mb-1">upvotes:</span>
-            <IntValuePure className="text-xl" value={p.upvotesVotingPower} />
+          <div className="flex flex-row sm:flex-col gap-1">
+            <span>Upvotes:</span>
+            <IntValuePure className="sm:text-xl" value={p.upvotesVotingPower} />
           </div>
         </li>)}
     </ul>

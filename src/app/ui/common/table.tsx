@@ -24,6 +24,7 @@ export const Table = ({ rowKey, dataSource, columns, loading }: TableProps) => {
       loading={loading ? { spinning: true, indicator: <LoadingOutlined style={{ fontSize: 36, color: appTheme.textColorValue }} spin /> } : false}
       pagination={false}
       showSorterTooltip={false}
+      scroll={{ x: true }}
       size='middle' />
   </ConfigProvider>
 }
