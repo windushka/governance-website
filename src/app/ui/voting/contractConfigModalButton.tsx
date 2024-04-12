@@ -30,8 +30,10 @@ export const ContractConfigModalButton = ({ buttonText, contract, contractUrl, c
     setIsModalOpen(false);
   };
 
-  const cellClassName = `border-b ${appTheme.borderColor} p-2`;
-  const rowClassName = appTheme.componentBgHoverColor;
+  const cellClassName = `sm:table-cell sm:border-b ${appTheme.borderColor} sm:p-2`;
+  const captionClassName = `${appTheme.disabledTextColor}`;
+  const valueCellClassName = 'sm:text-right';
+  const rowClassName = `sm:table-row border-b sm:border-b-0 ${appTheme.borderColor} ${appTheme.componentBgHoverColor} pb-3 sm:pb-0`;
 
   return <>
     <button className={appTheme.textColorHover} onClick={showModal}>{buttonText}</button>
@@ -42,46 +44,44 @@ export const ContractConfigModalButton = ({ buttonText, contract, contractUrl, c
       onCancel={handleCancel}
       footer={[]}
     >
-      <table className="w-full mt-4">
-        <tbody>
-          <tr className={rowClassName}>
-            <td className={cellClassName}>Contract type</td>
-            <td className={clsx(cellClassName, 'text-right')}><span className="capitalize">{contract.name}</span></td>
-          </tr>
-          <tr className={rowClassName}>
-            <td className={cellClassName}>Contract address</td>
-            <td className={clsx(cellClassName, 'text-right')}><LinkPure className={`${appTheme.textColor} ${appTheme.accentTextColorHover} underline hover:underline`} href={contractUrl} target="_blank">{contract.address}</LinkPure></td>
-          </tr>
-          <tr className={rowClassName}>
-            <td className={cellClassName}>Started at level</td>
-            <td className={clsx(cellClassName, 'text-right')}>{config.startedAtLevel.toString()}</td>
-          </tr>
-          <tr className={rowClassName}>
-            <td className={cellClassName}>Period length</td>
-            <td className={clsx(cellClassName, 'text-right')}>{config.periodLength.toString()} blocks</td>
-          </tr>
-          <tr className={rowClassName}>
-            <td className={cellClassName}>Adoption period</td>
-            <td className={clsx(cellClassName, 'text-right')}>{config.adoptionPeriodSec.toString()} seconds</td>
-          </tr>
-          <tr className={rowClassName}>
-            <td className={cellClassName}>Upvoting limit</td>
-            <td className={clsx(cellClassName, 'text-right')}>{config.upvotingLimit.toString()}</td>
-          </tr>
-          <tr className={rowClassName}>
-            <td className={cellClassName}>Proposal quorum</td>
-            <td className={clsx(cellClassName, 'text-right')}>{formatPercentageCompact(natToPercent(config.proposalQuorum, config.scale))}</td>
-          </tr>
-          <tr className={rowClassName}>
-            <td className={cellClassName}>Promotion quorum</td>
-            <td className={clsx(cellClassName, 'text-right')}>{formatPercentageCompact(natToPercent(config.promotionQuorum, config.scale))}</td>
-          </tr>
-          <tr className={rowClassName}>
-            <td className={cellClassName}>Promotion supermajority</td>
-            <td className={clsx(cellClassName, 'text-right')}>{formatPercentageCompact(natToPercent(config.promotionSupermajority, config.scale))}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div className="flex flex-col gap-3 sm:table w-full mt-4">
+        <div className={rowClassName}>
+          <div className={clsx(cellClassName, captionClassName)}>Contract type</div>
+          <div className={clsx(cellClassName, valueCellClassName)}><span className="capitalize">{contract.name}</span></div>
+        </div>
+        <div className={rowClassName}>
+          <div className={clsx(cellClassName, captionClassName)}>Contract address</div>
+          <div className={clsx(cellClassName, valueCellClassName)}><LinkPure className={`${appTheme.textColor} ${appTheme.accentTextColorHover} underline hover:underline`} href={contractUrl} target="_blank">{contract.address}</LinkPure></div>
+        </div>
+        <div className={rowClassName}>
+          <div className={clsx(cellClassName, captionClassName)}>Started at level</div>
+          <div className={clsx(cellClassName, valueCellClassName)}>{config.startedAtLevel.toString()}</div>
+        </div>
+        <div className={rowClassName}>
+          <div className={clsx(cellClassName, captionClassName)}>Period length</div>
+          <div className={clsx(cellClassName, valueCellClassName)}>{config.periodLength.toString()} blocks</div>
+        </div>
+        <div className={rowClassName}>
+          <div className={clsx(cellClassName, captionClassName)}>Adoption period</div>
+          <div className={clsx(cellClassName, valueCellClassName)}>{config.adoptionPeriodSec.toString()} seconds</div>
+        </div>
+        <div className={rowClassName}>
+          <div className={clsx(cellClassName, captionClassName)}>Upvoting limit</div>
+          <div className={clsx(cellClassName, valueCellClassName)}>{config.upvotingLimit.toString()}</div>
+        </div>
+        <div className={rowClassName}>
+          <div className={clsx(cellClassName, captionClassName)}>Proposal quorum</div>
+          <div className={clsx(cellClassName, valueCellClassName)}>{formatPercentageCompact(natToPercent(config.proposalQuorum, config.scale))}</div>
+        </div>
+        <div className={rowClassName}>
+          <div className={clsx(cellClassName, captionClassName)}>Promotion quorum</div>
+          <div className={clsx(cellClassName, valueCellClassName)}>{formatPercentageCompact(natToPercent(config.promotionQuorum, config.scale))}</div>
+        </div>
+        <div className={rowClassName}>
+          <div className={clsx(cellClassName, captionClassName)}>Promotion supermajority</div>
+          <div className={clsx(cellClassName, valueCellClassName)}>{formatPercentageCompact(natToPercent(config.promotionSupermajority, config.scale))}</div>
+        </div>
+      </div>
     </Modal>
   </>
 } 
