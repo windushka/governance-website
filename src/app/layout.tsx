@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import Link from 'next/link';
-import { NavLinks, LinkPure, appTheme, NetworkSelectorPure } from '@/app/components';
+import { NavLinks, appTheme, NetworkSelectorPure, FooterPure } from '@/app/components';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { getAppContext } from '@/lib/appContext';
 
@@ -34,12 +34,7 @@ const RootLayout = ({
           <main className="container grow flex flex-col">
             {children}
           </main>
-          <footer className={`container grow-0 text-center text-sm ${appTheme.disabledTextColor} border-t ${appTheme.borderColor} p-2 mt-4 `}>
-            {new Date().getFullYear()}
-            &nbsp;| <LinkPure href="https://www.etherlink.com/" target="_blank" >Etherlink</LinkPure>
-            &nbsp;| <LinkPure href="https://docs.etherlink.com/" target="_blank" >Documentation</LinkPure>
-            {/* &nbsp;| <LinkPure href="#" >Terms of use</LinkPure> */}
-          </footer>
+          <FooterPure />
         </AntdRegistry>
       </body>
     </html >
