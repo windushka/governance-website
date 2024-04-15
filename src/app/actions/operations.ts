@@ -1,7 +1,7 @@
 'use server'
 
-import { getAppContext } from '../lib/appContext';
-import { Upvoter, Voter } from '../lib/governance';
+import { getAppContext } from '@/lib/appContext';
+import { Upvoter, Voter } from '@/lib/governance';
 
 export const getVoters = (
   contractAddress: string,

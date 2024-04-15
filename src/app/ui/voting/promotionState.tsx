@@ -1,6 +1,6 @@
-import { PromotionPeriod } from "@/app/lib/governance/state/state";
-import { getPromotionQuorumPercent, getPromotionSupermajorityPercent, natToPercent } from "@/app/lib/governance/utils";
-import { GovernanceConfig } from "@/app/lib/governance/config/config";
+import { PromotionPeriod } from "@/lib/governance/state/state";
+import { getPromotionQuorumPercent, getPromotionSupermajorityPercent, natToPercent } from "@/lib/governance/utils";
+import { GovernanceConfig } from "@/lib/governance/config/config";
 import { TotalVoteCard, TotalVoteType } from "@/app/ui/voting/totalVoteCard";
 import { PayloadKey } from './payloadKey';
 import { ProgressPure, NoDataPure, } from '@/app/ui/common';

@@ -1,4 +1,4 @@
-import { formatPercentageCompact, getVotingPowerPercent } from '@/app/lib/governance/utils';
+import { formatPercentageCompact, getVotingPowerPercent } from '@/lib/governance/utils';
 import { IntValuePure, appTheme } from "@/app/ui/common";
 import { MinusCircleIcon, HandThumbUpIcon, HandThumbDownIcon } from '@heroicons/react/24/outline';
 import clsx from "clsx";

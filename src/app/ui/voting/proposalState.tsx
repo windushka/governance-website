@@ -1,5 +1,5 @@
-import { ProposalPeriod, GovernanceConfig } from '@/app/lib/governance';
-import { getProposalQuorumPercent, natToPercent } from '@/app/lib/governance/utils';
+import { ProposalPeriod, GovernanceConfig } from '@/lib/governance';
+import { getProposalQuorumPercent, natToPercent } from '@/lib/governance/utils';
 import { ProgressPure, NoDataPure } from '@/app/ui/common';
 import { UpvotersTable } from './upvotersTable';
 import { ProposalList } from './proposalsList';

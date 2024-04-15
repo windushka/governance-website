@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import BigNumber from 'bignumber.js'
-import { formatPercentageCompact } from '@/app/lib/governance/utils';
+import { formatPercentageCompact } from '@/lib/governance/utils';
 import { Progress as ProgressAnt } from 'antd';
 import clsx from 'clsx';
 import { appTheme } from '.';

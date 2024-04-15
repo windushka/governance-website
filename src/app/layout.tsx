@@ -5,7 +5,7 @@ import Link from "next/link";
 import NavLinks from "./navLinks";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { LinkPure, appTheme, NetworkSelectorPure } from './ui/common';
-import { getAppContext } from './lib/appContext';
+import { getAppContext } from '@/lib/appContext';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,11 +14,11 @@ export const metadata: Metadata = {
   description: "Etherlink governance current state, history and analytics",
 };
 
-export default function RootLayout({
+const RootLayout = ({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>) => {
   const appContext = getAppContext();
 
   return (
@@ -45,4 +45,7 @@ export default function RootLayout({
       </body>
     </html >
   );
-}
+};
+
+
+export default RootLayout;

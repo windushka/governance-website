@@ -1,5 +1,5 @@
-import { getAppContext } from '@/app/lib/appContext/getAppContext';
-import { getCurrentPeriodIndex } from '@/app/lib/governance/utils/calculators';
+import { getAppContext } from '@/lib/appContext/getAppContext';
+import { getCurrentPeriodIndex } from '@/lib/governance/utils/calculators';
 import { VotingState } from '@/app/ui/voting/votingState';
 import { redirectToPeriodPage } from '@/app/actions';
 

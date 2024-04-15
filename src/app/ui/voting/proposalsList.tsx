@@ -3,7 +3,7 @@
 import clsx from 'clsx'
 import { appTheme, LinkPure, IntValuePure, useClientContext } from '@/app/ui/common'
 import { PayloadKey } from './payloadKey'
-import { Proposal, PayloadKey as PayloadKeyType } from '@/app/lib/governance'
+import { Proposal, PayloadKey as PayloadKeyType } from '@/lib/governance'
 import { useState } from 'react'
 
 interface ProposalListProps {

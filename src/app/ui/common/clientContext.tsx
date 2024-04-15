@@ -1,6 +1,6 @@
 'use client'
 
-import { ClientContext } from '@/app/lib/clientContext';
+import { ClientContext } from '@/lib/clientContext';
 import { createContext, useContext } from 'react';
 
 const Context = createContext<ClientContext | null>(null);
@@ -10,7 +10,7 @@ interface ContextProviderProps {
   context: ClientContext;
 }
 
-export function ClientContextProvider({ children, context }: ContextProviderProps) {
+export const ClientContextProvider = ({ children, context }: ContextProviderProps) => {
   return (
     <Context.Provider value={context}>
       {children}
@@ -18,6 +18,6 @@ export function ClientContextProvider({ children, context }: ContextProviderProp
   );
 }
 
-export function useClientContext() {
+export const useClientContext = () => {
   return useContext(Context)!;
 }

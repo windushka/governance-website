@@ -1,9 +1,9 @@
 'use client'
 
 import { redirectToPeriodPage, getPeriods } from '@/app/actions';
-import { Contract } from '@/app/lib/config';
-import { GovernanceConfig, GovernancePeriod } from '@/app/lib/governance';
-import { formatDateTime } from '@/app/lib/governance/utils';
+import { Contract } from '@/lib/config';
+import { GovernanceConfig, GovernancePeriod } from '@/lib/governance';
+import { formatDateTime } from '@/lib/governance/utils';
 import { ConfigProvider, Select, SelectProps, theme } from 'antd';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';

@@ -1,7 +1,7 @@
 import { getPeriodPageUrl, preload } from './actions';
 import { LinkPure, appTheme } from './ui/common';
 
-export default async function Home() {
+const Home = async () => {
   preload();
   const linksClassName = `${appTheme.accentTextColor} underline hover:underline`;
   return <>
@@ -34,4 +34,6 @@ export default async function Home() {
       <li><LinkPure className={linksClassName} target="_blank" href="#">Governance documentation</LinkPure></li>
     </ul>
   </>
-}
+};
+
+export default Home;

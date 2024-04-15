@@ -1,4 +1,4 @@
-import { BlockchainProvider, VotingFinishedEventPayloadDto } from '@/app/lib/blockchain';
+import { BlockchainProvider, VotingFinishedEventPayloadDto } from '@/lib/blockchain';
 import { callGetVotingStateView, getCurrentPeriodIndex, getEstimatedBlockCreationTime, getFirstBlockOfPeriod, getLastBlockOfPeriod, mapOptionalPayloadKeyDto, mapPeriodType } from '../../utils';
 import { GovernanceConfig } from '../../config';
 import { GovernancePeriod } from '../types';

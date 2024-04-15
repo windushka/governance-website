@@ -3,10 +3,10 @@
 import { Modal } from 'antd';
 import clsx from 'clsx';
 import { useState } from 'react';
-import { GovernanceConfig } from '@/app/lib/governance';
-import { formatPercentageCompact, natToPercent } from '@/app/lib/governance/utils';
+import { GovernanceConfig } from '@/lib/governance';
+import { formatPercentageCompact, natToPercent } from '@/lib/governance/utils';
 import { LinkPure, appTheme } from '@/app/ui/common';
-import { Contract } from '@/app/lib/config';
+import { Contract } from '@/lib/config';
 
 interface ContractConfigProps {
   buttonText: string;

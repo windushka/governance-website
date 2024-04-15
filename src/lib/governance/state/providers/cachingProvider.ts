@@ -1,7 +1,7 @@
 import { GovernanceStateProvider } from './provider';
 import { GovernanceConfig, GovernanceState } from '../..';
 import { getLastBlockOfPeriod } from '../../utils';
-import { BlockchainProvider } from '@/app/lib/blockchain';
+import { BlockchainProvider } from '@/lib/blockchain';
 
 export class CachingGovernanceStateProvider implements GovernanceStateProvider {
   private readonly cache = new Map<string, GovernanceState>();

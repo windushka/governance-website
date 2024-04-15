@@ -8,7 +8,7 @@ import { BlockchainProvider } from '../../../blockchain';
 import { GovernanceConfig } from '../../config/config';
 import { getFirstBlockOfPeriod, getLastBlockOfPeriod, callGetVotingStateView, mapPayloadKey } from '../../utils';
 import { GovernanceStateProvider } from './provider';
-import { HistoricalRpcClient } from '@/app/lib/rpc/historicalRpcClient';
+import { HistoricalRpcClient } from '@/lib/rpc/historicalRpcClient';
 
 export class RpcGovernanceStateProvider implements GovernanceStateProvider {
   constructor(

@@ -2,15 +2,15 @@
 
 import { ProposalState } from '@/app/ui/voting/proposalState';
 import { PromotionState } from '@/app/ui/voting/promotionState';
-import { GovernanceConfig } from '@/app/lib/governance/config/config';
-import { getCurrentPeriodIndex } from '@/app/lib/governance/utils';
+import { GovernanceConfig } from '@/lib/governance/config/config';
+import { getCurrentPeriodIndex } from '@/lib/governance/utils';
 import { VotingStateHeader } from './votingStateHeader';
-import { Config, Contract } from '@/app/lib/config';
+import { Config, Contract } from '@/lib/config';
 import { useEffect, useState } from 'react';
-import { GovernanceState } from '@/app/lib/governance';
+import { GovernanceState } from '@/lib/governance';
 import { getState } from '@/app/actions';
 import { ClientContextProvider } from '../common';
-import { getClientContext } from '@/app/lib/clientContext';
+import { getClientContext } from '@/lib/clientContext';
 
 interface VotingStateProps {
   appConfig: Config;

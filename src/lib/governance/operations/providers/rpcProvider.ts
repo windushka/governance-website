@@ -1,4 +1,4 @@
-import { BlockchainProvider } from '@/app/lib/blockchain';
+import { BlockchainProvider } from '@/lib/blockchain';
 import { GovernanceOperationsProvider } from './provider'
 import { Upvoter, Voter } from '..';
 import { mapPayloadKey } from '../../utils';

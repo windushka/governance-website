@@ -1,4 +1,4 @@
-import { BlockchainProvider } from '@/app/lib/blockchain';
+import { BlockchainProvider } from '@/lib/blockchain';
 import { GovernancePeriod } from '../types';
 import { GovernancePeriodsProvider } from './provider';
 import { GovernanceConfig } from '../..';

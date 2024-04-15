@@ -3,9 +3,9 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { IntValuePure, LinkPure, TablePure, appTheme, useClientContext } from '@/app/ui/common';
 import { PayloadKey } from './payloadKey';
-import { formatDateTime } from '@/app/lib/governance/utils';
+import { formatDateTime } from '@/lib/governance/utils';
 import { getUpvoters } from '@/app/actions';
-import { Upvoter } from '@/app/lib/governance';
+import { Upvoter } from '@/lib/governance';
 import { ColumnsType } from 'antd/es/table';
 import clsx from 'clsx';
 import Media from 'react-media';

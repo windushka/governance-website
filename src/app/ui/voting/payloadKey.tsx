@@ -1,4 +1,4 @@
-import { PayloadKey as PayloadKeyType } from '@/app/lib/governance/'
+import { PayloadKey as PayloadKeyType } from '@/lib/governance/'
 
 interface PayloadKeyProps {
   value: PayloadKeyType

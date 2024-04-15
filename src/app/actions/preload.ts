@@ -1,4 +1,4 @@
-import { getAppContext } from '../lib/appContext'
+import { getAppContext } from '@/lib/appContext'
 
 export const preload = (): void => {
   const context = getAppContext();

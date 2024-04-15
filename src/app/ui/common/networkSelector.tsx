@@ -1,6 +1,6 @@
 'use client'
 
-import { Config } from '@/app/lib/config';
+import { Config } from '@/lib/config';
 import { ConfigProvider, Select, theme } from 'antd';
 import { useRouter } from 'next/navigation'
 import { memo } from 'react';

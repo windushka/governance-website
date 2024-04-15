@@ -1,8 +1,8 @@
 import { LinkPure } from '@/app/ui/common';
-import { getAppContext } from '@/app/lib/appContext/getAppContext';
+import { getAppContext } from '@/lib/appContext/getAppContext';
 import { getPeriodPageUrl } from './actions';
 
-export default function NavLinks() {
+const NavLinks = () => {
   const context = getAppContext();
 
   return <div className="flex flex-row flex-wrap gap-x-4 gap-y-2 justify-center items-center">
@@ -16,4 +16,6 @@ export default function NavLinks() {
       );
     })}
   </div>
-}
+};
+
+export default NavLinks;

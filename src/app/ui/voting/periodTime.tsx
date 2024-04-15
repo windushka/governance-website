@@ -1,6 +1,6 @@
 'use client'
 
-import { formatDateTimeCompact } from '@/app/lib/governance/utils';
+import { formatDateTimeCompact } from '@/lib/governance/utils';
 
 interface PeriodTimeProps {
   time: Date;
