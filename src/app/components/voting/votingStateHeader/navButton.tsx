@@ -3,7 +3,7 @@
 import { getPeriodPageUrl } from '@/app/actions';
 import clsx from 'clsx';
 import Link from 'next/link';
-import { appTheme } from '../common';
+import { appTheme } from '@/app/components/common';
 import { ArrowRightIcon, ArrowLeftIcon } from '@heroicons/react/24/solid';
 
 interface NavButtonProps {

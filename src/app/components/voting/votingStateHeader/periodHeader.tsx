@@ -1,7 +1,7 @@
 'use client'
 
-import { PeriodType } from "@/lib/governance/state/state"
-import { LinkPure } from "@/app/ui/common";
+import { PeriodType } from '@/lib/governance/state/state'
+import { LinkPure } from '@/app/components';
 import { getPeriodPageUrl } from '@/app/actions';
 import { PeriodTime } from './periodTime';
 import clsx from 'clsx';

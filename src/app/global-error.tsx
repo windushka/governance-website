@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link';
-import { NoData } from './ui/common';
+import { GlobalMessagePure } from './components';
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };
@@ -14,7 +14,7 @@ const GlobalError = ({ error, reset }: GlobalErrorProps) => {
       <body className="flex grow-1 min-h-screen">
         <div className="container flex items-center justify-center">
           <div className="flex flex-col items-center gap-2">
-            <NoData text="500 | Something went wrong" />
+            <GlobalMessagePure>500 | Something went wrong</GlobalMessagePure>
             <Link href="/">Home</Link>
           </div>
         </div>

@@ -1,7 +1,7 @@
-import { getAppContext } from '@/lib/appContext/getAppContext';
-import { getCurrentPeriodIndex } from '@/lib/governance/utils/calculators';
-import { VotingState } from '@/app/ui/voting/votingState';
+import { getAppContext } from '@/lib/appContext';
+import { getCurrentPeriodIndex } from '@/lib/governance/utils';
 import { redirectToPeriodPage } from '@/app/actions';
+import { VotingStateView } from '@/app/views';
 
 interface HomeProps {
   params: {
@@ -31,5 +31,5 @@ export default async function Home({ params }: HomeProps) {
   if (Number.isNaN(periodIndex) || periodIndex && (periodIndex > currentPeriodIndex || periodIndex < 0))
     return redirectToPeriodPage(contract.name, currentPeriodIndex.toString());
 
-  return <VotingState appConfig={context.config} contract={contract} config={config} periodIndex={periodIndex || currentPeriodIndex} currentBlockLevel={currentBlockLevel} />;
+  return <VotingStateView appConfig={context.config} contract={contract} config={config} periodIndex={periodIndex || currentPeriodIndex} currentBlockLevel={currentBlockLevel} />;
 }

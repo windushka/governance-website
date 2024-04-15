@@ -4,7 +4,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { Vote, Voter } from '@/lib/governance';
 import { ColumnsType } from 'antd/es/table';
 import { getVoters } from '@/app/actions';
-import { IntValuePure, LinkPure, TablePure, appTheme, useClientContext } from '../common';
+import { IntValuePure, LinkPure, TablePure, appTheme, useClientContext } from '@/app/components';
 import { formatDateTime } from '@/lib/governance/utils';
 import clsx from 'clsx';
 import Media from 'react-media';

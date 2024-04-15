@@ -1,6 +1,6 @@
 import { ProposalPeriod, GovernanceConfig } from '@/lib/governance';
 import { getProposalQuorumPercent, natToPercent } from '@/lib/governance/utils';
-import { ProgressPure, NoDataPure } from '@/app/ui/common';
+import { ProgressPure, GlobalMessagePure } from '@/app/components';
 import { UpvotersTable } from './upvotersTable';
 import { ProposalList } from './proposalsList';
 
@@ -12,10 +12,10 @@ interface ProposalStateProps {
 
 export const ProposalState = ({ contractAddress, proposalPeriod, config }: ProposalStateProps) => {
   if (!proposalPeriod)
-    return <NoDataPure text="Loading..." />;
+    return <GlobalMessagePure>Loading...</GlobalMessagePure>;
 
   if (!proposalPeriod.proposals.length)
-    return <NoDataPure text="Nothing has been proposed at this period" />
+    return <GlobalMessagePure>Nothing has been proposed at this period</GlobalMessagePure>;
 
   const minimumProposalQuorum = natToPercent(config.proposalQuorum, config.scale);
   const proposalQuorum = getProposalQuorumPercent(proposalPeriod.candidateUpvotesVotingPower || BigInt(0), proposalPeriod.totalVotingPower)

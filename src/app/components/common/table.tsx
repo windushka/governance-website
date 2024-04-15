@@ -3,7 +3,7 @@
 import { ConfigProvider, Table as AntTable, TableProps as AntTableProps, theme, } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { memo } from 'react';
-import { appTheme } from '.';
+import { appTheme } from './appTheme';
 
 interface TableProps<RecordType = any> {
   rowKey: AntTableProps<RecordType>['rowKey'];

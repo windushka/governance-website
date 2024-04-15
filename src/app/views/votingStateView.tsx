@@ -1,18 +1,14 @@
 'use client'
 
-import { ProposalState } from '@/app/ui/voting/proposalState';
-import { PromotionState } from '@/app/ui/voting/promotionState';
-import { GovernanceConfig } from '@/lib/governance/config/config';
+import { ProposalState, PromotionState, VotingStateHeader, ClientContextProvider } from '@/app/components';
 import { getCurrentPeriodIndex } from '@/lib/governance/utils';
-import { VotingStateHeader } from './votingStateHeader';
 import { Config, Contract } from '@/lib/config';
 import { useEffect, useState } from 'react';
-import { GovernanceState } from '@/lib/governance';
+import { GovernanceState, GovernanceConfig } from '@/lib/governance';
 import { getState } from '@/app/actions';
-import { ClientContextProvider } from '../common';
 import { getClientContext } from '@/lib/clientContext';
 
-interface VotingStateProps {
+interface VotingStateViewProps {
   appConfig: Config;
   contract: Contract;
   currentBlockLevel: number;
@@ -20,7 +16,7 @@ interface VotingStateProps {
   periodIndex: number;
 }
 
-export const VotingState = ({ appConfig, config, contract, periodIndex, currentBlockLevel }: VotingStateProps) => {
+export const VotingStateView = ({ appConfig, config, contract, periodIndex, currentBlockLevel }: VotingStateViewProps) => {
   const [state, setState] = useState<GovernanceState | null>(null);
   useEffect(() => {
     (async () => {

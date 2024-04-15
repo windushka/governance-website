@@ -1,8 +1,7 @@
 'use client'
 
 import clsx from 'clsx'
-import { appTheme, LinkPure, IntValuePure, useClientContext } from '@/app/ui/common'
-import { PayloadKey } from './payloadKey'
+import { appTheme, LinkPure, IntValuePure, useClientContext, PayloadKey } from '@/app/components'
 import { Proposal, PayloadKey as PayloadKeyType } from '@/lib/governance'
 import { useState } from 'react'
 

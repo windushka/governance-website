@@ -1,17 +1,16 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import Link from "next/link";
-import NavLinks from "./navLinks";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import Link from 'next/link';
+import { NavLinks, LinkPure, appTheme, NetworkSelectorPure } from '@/app/components';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
-import { LinkPure, appTheme, NetworkSelectorPure } from './ui/common';
 import { getAppContext } from '@/lib/appContext';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Etherlink governance",
-  description: "Etherlink governance current state, history and analytics",
+  title: 'Etherlink governance',
+  description: 'Etherlink governance current state, history and analytics',
 };
 
 const RootLayout = ({

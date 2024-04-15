@@ -1,9 +1,8 @@
-import { PromotionPeriod } from "@/lib/governance/state/state";
-import { getPromotionQuorumPercent, getPromotionSupermajorityPercent, natToPercent } from "@/lib/governance/utils";
-import { GovernanceConfig } from "@/lib/governance/config/config";
-import { TotalVoteCard, TotalVoteType } from "@/app/ui/voting/totalVoteCard";
-import { PayloadKey } from './payloadKey';
-import { ProgressPure, NoDataPure, } from '@/app/ui/common';
+import { PromotionPeriod } from '@/lib/governance/state';
+import { getPromotionQuorumPercent, getPromotionSupermajorityPercent, natToPercent } from '@/lib/governance/utils';
+import { GovernanceConfig } from '@/lib/governance/config';
+import { TotalVoteCard, TotalVoteType } from './totalVoteCard';
+import { ProgressPure, GlobalMessagePure, PayloadKey } from '@/app/components';
 import { VotersTable } from './votersTable';
 
 interface PromotionStateProps {
@@ -46,6 +45,6 @@ export const PromotionState = ({ contractAddress, promotionPeriod, config }: Pro
           periodStartLevel={promotionPeriod.startLevel}
           periodEndLevel={promotionPeriod.endLevel} />
       </>
-      : <NoDataPure text="No one has voted at this period" />}
+      : <GlobalMessagePure>No one has voted at this period</GlobalMessagePure>}
   </>
 }

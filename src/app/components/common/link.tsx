@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
 import { HTMLAttributeAnchorTarget, memo } from 'react';
-import { appTheme } from '.';
+import { appTheme } from './appTheme';
 
 interface LinkProps {
   href: string;

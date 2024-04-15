@@ -1,8 +1,7 @@
 'use client'
 
 import { ReactNode, useEffect, useState } from 'react';
-import { IntValuePure, LinkPure, TablePure, appTheme, useClientContext } from '@/app/ui/common';
-import { PayloadKey } from './payloadKey';
+import { IntValuePure, LinkPure, TablePure, appTheme, useClientContext, PayloadKey } from '@/app/components';
 import { formatDateTime } from '@/lib/governance/utils';
 import { getUpvoters } from '@/app/actions';
 import { Upvoter } from '@/lib/governance';

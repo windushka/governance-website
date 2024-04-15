@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { useState } from 'react';
 import { GovernanceConfig } from '@/lib/governance';
 import { formatPercentageCompact, natToPercent } from '@/lib/governance/utils';
-import { LinkPure, appTheme } from '@/app/ui/common';
+import { LinkPure, appTheme } from '@/app/components';
 import { Contract } from '@/lib/config';
 
 interface ContractConfigProps {

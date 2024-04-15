@@ -1,6 +1,6 @@
 export { Progress, ProgressPure } from './progress';
 export { Link, LinkPure } from './link';
-export { NoData, NoDataPure } from './noData';
+export { GlobalMessage, GlobalMessagePure } from './globalMessage';
 export { IntValue, IntValuePure } from './intValue';
 export { Table, TablePure } from './table';
 export { appTheme } from './appTheme';

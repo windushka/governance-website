@@ -1,7 +1,7 @@
-import { NoData } from './ui/common';
+import { GlobalMessagePure } from './components';
 
 const NotFound = () => {
-  return <NoData text="404 | Page not found" />
+  return <GlobalMessagePure>404 | Page not found</GlobalMessagePure>
 };
 
 export default NotFound;

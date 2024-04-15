@@ -1,13 +1,13 @@
 'use client';
 
-import { PeriodType, VotingContext } from '@/lib/governance/state/state';
+import { PeriodType, VotingContext } from '@/lib/governance/state';
 import { PeriodHeader } from './periodHeader';
-import { GovernanceConfig } from '@/lib/governance/config/config';
+import { GovernanceConfig } from '@/lib/governance/config';
 import { NavButton } from './navButton';
 import { PeriodSelector } from './periodSelector';
 import { ContractConfigModalButton } from './contractConfigModalButton';
 import { Contract } from '@/lib/config';
-import { appTheme, useClientContext } from '../common';
+import { appTheme, useClientContext } from '@/app/components/common';
 import { Skeleton } from 'antd';
 
 interface VotingStateHeaderProps {
