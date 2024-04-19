@@ -7,7 +7,10 @@ import { AntdRegistry } from '@ant-design/nextjs-registry';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Etherlink governance',
+  title: {
+    template: '%s | Etherlink governance',
+    default: 'Etherlink governance',
+  },
   description: 'Etherlink governance current state, history and analytics',
 };
 
