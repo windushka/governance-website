@@ -3,6 +3,7 @@ export const appTheme = {
   componentBgHoverColor: 'hover:bg-light-black',
   overlayBgColor: 'bg-black/50',
   textColor: 'text-white',
+  smTextColor: 'sm:text-white',
   textColorValue: 'rgb(255, 255, 255)',
   textColorHover: 'hover:text-gray-300',
   disabledTextColor: 'text-gray-400',

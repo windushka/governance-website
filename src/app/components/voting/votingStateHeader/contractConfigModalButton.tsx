@@ -36,12 +36,13 @@ export const ContractConfigModalButton = ({ buttonText, contract, contractUrl, c
   const rowClassName = `sm:table-row border-b sm:border-b-0 ${appTheme.borderColor} ${appTheme.componentBgHoverColor} pb-3 sm:pb-0`;
 
   return <>
-    <button className={`${appTheme.textColorHover} focus-visible:outline focus-visible:outline-2 ${appTheme.accentOutlineColorFocus}`} onClick={showModal}>{buttonText}</button>
+    <button className={`text-xs sm:text-base ${appTheme.disabledTextColor} ${appTheme.smTextColor} ${appTheme.textColorHover} focus-visible:outline focus-visible:outline-2 ${appTheme.accentOutlineColorFocus}`} onClick={showModal}>{buttonText}</button>
     <Modal
       title="Contract config"
       open={isModalOpen}
       onOk={handleOk}
       onCancel={handleCancel}
+      width={550}
       footer={[]}
     >
       <div className="flex flex-col gap-3 sm:table w-full mt-4">
