@@ -22,7 +22,7 @@ export const Link = ({ children, href, disabled, active, className, target }: Li
   return !disabled ? <NextLink
     target={target}
     href={href}
-    className={clsx(className, appTheme.accentTextColorHover, hasActiveState && appTheme.accentTextColor)}>
+    className={clsx(className, appTheme.accentTextColorHover, 'focus-visible:outline focus-visible:outline-2', appTheme.accentOutlineColorFocus, hasActiveState && appTheme.accentTextColor)}>
     {children}
   </NextLink> : <span className={appTheme.disabledTextColor}>{children}</span>;
 };

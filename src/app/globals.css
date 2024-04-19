@@ -39,6 +39,12 @@ body {
 .ant-select-selector {
   border-color: rgb(var(--component-border-color-rgb)) !important;
   background-color: rgb(var(--component-background-rgb)) !important;
+  transition:all 0s !important;
+  -webkit-transition:all 0s !important;
+  -moz-transition:all 0s !important;
+}
+.ant-select-focused .ant-select-selector {
+  outline: 2px rgb(var(--accent-color-rgb)) solid !important;
 }
 .ant-select-selector:hover {
   background-color: rgb(var(--component-background-hover-rgb)) !important; 
@@ -94,6 +100,9 @@ body {
 .ant-modal-close {
   color: rgb(var(--foreground-rgb)) !important;
 }
+.ant-modal-close:focus-visible {
+  outline: 2px rgb(var(--accent-color-rgb)) solid !important;
+  }
 .ant-modal-close:hover {
   color: rgb(203, 213, 225) !important;
 }
@@ -112,6 +121,9 @@ body {
 }
 .ant-table-thead > tr > th:hover {
   background-color: rgb(var(--component-background-hover-rgb)) !important;
+}
+.ant-table-thead th.ant-table-column-has-sorters:focus-visible {
+  color: rgb(var(--accent-color-rgb)) !important;
 }
 .ant-table-tbody > tr > td {
   border-color: rgb(var(--component-border-color-rgb)) !important;
