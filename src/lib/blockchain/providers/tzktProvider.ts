@@ -87,7 +87,7 @@ export class TzktProvider implements BlockchainProvider {
 
   async getCurrentBlockLevel(): Promise<number> {
     const url = `${this.baseUrl}/v1/head`;
-    return (await this.fetchJson(url) as any).level;
+    return (await this.fetchJson(url, undefined, { next: { revalidate: 10 } }) as any).level;
   }
 
   async getTimeBetweenBlocks(): Promise<number> {
@@ -144,13 +144,17 @@ export class TzktProvider implements BlockchainProvider {
     return result;
   }
 
-  private async fetchJson<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
+  private async fetchJson<T>(
+    endpoint: string,
+    params?: Record<string, string>,
+    fetchParams: RequestInit = { cache: 'no-store' }
+  ): Promise<T> {
     //TODO: improve
     let url = endpoint;
     if (params)
       url = `${url}?${new URLSearchParams(params).toString()}`;
 
-    const res = await fetch(url, { cache: 'no-store' });
+    const res = await fetch(url, fetchParams);
     return await res.json() as T;
   }
 }
