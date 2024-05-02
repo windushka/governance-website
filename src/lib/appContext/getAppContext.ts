@@ -1,5 +1,5 @@
 import { TezosToolkit } from '@taquito/taquito';
-import { TzktProvider } from '../blockchain';
+import { TempTzktProvider, TzktProvider } from '../blockchain';
 import { Config, BaseConfig, allConfigs } from '../config';
 import {
   RpcGovernancePeriodsProvider,
@@ -21,7 +21,8 @@ export const getAppContext = (): AppContext => {
       throw new Error('Impossible to build config. Check env variables');
 
     const toolkit = new TezosToolkit(config.rpcUrl);
-    const blockchainProvider = new TzktProvider(config.tzktApiUrl);
+    // const blockchainProvider = new TzktProvider(config.tzktApiUrl);
+    const blockchainProvider = new TempTzktProvider(config.tzktApiUrl,  config.rpcUrl);
 
     appContext = {
       config,

@@ -132,7 +132,7 @@ export class TzktProvider implements BlockchainProvider {
     return this.fetchJson(url, { select: 'key,value' });
   }
 
-  private async fetchAllChunks<T>(url: string, limit: number, params?: Record<string, string>): Promise<T[]> {
+  protected async fetchAllChunks<T>(url: string, limit: number, params?: Record<string, string>): Promise<T[]> {
     let offset = 0;
     let chunk: T[] = [];
     let result: T[] = [];
@@ -144,7 +144,7 @@ export class TzktProvider implements BlockchainProvider {
     return result;
   }
 
-  private async fetchJson<T>(
+  protected async fetchJson<T>(
     endpoint: string,
     params?: Record<string, string>,
     fetchParams: RequestInit = { cache: 'no-store' }
