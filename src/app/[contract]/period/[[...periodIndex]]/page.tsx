@@ -40,8 +40,8 @@ export default async function Home({ params }: HomeProps) {
   const currentPeriodIndex = getCurrentPeriodIndex(currentBlockLevel, startedAtLevel, periodLength);
 
   const periodIndex = params.periodIndex && params.periodIndex.length === 1 ? parseInt(params.periodIndex[0]) : undefined;
-  if (Number.isNaN(periodIndex) || periodIndex && (periodIndex > currentPeriodIndex || periodIndex < 0))
+  if (Number.isNaN(periodIndex) || periodIndex !== undefined && (periodIndex > currentPeriodIndex || periodIndex < 0))
     return redirectToPeriodPage(contract.name);
 
-  return <VotingStateView appConfig={context.config} contract={contract} config={config} periodIndex={periodIndex || currentPeriodIndex} currentBlockLevel={currentBlockLevel} />;
+  return <VotingStateView appConfig={context.config} contract={contract} config={config} periodIndex={periodIndex ?? currentPeriodIndex} currentBlockLevel={currentBlockLevel} />;
 }
