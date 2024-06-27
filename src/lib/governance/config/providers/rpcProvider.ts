@@ -21,7 +21,7 @@ export class RpcGovernanceConfigProvider implements GovernanceConfigProvider {
       adoptionPeriodSec: config.adoption_period_sec.toNumber(),
       periodLength: config.period_length.toNumber(),
       scale: config.scale.toNumber(),
-      proposalQuorum: config.promotion_quorum.toNumber(),
+      proposalQuorum: config.proposal_quorum.toNumber(),
       promotionQuorum: config.promotion_quorum.toNumber(),
       promotionSupermajority: config.promotion_supermajority.toNumber(),
     }

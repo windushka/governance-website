@@ -8,7 +8,7 @@ export class TzktProvider implements BlockchainProvider {
   ) { }
 
   async getContractOperations(address: string, entrypoints: string[], startLevel: number, endLevel: number): Promise<ContractOperation[]> {
-    const url = 'https://api.ghostnet.tzkt.io/v1/operations/transactions';
+    const url = `${this.baseUrl}/v1/operations/transactions`;
     const params = {
       target: address,
       'entrypoint.in': entrypoints.join(','),
