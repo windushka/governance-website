@@ -31,7 +31,7 @@ export const HomeView = () => {
     <ul className="mb-2 list-disc list-inside pl-4">
       <li><LinkPure className={linksClassName} target="_blank" href="https://www.etherlink.com/">Etherlink</LinkPure>  </li>
       <li><LinkPure className={linksClassName} target="_blank" href="https://docs.etherlink.com/">Etherlink documentation</LinkPure></li>
-      <li><LinkPure className={linksClassName} target="_blank" href="#">Governance documentation</LinkPure></li>
+      <li><LinkPure className={linksClassName} target="_blank" href="https://docs.etherlink.com/governance/how-is-etherlink-governed">Governance documentation</LinkPure></li>
     </ul>
   </>
 }
