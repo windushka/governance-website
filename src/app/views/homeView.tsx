@@ -7,7 +7,7 @@ export const HomeView = () => {
   return <>
     <h2 className="text-xl mt-8 mb-4">Etherlink</h2>
     <p className="mb-2">
-      Etherlink is an EVM-compatible layer-2 blockchain with a decentralized sequencer, offering very low fees and MEV protection, powered by Tezos Smart Rollup technology.
+      Etherlink is an EVM-compatible layer-2 blockchain with a decentralized sequencer, offering very low fees and MEV protection, powered by <LinkPure className={linksClassName} href="https://tezos.com/developers/smart-rollups/" target="_blank">Tezos Smart Rollup</LinkPure> technology.
     </p>
     <ul className="mb-2 list-disc list-inside pl-4">
       <li>Decentralized: The decentralized sequencer reduces the risk of centralized control and manipulation.</li>
@@ -31,7 +31,7 @@ export const HomeView = () => {
     <ul className="mb-2 list-disc list-inside pl-4">
       <li><LinkPure className={linksClassName} target="_blank" href="https://www.etherlink.com/">Etherlink</LinkPure>  </li>
       <li><LinkPure className={linksClassName} target="_blank" href="https://docs.etherlink.com/">Etherlink documentation</LinkPure></li>
-      <li><LinkPure className={linksClassName} target="_blank" href="#">Governance documentation</LinkPure></li>
+      <li><LinkPure className={linksClassName} target="_blank" href="https://docs.etherlink.com/governance/how-is-etherlink-governed">Governance documentation</LinkPure></li>
     </ul>
   </>
 }
