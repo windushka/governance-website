@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { FooterPure, Header } from '@/app/components';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
-import { GoogleTagManager } from '@next/third-parties/google'
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -31,7 +31,7 @@ const RootLayout = ({
           <FooterPure />
         </AntdRegistry>
       </body>
-      <GoogleTagManager gtmId="G-7GJCKRZ8V9" />
+      <GoogleAnalytics gaId="G-7GJCKRZ8V9" />
     </html >
   );
 };
