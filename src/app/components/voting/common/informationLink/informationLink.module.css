@@ -1,0 +1,17 @@
+a.externalLink::after
+{
+  content: "";
+  width: 11px;
+  height: 11px;
+  margin-left: 4px;
+  background-image: url("/external_link.svg");
+  color: rgb(89 173 140);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  display: inline-block;
+}
+
+a.externalLink {
+  color: rgb(89 173 140);
+}

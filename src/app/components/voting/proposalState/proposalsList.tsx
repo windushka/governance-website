@@ -1,7 +1,7 @@
 'use client'
 
 import clsx from 'clsx'
-import { appTheme, LinkPure, IntValuePure, useClientContext, PayloadKey } from '@/app/components'
+import { appTheme, LinkPure, IntValuePure, useClientContext, PayloadKey, InformationLink } from '@/app/components'
 import { Proposal, PayloadKey as PayloadKeyType } from '@/lib/governance'
 import { useState } from 'react'
 
@@ -38,6 +38,7 @@ export const ProposalList = ({ proposals, winnerCandidate }: ProposalListProps) 
             <span className={`break-all ${appTheme.disabledTextColor}`}>
               (by <LinkPure className="underline" href={context.explorer.getAccountUrl(p.proposer)} target="_blank">{p.proposer}</LinkPure>)
             </span>
+            <InformationLink payloadKey={p.key} />
           </div>
           <div className="flex flex-row sm:flex-col gap-1">
             <span>Upvotes:</span>

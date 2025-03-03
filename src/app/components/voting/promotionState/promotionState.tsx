@@ -2,7 +2,7 @@ import { PromotionPeriod } from '@/lib/governance/state';
 import { getPromotionQuorumPercent, getPromotionSupermajorityPercent, natToPercent } from '@/lib/governance/utils';
 import { GovernanceConfig } from '@/lib/governance/config';
 import { TotalVoteCard, TotalVoteType } from './totalVoteCard';
-import { ProgressPure, GlobalMessagePure, PayloadKey } from '@/app/components';
+import { ProgressPure, GlobalMessagePure, PayloadKey, InformationLink } from '@/app/components';
 import { VotersTable } from './votersTable';
 
 interface PromotionStateProps {
@@ -24,6 +24,7 @@ export const PromotionState = ({ contractAddress, promotionPeriod, config }: Pro
       {promotionPeriod.winnerCandidate && <div className="flex flex-col">
         <span>Candidate:</span>
         <PayloadKey value={promotionPeriod.winnerCandidate} />
+        <InformationLink payloadKey={promotionPeriod.winnerCandidate} />
       </div>}
 
       <div className="flex flex-col gap-4">
