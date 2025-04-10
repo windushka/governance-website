@@ -8,13 +8,13 @@ export const mainnetConfig: BaseConfig = {
   tzktApiUrl: 'https://api.tzkt.io',
   tzktExplorerUrl: 'https://tzkt.io',
   contracts: [{
-    address: 'KT1H5pCmFuhAwRExzNNrPQFKpunJx1yEVa6J',
+    address: 'KT1FPG4NApqTJjwvmhWvqA14m5PJxu9qgpBK',
     name: 'kernel'
   }, {
-    address: 'KT1N5MHQW5fkqXkW9GPjRYfn5KwbuYrvsY1g',
+    address: 'KT1GRAN26ni19mgd6xpL6tsH52LNnhKSQzP2',
     name: 'security'
   }, {
-    address: 'KT1NcZQ3y9Wv32BGiUfD2ZciSUz9cY1DBDGF',
+    address: 'KT1UvCsnXpLAssgeJmrbQ6qr3eFkYXxsTG9U',
     name: 'sequencer'
   }]
 };
