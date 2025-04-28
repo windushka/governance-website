@@ -11,30 +11,34 @@ export const ghostnetConfig: BaseConfig = {
   key: 'ghostnet',
   name: 'Ghostnet',
   ...ghostnetBase,
-  contracts: [{
-    address: 'KT1MtNbeDYiBTFHfKrocHdzds1GYKNkNeAfe',
-    name: 'kernel'
-  }, {
-    address: 'KT1QDgF5pBkXEizj5RnmagEyxLxMTwVRpmYk',
-    name: 'security'
-  }, {
-    address: 'KT1LBBNtit9k2YU1eky2YqTFeqrpLqAhc1T8',
-    name: 'sequencer'
-  }]
+  contracts: {
+    0: [{
+      address: 'KT1MtNbeDYiBTFHfKrocHdzds1GYKNkNeAfe',
+      name: 'kernel'
+    }, {
+      address: 'KT1QDgF5pBkXEizj5RnmagEyxLxMTwVRpmYk',
+      name: 'security'
+    }, {
+      address: 'KT1LBBNtit9k2YU1eky2YqTFeqrpLqAhc1T8',
+      name: 'sequencer'
+    }]
+  }
 };
 
 export const ghostnetTestConfig: BaseConfig = {
   key: 'ghostnet_demo',
   name: 'Demo',
   ...ghostnetBase,
-  contracts: [{
-    address: 'KT1QucBSp3oNuYXieNCw9ojpC3KTvccg4JMo',
-    name: 'kernel'
-  }, {
-    address: 'KT1MHAVKVVDSgZsKiwNrRfYpKHiTLLrtGqod',
-    name: 'security'
-  }, {
-    address: 'KT1V7eizWmUKSu8oFPaLTpCKsMh6QgD33m9i',
-    name: 'sequencer'
-  }]
+  contracts: {
+    0: [{
+      address: 'KT1QucBSp3oNuYXieNCw9ojpC3KTvccg4JMo',
+      name: 'kernel'
+    }, {
+      address: 'KT1MHAVKVVDSgZsKiwNrRfYpKHiTLLrtGqod',
+      name: 'security'
+    }, {
+      address: 'KT1V7eizWmUKSu8oFPaLTpCKsMh6QgD33m9i',
+      name: 'sequencer'
+    }]
+  }
 };
