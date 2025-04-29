@@ -336,6 +336,6 @@ export class RpcGovernanceStateProvider implements GovernanceStateProvider {
       } as Proposal));
     }
 
-    return proposals.toSorted((a, b) => b.upvotesVotingPower > a.upvotesVotingPower ? 1 : b.upvotesVotingPower < a.upvotesVotingPower ? -1 : 0);
+    return proposals.sort((a, b) => b.upvotesVotingPower > a.upvotesVotingPower ? 1 : b.upvotesVotingPower < a.upvotesVotingPower ? -1 : 0);
   }
 }
