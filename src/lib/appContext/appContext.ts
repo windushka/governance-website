@@ -1,10 +1,10 @@
 import { BlockchainProvider } from '../blockchain';
-import { Config, Contract } from '../config';
+import { Config } from '../config';
+import { Explorer } from '../explorer';
 import { GovernanceConfigProvider, GovernanceStateProvider, GovernancePeriodsProvider, GovernanceOperationsProvider } from '../governance';
 
 export interface AppContext {
   config: Config;
-  getContracts: (currentBlockLevel: number) => Contract[]
   allConfigs: Config[];
   blockchain: BlockchainProvider;
   governance: {

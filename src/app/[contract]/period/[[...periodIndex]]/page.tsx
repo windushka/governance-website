@@ -24,14 +24,17 @@ export const generateMetadata = ({ params }: HomeProps): Metadata => {
 
 export default async function Home({ params }: HomeProps) {
   const context = getAppContext();
-  const currentBlockLevel = await context.blockchain.getCurrentBlockLevel();
-  const contracts = context.getContracts(currentBlockLevel);
-  const contract = contracts.find(c => c.name === params.contract);
-
+  const contract = context.config.contracts.find(c => c.name === params.contract);
   if (!contract)
-    return redirectToPeriodPage(contracts[0].name);
+    return redirectToPeriodPage(context.config.contracts[0].name);
 
-  const config = await context.governance.config.getConfig(contract.address);
+  const [
+    currentBlockLevel,
+    config
+  ] = await Promise.all([
+    context.blockchain.getCurrentBlockLevel(),
+    context.governance.config.getConfig(contract.address)
+  ]);
 
   const { startedAtLevel, periodLength } = config;
   const currentPeriodIndex = getCurrentPeriodIndex(currentBlockLevel, startedAtLevel, periodLength);

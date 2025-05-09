@@ -12,7 +12,7 @@ export interface BaseConfig {
   key: string;
   name: string;
   network: Network;
-  contracts: Record<number, Contract[]>;
+  contracts: Contract[];
   rpcUrl: string;
   tzktApiUrl: string;
   tzktExplorerUrl: string;

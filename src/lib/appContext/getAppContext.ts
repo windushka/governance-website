@@ -22,21 +22,10 @@ export const getAppContext = (): AppContext => {
 
     const toolkit = new TezosToolkit(config.rpcUrl);
     // const blockchainProvider = new TzktProvider(config.tzktApiUrl);
-    const blockchainProvider = new TempTzktProvider(config.tzktApiUrl, config.rpcUrl);
+    const blockchainProvider = new TempTzktProvider(config.tzktApiUrl,  config.rpcUrl);
 
     appContext = {
       config,
-      getContracts: (currentBlockLevel: number) => {
-        const contractKeys = Object.keys(config.contracts);
-        const contractLevel = contractKeys.reduce((maxLevel, levelStr) => {
-          const level = parseInt(levelStr, 10);
-          if (!isNaN(level) && level <= currentBlockLevel && (maxLevel === null || level > maxLevel)) {
-            return level;
-          }
-          return maxLevel;
-        }, null as number | null);
-        return contractLevel == null ? [] : config.contracts[contractLevel];
-      },
       allConfigs: allConfigs.map(c => buildConfig(c)).filter((c): c is Config => !!c),
       blockchain: blockchainProvider,
       governance: {
