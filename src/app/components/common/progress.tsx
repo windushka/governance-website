@@ -14,8 +14,9 @@ interface ProgressProps {
 
 export const Progress = ({ value, target, text, className }: ProgressProps) => {
   const progressValue = value.multipliedBy(100).dividedBy(target);
+  const title = `current: ${formatPercentageCompact(value)}; required: ${formatPercentageCompact(target)}`;
 
-  return <div className={clsx('flex flex-col', className)}>
+  return <div className={clsx('flex flex-col', className)} title={title}>
     <div className="flex flex-row gap-6 justify-between">
       <span>{text}:</span>
       <span className={value.gte(target) ? appTheme.accentTextColor : appTheme.redTextColor}>
