@@ -13,17 +13,19 @@ interface ProgressProps {
 }
 
 export const Progress = ({ value, target, text, className }: ProgressProps) => {
+  const progressValue = value.multipliedBy(100).dividedBy(target);
+
   return <div className={clsx('flex flex-col', className)}>
     <div className="flex flex-row gap-6 justify-between">
       <span>{text}:</span>
       <span className={value.gte(target) ? appTheme.accentTextColor : appTheme.redTextColor}>
-        {`${formatPercentageCompact(value)} of ${formatPercentageCompact(target)}`}
+        {`${formatPercentageCompact(progressValue)}`}
       </span>
     </div>
     <ProgressAnt
       style={{ fontSize: 4 }}
       size={['small', 2]}
-      percent={value.toNumber()}
+      percent={progressValue.toNumber()}
       showInfo={false}
       strokeColor={value.gte(target) ? appTheme.accentColorValue : appTheme.redColorValue}
       trailColor={appTheme.borderColorValue}
