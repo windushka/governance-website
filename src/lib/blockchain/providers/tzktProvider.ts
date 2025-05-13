@@ -96,8 +96,22 @@ export class TzktProvider implements BlockchainProvider {
   }
 
   async getTotalVotingPower(level: number): Promise<bigint> {
-    const period = await this.getTezosVotingPeriod(level)
+    const period = await this.getTezosVotingPeriod(level);
     return BigInt(period.totalVotingPower.toString());
+  }
+
+  async getClosestVotingPeriodFallback(level: number): Promise<TzktTezosPeriodInfo> {
+    const currentLevel = await this.getCurrentBlockLevel();
+    if (level < currentLevel)
+      throw new Error(`Impossible to find tezos voting period for level ${level.toString()}`);
+
+    const url = `${this.baseUrl}/v1/voting/periods/current`;
+    const period: TzktTezosPeriodInfo = await this.fetchJson<TzktTezosPeriodInfo>(url);
+
+    if (period === undefined)
+      throw new Error(`Impossible to find current tezos voting period for level`);
+
+    return period;
   }
 
   async getTezosVotingPeriod(level: number): Promise<TzktTezosPeriodInfo> {
@@ -106,11 +120,11 @@ export class TzktProvider implements BlockchainProvider {
       'firstLevel.le': level.toString(),
       'lastLevel.ge': level.toString(),
     };
-    const periods: TzktTezosPeriodInfo[] = await this.fetchJson<TzktTezosPeriodInfo[]>(url, params)
-    const result = periods[0]
+    const periods: TzktTezosPeriodInfo[] = await this.fetchJson<TzktTezosPeriodInfo[]>(url, params);
+    const result = periods[0];
 
     if (result === undefined)
-      throw new Error(`Impossible to find tezos voting period for level ${level.toString()}`)
+      return await this.getClosestVotingPeriodFallback(level);
 
     return result;
   }
