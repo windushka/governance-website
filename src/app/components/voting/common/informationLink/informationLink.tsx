@@ -1,5 +1,5 @@
 import { PayloadKey } from '@/lib/governance';
-import styles from "./informationLink.module.css";
+import { LinkPure } from '@/app/components';
 
 // Data about proposals and links to information about them
 import { allLinkData } from "@/data/proposals";
@@ -13,14 +13,12 @@ export const InformationLink: React.FC<InformationLinkProps> = ({
   payloadKey
 }) => {
   const linkData = allLinkData.find((d) => equal(d.payloadKey, payloadKey));
-  
+
   if (!linkData) {
     return null;
   }
 
-  return <div>
-    <a className={styles.externalLink} href={linkData.href} target="_blank">
-      {linkData.title}
-    </a>
-  </div>
+  return <LinkPure className="underline text-gray-400" href={linkData.href} target="_blank">
+    {linkData.title}
+  </LinkPure>
 }
