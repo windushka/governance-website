@@ -13,10 +13,10 @@ export const ghostnetConfig: BaseConfig = {
   ...ghostnetBase,
   contracts: [{
     address: 'KT1MtNbeDYiBTFHfKrocHdzds1GYKNkNeAfe',
-    name: 'kernel'
+    name: 'slow'
   }, {
     address: 'KT1QDgF5pBkXEizj5RnmagEyxLxMTwVRpmYk',
-    name: 'security'
+    name: 'fast'
   }, {
     address: 'KT1LBBNtit9k2YU1eky2YqTFeqrpLqAhc1T8',
     name: 'sequencer'
@@ -29,10 +29,10 @@ export const ghostnetTestConfig: BaseConfig = {
   ...ghostnetBase,
   contracts: [{
     address: 'KT1QucBSp3oNuYXieNCw9ojpC3KTvccg4JMo',
-    name: 'kernel'
+    name: 'slow'
   }, {
     address: 'KT1MHAVKVVDSgZsKiwNrRfYpKHiTLLrtGqod',
-    name: 'security'
+    name: 'fast'
   }, {
     address: 'KT1V7eizWmUKSu8oFPaLTpCKsMh6QgD33m9i',
     name: 'sequencer'

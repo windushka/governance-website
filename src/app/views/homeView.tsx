@@ -18,10 +18,10 @@ export const HomeView = () => {
     <hr className={`${appTheme.borderColor}`} />
     <h2 className="text-xl mt-8 mb-4">Etherlink governance</h2>
     <p className="mb-2">
-      Like Tezos, Etherlink has a built-in on-chain mechanism for proposing, selecting, testing, and activating upgrades without the need to hard fork. This mechanism makes Etherlink self-amending and empowers Tezos bakers to govern Etherlink’s kernel upgrades, security updates, and sequencer operators.
+      Like Tezos, Etherlink has a built-in on-chain mechanism for proposing, selecting, testing, and activating upgrades without the need to hard fork. This mechanism makes Etherlink self-amending and empowers Tezos bakers to govern Etherlink’s kernel upgrades and sequencer operators.
     </p>
     <p className="mb-8">
-      Etherlink has separate governance processes for <LinkPure className={linksClassName} href={getPeriodPageUrl('kernel')}>the kernel</LinkPure>, for <LinkPure className={linksClassName} href={getPeriodPageUrl('security')}>security incidents</LinkPure>, and for <LinkPure className={linksClassName} href={getPeriodPageUrl('sequencer')}>the Sequencer Committee</LinkPure>. To ensure that decisions accurately reflect the consensus of the Etherlink community, all three governance processes are designed with the same robust safeguards. Like Tezos&apos;s governance process, Etherlink&apos;s governance process promotes transparency and fairness in decision-making.
+      Etherlink has separate governance processes for <LinkPure className={linksClassName} href={getPeriodPageUrl('slow')}>slow kernel updates</LinkPure>, for <LinkPure className={linksClassName} href={getPeriodPageUrl('fast')}>fast kernel updates</LinkPure>, and for <LinkPure className={linksClassName} href={getPeriodPageUrl('sequencer')}>the Sequencer Committee</LinkPure>. To ensure that decisions accurately reflect the consensus of the Etherlink community, all three governance processes are designed with the same robust safeguards. Like Tezos&apos;s governance process, Etherlink&apos;s governance process promotes transparency and fairness in decision-making.
     </p>
     <hr className={`${appTheme.borderColor}`} />
     <h2 className="text-xl mt-8 mb-4">Learn more</h2>

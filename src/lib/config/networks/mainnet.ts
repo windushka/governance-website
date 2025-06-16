@@ -9,10 +9,10 @@ export const mainnetConfig: BaseConfig = {
   tzktExplorerUrl: 'https://tzkt.io',
   contracts: [{
     address: 'KT1FPG4NApqTJjwvmhWvqA14m5PJxu9qgpBK',
-    name: 'kernel'
+    name: 'slow'
   }, {
     address: 'KT1GRAN26ni19mgd6xpL6tsH52LNnhKSQzP2',
-    name: 'security'
+    name: 'fast'
   }, {
     address: 'KT1UvCsnXpLAssgeJmrbQ6qr3eFkYXxsTG9U',
     name: 'sequencer'
