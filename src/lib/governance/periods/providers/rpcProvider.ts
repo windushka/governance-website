@@ -45,7 +45,30 @@ export class RpcGovernancePeriodsProvider implements GovernancePeriodsProvider {
       result.push(period);
     }
 
-    return result;
+    const lastKnown = result[0];
+    const futurePeriods: GovernancePeriod[] = [];
+    const msPerBlock = timeBetweenBlocks * 1000;
+
+    for (let i = 1; i <= 3; i++) {
+      const index = lastKnown.index + i;
+      const startLevel = getFirstBlockOfPeriod(index, config.startedAtLevel, config.periodLength);
+      const endLevel = getLastBlockOfPeriod(index, config.startedAtLevel, config.periodLength);
+
+      const startTime = new Date(lastKnown.endTime.getTime() + (i - 1) * config.periodLength * msPerBlock);
+      const endTime = new Date(startTime.getTime() + config.periodLength * msPerBlock);
+
+      futurePeriods.push({
+        index,
+        startLevel,
+        endLevel,
+        startTime,
+        endTime,
+        type: index % 2 === 0 ? PeriodType.Proposal : PeriodType.Promotion,
+        winnerPayload: null,
+      });
+    }
+
+    return [...futurePeriods.reverse() ,...result];
   }
 
   private async getPeriodsFromEvents(
